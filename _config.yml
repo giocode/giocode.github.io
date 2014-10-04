@@ -2,10 +2,10 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://yoursite.com
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+url: http://giocode.github.io
+title: Gio.co.de 
+subtitle: Plenty of data, code and learning 
+author: Rindra Ramamonjison
 simple_search: https://www.google.com/search
 description:
 
