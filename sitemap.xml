@@ -3,6 +3,14 @@
   
   
   <url>
+    <loc>http://giocode.github.io/blog/2014/10/16/scala-flavors-a-tasting-tour/</loc>
+    
+    <lastmod>2014-10-16T17:50:32-07:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>http://giocode.github.io/blog/2014/10/15/functional-playground-solving-rush-hour-game-in-haskell/</loc>
     
     <lastmod>2014-10-15T17:01:36-07:00</lastmod>
@@ -13,14 +21,14 @@
   
   <url>
     <loc>http://giocode.github.io/blog/archives/</loc>
-    <lastmod>2014-10-16T16:14:48-07:00</lastmod>
+    <lastmod>2014-10-16T19:39:53-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://giocode.github.io/</loc>
-    <lastmod>2014-10-16T16:14:48-07:00</lastmod>
+    <lastmod>2014-10-16T19:39:53-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>

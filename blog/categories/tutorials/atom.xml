@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorials | Giocode labs]]></title>
   <link href="http://giocode.github.io/blog/categories/tutorials/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2014-10-16T16:14:48-07:00</updated>
+  <updated>2014-10-16T19:39:53-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -18,7 +18,7 @@
     <link href="http://giocode.github.io/blog/2014/10/15/functional-playground-solving-rush-hour-game-in-haskell/"/>
     <updated>2014-10-15T17:01:36-07:00</updated>
     <id>http://giocode.github.io/blog/2014/10/15/functional-playground-solving-rush-hour-game-in-haskell</id>
-    <content type="html"><![CDATA[<p><img class="right" src="/images/rushhour.png" width="250" height="250">
+    <content type="html"><![CDATA[<p>{% img right /images/rushhour.png 250 250 %}
 In this blog post, I will demonstrate the functional way of solving problems using the popular <a href="http://www.thinkfun.com/rushhour">Rush Hour</a> board game as an example. I will employ simple yet powerful language features that Haskell provides to produce expressive and modular programs, which are:</p>
 
 <ul>
@@ -41,126 +41,76 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 
 <p>Thinking about the game, we can capture the locations and orientations of all vehicles at any instant as a state. Our objective is to find a state in which the Red Car is placed just in front of the Exit. Let&rsquo;s call such state a <em>goal state</em>. To that, we transition from the initial state to a goal state through a sequence of moves. In each move, we move a car in a specific direction. The move is valid if the new location of the car does not land off the grid and does not overlap with another car. Ok, that&rsquo;s enough English we can translate to Haskell. So let&rsquo;s create some data types and type synonyms to abstract the cars, the states and the moves.</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">data</span> <span class="kt">Orientation</span> <span class="ow">=</span> <span class="kt">H</span> <span class="o">|</span> <span class="kt">V</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">)</span>
-</span><span class='line'><span class="kr">data</span> <span class="kt">Direction</span> <span class="ow">=</span> <span class="kt">L</span> <span class="o">|</span> <span class="kt">R</span> <span class="o">|</span> <span class="kt">U</span> <span class="o">|</span> <span class="kt">D</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">)</span>
-</span><span class='line'><span class="kr">data</span> <span class="kt">Car</span> <span class="ow">=</span> <span class="kt">Car</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">x</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>               <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span> <span class="n">x</span><span class="o">-</span><span class="n">coordinate</span><span class="kt">:</span> <span class="n">from</span> <span class="n">top</span><span class="o">-</span><span class="n">left</span> <span class="n">corner</span> <span class="kr">of</span> <span class="n">grid</span>
-</span><span class='line'>                <span class="n">y</span> <span class="ow">::</span> <span class="kt">Int</span><span class="p">,</span>               <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span> <span class="n">y</span><span class="o">-</span><span class="n">coordinate</span>
-</span><span class='line'>                <span class="n">o</span> <span class="ow">::</span> <span class="kt">Orientation</span><span class="p">,</span>       <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span> <span class="kt">Vertical</span> <span class="n">or</span> <span class="kt">Horizontal</span>
-</span><span class='line'>                <span class="n">sz</span> <span class="ow">::</span> <span class="kt">Int</span>               <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span> <span class="kt">Car</span> <span class="n">vs</span> <span class="kt">Truck</span>
-</span><span class='line'>            <span class="p">}</span> <span class="kr">deriving</span> <span class="p">(</span><span class="kt">Show</span><span class="p">,</span> <span class="kt">Eq</span><span class="p">)</span>     <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span><span class='line'><span class="kr">type</span> <span class="kt">Line</span> <span class="ow">=</span> <span class="kt">String</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span><span class='line'><span class="kr">type</span> <span class="kt">CarLetter</span> <span class="ow">=</span> <span class="kt">Char</span>                   <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span> <span class="kt">Representation</span> <span class="kr">of</span> <span class="n">vehicle</span>
-</span><span class='line'><span class="kr">type</span> <span class="kt">State</span> <span class="ow">=</span> <span class="kt">Map</span> <span class="kt">CarLetter</span> <span class="kt">Car</span>          <span class="o">&amp;</span><span class="n">ndash</span><span class="p">;</span> <span class="kt">State</span> <span class="kr">of</span> <span class="n">grid</span><span class="kt">:</span> <span class="kt">Map</span> <span class="n">with</span> <span class="kt">CarLetter</span><span class="o">/</span><span class="kt">Car</span> <span class="n">pairs</span>
-</span><span class='line'><span class="kr">type</span> <span class="kt">Move</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">CarLetter</span><span class="p">,</span> <span class="kt">Direction</span><span class="p">)</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+data Orientation = H | V deriving (Show, Eq)
+data Direction = L | R | U | D deriving (Show)
+data Car = Car {
+                x :: Int,               &ndash; x-coordinate: from top-left corner of grid
+                y :: Int,               &ndash; y-coordinate
+                o :: Orientation,       &ndash; Vertical or Horizontal
+                sz :: Int               &ndash; Car vs Truck
+            } deriving (Show, Eq)     <br/>
+type Line = String<br/>
+type CarLetter = Char                   &ndash; Representation of vehicle
+type State = Map CarLetter Car          &ndash; State of grid: Map with CarLetter/Car pairs
+type Move = (CarLetter, Direction)<br/>
+{% endcodeblock %}</p>
 
 <p>Now, let&rsquo;s create some functions for moving cars. The first function <code>moveCar</code> takes a car and a direction to move and returns another car with the same orientation and size but at a new location.</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">moveCar</span> <span class="ow">::</span> <span class="kt">Car</span> <span class="ow">-&gt;</span> <span class="kt">Direction</span> <span class="ow">-&gt;</span> <span class="kt">Car</span>
-</span><span class='line'><span class="nf">moveCar</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xpos</span> <span class="n">ypos</span> <span class="kt">H</span> <span class="n">size</span><span class="p">)</span> <span class="kt">L</span> <span class="ow">=</span> <span class="kt">Car</span> <span class="p">(</span><span class="n">xpos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="n">ypos</span> <span class="kt">H</span> <span class="n">size</span>
-</span><span class='line'><span class="nf">moveCar</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xpos</span> <span class="n">ypos</span> <span class="kt">H</span> <span class="n">size</span><span class="p">)</span> <span class="kt">R</span> <span class="ow">=</span> <span class="kt">Car</span> <span class="p">(</span><span class="n">xpos</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="n">ypos</span> <span class="kt">H</span> <span class="n">size</span>
-</span><span class='line'><span class="nf">moveCar</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xpos</span> <span class="n">ypos</span> <span class="kt">V</span> <span class="n">size</span><span class="p">)</span> <span class="kt">U</span> <span class="ow">=</span> <span class="kt">Car</span> <span class="n">xpos</span> <span class="p">(</span><span class="n">ypos</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="kt">V</span> <span class="n">size</span>
-</span><span class='line'><span class="nf">moveCar</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xpos</span> <span class="n">ypos</span> <span class="kt">V</span> <span class="n">size</span><span class="p">)</span> <span class="kt">D</span> <span class="ow">=</span> <span class="kt">Car</span> <span class="n">xpos</span> <span class="p">(</span><span class="n">ypos</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="kt">V</span> <span class="n">size</span>
-</span><span class='line'><span class="nf">moveCar</span> <span class="n">car</span> <span class="kr">_</span> <span class="ow">=</span> <span class="n">car</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+moveCar :: Car -> Direction -> Car
+moveCar (Car xpos ypos H size) L = Car (xpos-1) ypos H size
+moveCar (Car xpos ypos H size) R = Car (xpos+1) ypos H size
+moveCar (Car xpos ypos V size) U = Car xpos (ypos-1) V size
+moveCar (Car xpos ypos V size) D = Car xpos (ypos+1) V size
+moveCar car _ = car
+{% endcodeblock %}</p>
 
 <p>The next function <code>move</code> takes a State and a Move then returns a new State.
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">move</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="kt">Move</span> <span class="ow">-&gt;</span> <span class="kt">State</span>
-</span><span class='line'><span class="nf">move</span> <span class="n">state</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">dir</span><span class="p">)</span> <span class="ow">=</span> <span class="kt">Map</span><span class="o">.</span><span class="n">insert</span> <span class="n">key</span> <span class="n">newCar</span> <span class="n">state</span> <span class="kr">where</span>
-</span><span class='line'>    <span class="n">newCar</span> <span class="ow">::</span> <span class="kt">Car</span>
-</span><span class='line'>    <span class="n">newCar</span> <span class="ow">=</span> <span class="n">moveCar</span> <span class="p">(</span><span class="n">state</span> <span class="o">!</span> <span class="n">key</span><span class="p">)</span> <span class="n">dir</span>
-</span></code></pre></td></tr></table></div></figure></p>
+{% codeblock lang:haskell %}
+move :: State -> Move -> State
+move state (key, dir) = Map.insert key newCar state where
+    newCar :: Car
+    newCar = moveCar (state ! key) dir
+{% endcodeblock %}</p>
 
 <p>In <code>move</code>, we assume that the Move is a valid one. To make sure we respect the rules of the game, we need two functions that tell us whether two cars are overlapping in the grid and whether a Car is off the grid.</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">isOverlapping</span> <span class="ow">::</span> <span class="kt">Car</span> <span class="ow">-&gt;</span> <span class="kt">Car</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
-</span><span class='line'><span class="nf">isOverlapping</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">x</span> <span class="n">y</span> <span class="kt">H</span> <span class="n">sz</span><span class="p">)</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xnew</span> <span class="n">ynew</span> <span class="kt">H</span> <span class="n">sznew</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span> <span class="o">/=</span> <span class="n">ynew</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">ynew</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">y</span><span class="o">+</span><span class="n">sz</span><span class="o">-</span><span class="mi">1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">ynew</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">ynew</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">y</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">ynew</span><span class="o">+</span><span class="n">sznew</span><span class="o">-</span><span class="mi">1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">y</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">otherwise</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'><span class="nf">isOverlapping</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">x</span> <span class="n">y</span> <span class="kt">V</span> <span class="n">sz</span><span class="p">)</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xnew</span> <span class="n">ynew</span> <span class="kt">V</span> <span class="n">sznew</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">x</span> <span class="o">/=</span> <span class="n">xnew</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">x</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">xnew</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">x</span><span class="o">+</span><span class="n">sz</span><span class="o">-</span><span class="mi">1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">xnew</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">xnew</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">x</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">xnew</span><span class="o">+</span><span class="n">sznew</span><span class="o">-</span><span class="mi">1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">x</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">otherwise</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'><span class="nf">isOverlapping</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">x</span> <span class="n">y</span> <span class="kt">H</span> <span class="n">sz</span><span class="p">)</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xnew</span> <span class="n">ynew</span> <span class="kt">V</span> <span class="n">sznew</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">xnew</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">x</span> <span class="o">||</span> <span class="n">xnew</span> <span class="o">&gt;</span> <span class="n">x</span><span class="o">+</span><span class="n">sz</span><span class="o">-</span><span class="mi">1</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">ynew</span> <span class="o">&gt;</span> <span class="n">y</span> <span class="ow">=</span> <span class="kt">False</span> <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">ynew</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">y</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">ynew</span><span class="o">+</span><span class="n">sznew</span><span class="o">-</span><span class="mi">1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">y</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">otherwise</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'><span class="nf">isOverlapping</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">x</span> <span class="n">y</span> <span class="kt">V</span> <span class="n">sz</span><span class="p">)</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">xnew</span> <span class="n">ynew</span> <span class="kt">H</span> <span class="n">sznew</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">x</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">xnew</span> <span class="o">||</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">xnew</span><span class="o">+</span><span class="n">sznew</span><span class="o">-</span><span class="mi">1</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">ynew</span> <span class="ow">=</span> <span class="kt">False</span> <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">ynew</span> <span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">amp</span><span class="p">;</span> <span class="n">y</span><span class="o">+</span><span class="n">sz</span><span class="o">-</span><span class="mi">1</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="n">ynew</span> <span class="ow">=</span> <span class="kt">False</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">otherwise</span> <span class="ow">=</span> <span class="kt">True</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">isOffgrid</span> <span class="ow">::</span> <span class="kt">Car</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
-</span><span class='line'><span class="nf">isOffgrid</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">x</span> <span class="n">y</span> <span class="kt">H</span> <span class="n">size</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">x</span><span class="o">+</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span> <span class="o">&gt;</span> <span class="n">gridSize</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">x</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="mi">1</span>  <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">gridSize</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'><span class="nf">isOffgrid</span> <span class="p">(</span><span class="kt">Car</span> <span class="n">x</span> <span class="n">y</span> <span class="kt">V</span> <span class="n">size</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span><span class="o">+</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span> <span class="o">&gt;</span> <span class="n">gridSize</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">y</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="mi">1</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">x</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">gridSize</span> <span class="ow">=</span> <span class="kt">True</span>
-</span><span class='line'><span class="nf">isOffgrid</span> <span class="kr">_</span> <span class="ow">=</span> <span class="kt">False</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+isOverlapping :: Car -> Car -> Bool
+isOverlapping (Car x y H sz) (Car xnew ynew H sznew)
+    | y /= ynew = False
+    | y &lt; ynew &amp;&amp; y+sz-1 &lt; ynew = False
+    | ynew &lt; y &amp;&amp; ynew+sznew-1 &lt; y = False
+    | otherwise = True
+isOverlapping (Car x y V sz) (Car xnew ynew V sznew)
+    | x /= xnew = False
+    | x &lt; xnew &amp;&amp; x+sz-1 &lt; xnew = False
+    | xnew &lt; x &amp;&amp; xnew+sznew-1 &lt; x = False
+    | otherwise = True
+isOverlapping (Car x y H sz) (Car xnew ynew V sznew)
+    | xnew &lt; x || xnew > x+sz-1 = False
+    | ynew > y = False <br/>
+    | ynew &lt; y &amp;&amp; ynew+sznew-1 &lt; y = False
+    | otherwise = True
+isOverlapping (Car x y V sz) (Car xnew ynew H sznew)
+    | x &lt; xnew || x > xnew+sznew-1 = False
+    | y > ynew = False <br/>
+    | y &lt; ynew &amp;&amp; y+sz-1 &lt; ynew = False
+    | otherwise = True</p>
+
+<p>isOffgrid :: Car -> Bool
+isOffgrid (Car x y H size)
+    | x+size-1 > gridSize = True
+    | x &lt; 1  = True
+    | y &lt; 1 || y > gridSize = True
+isOffgrid (Car x y V size)
+    | y+size-1 > gridSize = True
+    | y &lt; 1 = True
+    | x &lt; 1 || x > gridSize = True
+isOffgrid _ = False
+{% endcodeblock %}</p>
 
 <h2>State-Space search</h2>
 
@@ -178,44 +128,35 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 
 
 <p>Then, <code>statesearch</code> returns a Path to the exit as output. A path is simply a tuple composed of the current state and a list of moves that led to that state from the initial one.
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">type</span> <span class="kt">Path</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">State</span><span class="p">,</span> <span class="p">[</span><span class="kt">Move</span><span class="p">])</span>           <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure></p>
+{% codeblock lang:haskell %}
+type Path = (State, [Move])           <br/>
+{% endcodeblock %}</p>
 
 <p>For clarity, let&rsquo;s give some meaningul names to the types of the last two inputs of <code>statesearch</code> as follows:</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">type</span> <span class="kt">ExploredStates</span> <span class="ow">=</span> <span class="p">[</span><span class="kt">State</span><span class="p">]</span>          <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span><span class='line'><span class="kr">type</span> <span class="kt">UnexploredPaths</span> <span class="ow">=</span> <span class="p">[</span><span class="kt">Path</span><span class="p">]</span>         <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+type ExploredStates = [State]          <br/>
+type UnexploredPaths = [Path]         <br/>
+{% endcodeblock %}</p>
 
 <p>In our state-space search, we also need a function <code>solved</code> that checks  if for a given state we have reached our goal. We assume that the key for the Red Car is the character <code>'X'</code>. So here, we just check if it is already in front of the exit.
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">gridSize</span> <span class="ow">=</span> <span class="mi">6</span>
-</span><span class='line'><span class="nf">solved</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
-</span><span class='line'><span class="nf">solved</span> <span class="n">state</span> <span class="ow">=</span> <span class="p">(</span><span class="n">x</span> <span class="n">xcar</span> <span class="o">+</span> <span class="n">sz</span> <span class="n">xcar</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">gridSize</span><span class="p">)</span> <span class="kr">where</span>
-</span><span class='line'>    <span class="n">xcar</span> <span class="ow">=</span> <span class="n">state</span> <span class="o">!</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="kt">X</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure></p>
+{% codeblock lang:haskell %}
+gridSize = 6
+solved :: State -> Bool
+solved state = (x xcar + sz xcar - 1 == gridSize) where
+    xcar = state ! &lsquo;X&rsquo;
+{% endcodeblock %}</p>
 
 <p>Another helper function that will be useful in the state-space is <code>generateNewMoves</code>, which produces a list of possible move for each car in a given state and then concatenates all possible moves.</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">generateNewMoves</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Move</span><span class="p">]</span>
-</span><span class='line'><span class="nf">generateNewMoves</span> <span class="n">state</span> <span class="ow">=</span> <span class="n">concat</span> <span class="o">$</span> <span class="n">map</span> <span class="n">generateNew</span> <span class="p">(</span><span class="kt">Map</span><span class="o">.</span><span class="n">keys</span> <span class="n">state</span><span class="p">)</span> <span class="kr">where</span>
-</span><span class='line'>    <span class="n">generateNew</span> <span class="ow">::</span> <span class="kt">CarLetter</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Move</span><span class="p">]</span>
-</span><span class='line'>    <span class="n">generateNew</span> <span class="n">key</span>
-</span><span class='line'>        <span class="o">|</span> <span class="n">o</span> <span class="p">(</span><span class="n">state</span> <span class="o">!</span> <span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="kt">H</span>  <span class="ow">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="kt">L</span><span class="p">),</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="kt">R</span><span class="p">)]</span>
-</span><span class='line'>        <span class="o">|</span> <span class="n">otherwise</span>             <span class="ow">=</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="kt">U</span><span class="p">),</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="kt">D</span><span class="p">)]</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+generateNewMoves :: State -> [Move]
+generateNewMoves state = concat $ map generateNew (Map.keys state) where
+    generateNew :: CarLetter -> [Move]
+    generateNew key
+        | o (state ! key) == H  = [(key, L), (key,R)]
+        | otherwise             = [(key, U), (key,D)]
+{% endcodeblock %}</p>
 
 <p>The generated moves do not have to be valid yet. We just make sure to generate moves that correspond to the orientation of each moved car. In other words, a horizontally oriented car cannot be moved up or down and vice versa. However, we will still need later to filter the valid moves.</p>
 
@@ -223,43 +164,33 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 
 <p>Now, let&rsquo;s present the state-space search with depth-first traversal strategy:</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">statesearch</span> <span class="ow">::</span> <span class="kt">ExploredStates</span> <span class="ow">-&gt;</span> <span class="kt">UnexploredPaths</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="kt">Path</span>
-</span><span class='line'><span class="nf">statesearch</span> <span class="kr">_</span> <span class="kt">[]</span> <span class="ow">=</span> <span class="kt">Nothing</span>
-</span><span class='line'><span class="nf">statesearch</span> <span class="n">explored</span> <span class="p">(</span><span class="n">p</span><span class="o">@</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">mvs</span><span class="p">)</span> <span class="kt">:</span> <span class="n">paths</span><span class="p">)</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">solved</span> <span class="n">state</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="n">p</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">state</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">elem</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">explored</span> <span class="ow">=</span> <span class="n">statesearch</span> <span class="n">explored</span> <span class="n">paths</span>
-</span><span class='line'>    <span class="o">|</span> <span class="n">otherwise</span> <span class="ow">=</span> <span class="n">statesearch</span>
-</span><span class='line'>                    <span class="p">(</span><span class="n">state</span><span class="kt">:</span><span class="n">explored</span><span class="p">)</span>
-</span><span class='line'>                    <span class="p">(</span><span class="n">paths</span> <span class="o">++</span> <span class="n">nextPaths</span><span class="p">)</span> <span class="kr">where</span>
-</span><span class='line'>                        <span class="n">nextPaths</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Path</span><span class="p">]</span>
-</span><span class='line'>                        <span class="n">nextPaths</span> <span class="ow">=</span> <span class="p">[(</span><span class="n">move</span> <span class="n">state</span> <span class="n">m</span><span class="p">,</span> <span class="n">mvs</span> <span class="o">++</span> <span class="p">[</span><span class="n">m</span><span class="p">])</span> <span class="o">|</span> <span class="n">m</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">-</span> <span class="n">generateNewMoves</span> <span class="n">state</span><span class="p">,</span> <span class="n">isValid</span> <span class="n">state</span> <span class="n">m</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+statesearch :: ExploredStates -> UnexploredPaths -> Maybe Path
+statesearch _ [] = Nothing
+statesearch explored (p@(state, mvs) : paths)
+    | solved state = Just p
+    | state <code>elem</code> explored = statesearch explored paths
+    | otherwise = statesearch
+                    (state:explored)
+                    (paths ++ nextPaths) where
+                        nextPaths :: [Path]
+                        nextPaths = [(move state m, mvs ++ [m]) | m &lt;- generateNewMoves state, isValid state m]
+{% endcodeblock %}</p>
 
 <p>To find a solution form a state <code>start</code>, we call the above function as follows:</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">solve</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="kt">Maybe</span> <span class="kt">Path</span>
-</span><span class='line'><span class="nf">solve</span> <span class="n">start</span> <span class="ow">=</span> <span class="n">statesearch</span> <span class="kt">[]</span> <span class="p">[(</span><span class="n">start</span><span class="p">,</span><span class="kt">[]</span><span class="p">)]</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+solve :: State -> Maybe Path
+solve start = statesearch [] [(start,[])]
+{% endcodeblock %}</p>
 
 <p>In <code>solve</code>, we initialize the list of unexplored paths to <code>[(start,[])</code>. On the other hand, the list of explored states is initially empty.</p>
 
 <p><code>statesearch</code> is implemented using pattern matching and recursion. The first thing it does is looking at the list of unexplored paths. If there is no more path to explore, the function returns <code>Nothing</code> which means there is no solution to the puzzle. Otherwise, we continue the search by evaluating the next path named <code>p@(state, mvs)</code> which is the head of the unexplored paths using the pattern matching:</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">statesearch</span> <span class="n">explored</span> <span class="p">(</span><span class="n">p</span><span class="o">@</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">mvs</span><span class="p">)</span> <span class="kt">:</span> <span class="n">paths</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock lang:haskell %}
+statesearch explored (p@(state, mvs) : paths)
+{% endcodeblock %}</p>
 
 <p>If the final <code>state</code> in the currently evaluated path is a <em>goal state</em>, then the function declares success by returning just that path <code>p</code>.</p>
 
@@ -268,171 +199,126 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 <p>Now, suppose that the current <code>state</code> is not a <code>goal state</code> and it has not yet been explored. Then, we continue our search by generating some valid moves. For each valid move <code>m</code>, we produce an updated state <code>move state m</code> and an updated list of moves <code>mvs ++ [m]</code> and combine these into the current path <code>p</code>. We do that for each valid move and then we concatenate the generated paths to the list of path to be explored. Note that because we adopt a breadth-first search, we must append these paths at the end of the list. If we did otherwise, it is very unlikely that we would have found the shortest path to the exit.
 After evaluating the previous state, we add it to the list of explored states and make the recursive call:</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">statesearch</span> <span class="p">(</span><span class="n">state</span><span class="kt">:</span><span class="n">explored</span><span class="p">)</span> <span class="p">(</span><span class="n">paths</span> <span class="o">++</span> <span class="n">nextPaths</span><span class="p">)</span> <span class="kr">where</span>
-</span><span class='line'>    <span class="n">nextPaths</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Path</span><span class="p">]</span>
-</span><span class='line'>    <span class="n">nextPaths</span> <span class="ow">=</span> <span class="p">[(</span><span class="n">move</span> <span class="n">state</span> <span class="n">m</span><span class="p">,</span> <span class="n">mvs</span> <span class="o">++</span> <span class="p">[</span><span class="n">m</span><span class="p">])</span> <span class="o">|</span> <span class="n">m</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">-</span> <span class="n">generateNewMoves</span> <span class="n">state</span><span class="p">,</span> <span class="n">isValid</span> <span class="n">state</span> <span class="n">m</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
+<p>{% codeblock lang:haskell %}
+statesearch (state:explored) (paths ++ nextPaths) where
+    nextPaths :: [Path]
+    nextPaths = [(move state m, mvs ++ [m]) | m &lt;- generateNewMoves state, isValid state m]
+{% endcodeblock %}
 So that&rsquo;s how elegant a state-space search can be implemented in Haskell. <code>statesearch</code> is the core function to solve the puzzle. The rest is a representation of the problem and helper functions.</p>
 
 <h2>Time to play</h2>
 
 <p>Well, before we can show some descent user-interface to this puzzle. We&rsquo;ll need helpers functions that converts a string representation of the grid to a State and vice versa. So, we define the following functions:
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">type</span> <span class="kt">Line</span> <span class="ow">=</span> <span class="kt">String</span>
-</span><span class='line'><span class="nf">stateToLines</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Line</span><span class="p">]</span>
-</span><span class='line'><span class="nf">linesToState</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Line</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">State</span>
-</span></code></pre></td></tr></table></div></figure></p>
+{% codeblock lang:haskell %}
+type Line = String
+stateToLines :: State -> [Line]
+linesToState :: [Line] -> State
+{% endcodeblock %}</p>
 
 <p>Let&rsquo;s illustrate how these would work with an example without showing their implementations. Suppose our initial state prints like this:
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>-A&mdash;-
-</span><span class='line'>-A&mdash;D
-</span><span class='line'>XXXC-D
-</span><span class='line'>&mdash;C-D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h2>-BBB&ndash;&lt;/h2>
-</span><span class='line'>
-</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></p>
+{% codeblock%}
+-A&mdash;-
+-A&mdash;D
+XXXC-D
+&mdash;C-D</p>
+
+<h2>-BBB&ndash;</h2>
+
+<p>{% endcodeblock %}</p>
 
 <p>Then, the function <code>linesToState</code> would return the following State when applied to the above <code>[Line]</code> representation:
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kt">Map</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="kt">A</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">}),</span>
-</span><span class='line'>                <span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="kt">B</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">H</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">}),</span>
-</span><span class='line'>                <span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="kt">C</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">}),</span>
-</span><span class='line'>                <span class="p">(</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="kt">D&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">}),</span>
-</span><span class='line'>                <span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="kt">X</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">H</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">})]</span>
-</span></code></pre></td></tr></table></div></figure></p>
+{% codeblock lang:haskell %}
+Map.fromList [(&lsquo;A&rsquo;,Car {x = 2, y = 1, o = V, sz = 2}),
+                (&lsquo;B&rsquo;,Car {x = 2, y = 5, o = H, sz = 3}),
+                (&lsquo;C&rsquo;,Car {x = 4, y = 3, o = V, sz = 2}),
+                (&rsquo;D&#8217;,Car {x = 6, y = 2, o = V, sz = 3}),
+                (&lsquo;X&rsquo;,Car {x = 1, y = 3, o = H, sz = 3})]
+{% endcodeblock %}</p>
 
 <p>Solving this <em>beginner level</em> puzzle with Haskell and your supercomputer would be a real overkill. But for the sake of fun, here is the output:</p>
 
-<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>-A&mdash;-
-</span><span class='line'>-A&mdash;D
-</span><span class='line'>XXXC-D
-</span><span class='line'>&mdash;C-D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h2>-BBB&ndash;&lt;/h2>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;D
-</span><span class='line'>XXXC-D
-</span><span class='line'>&mdash;C-D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h2>BBB&mdash;&lt;/h2>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;D
-</span><span class='line'>XXX&ndash;D
-</span><span class='line'>&mdash;C-D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h2>BBBC&ndash;&lt;/h2>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;-
-</span><span class='line'>XXX&ndash;D
-</span><span class='line'>&mdash;C-D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h2>BBBC-D&lt;/h2>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;-
-</span><span class='line'>XXX&mdash;
-</span><span class='line'>&mdash;C-D
-</span><span class='line'>BBBC-D
-</span><span class='line'>&mdash;&ndash;D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;-
-</span><span class='line'>-XXX&ndash;
-</span><span class='line'>&mdash;C-D
-</span><span class='line'>BBBC-D
-</span><span class='line'>&mdash;&ndash;D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;-
-</span><span class='line'>&ndash;XXX-
-</span><span class='line'>&mdash;C-D
-</span><span class='line'>BBBC-D
-</span><span class='line'>&mdash;&ndash;D&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;p>-A&mdash;-
-</span><span class='line'>-A&mdash;-
-</span><span class='line'>&mdash;XXX
-</span><span class='line'>&mdash;C-D
-</span><span class='line'>BBBC-D
-</span><span class='line'>&mdash;&ndash;D</span></code></pre></td></tr></table></div></figure></p>
+<p>{% codeblock%}
+-A&mdash;-
+-A&mdash;D
+XXXC-D
+&mdash;C-D</p>
+
+<h2>-BBB&ndash;</h2>
+
+<p>-A&mdash;-
+-A&mdash;D
+XXXC-D
+&mdash;C-D</p>
+
+<h2>BBB&mdash;</h2>
+
+<p>-A&mdash;-
+-A&mdash;D
+XXX&ndash;D
+&mdash;C-D</p>
+
+<h2>BBBC&ndash;</h2>
+
+<p>-A&mdash;-
+-A&mdash;-
+XXX&ndash;D
+&mdash;C-D</p>
+
+<h2>BBBC-D</h2>
+
+<p>-A&mdash;-
+-A&mdash;-
+XXX&mdash;
+&mdash;C-D
+BBBC-D
+&mdash;&ndash;D</p>
+
+<p>-A&mdash;-
+-A&mdash;-
+-XXX&ndash;
+&mdash;C-D
+BBBC-D
+&mdash;&ndash;D</p>
+
+<p>-A&mdash;-
+-A&mdash;-
+&ndash;XXX-
+&mdash;C-D
+BBBC-D
+&mdash;&ndash;D</p>
+
+<p>-A&mdash;-
+-A&mdash;-
+&mdash;XXX
+&mdash;C-D
+BBBC-D
+&mdash;&ndash;D
+{% endcodeblock %}</p>
 
 <p>Yay! Now, try it with a super tough challenge.</p>
+
+<p>{% if page.comments %}</p>
+
+<div id="disqus_thread"></div>
+
+
+<script type="text/javascript">
+  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+  var disqus_shortname = 'Rico'; // required: replace example with your forum shortname
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<p><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></p>
+
+<p>{% endif%}</p>
 ]]></content>
   </entry>
   
