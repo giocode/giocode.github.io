@@ -1,9 +1,9 @@
 ---
 layout: post
 title: "Scala Flavors: a tasting tour Part 1"
-date: 2014-10-16 17:50:32 -0700
+date: 2014-10-15 17:50:32 -0700
 comments: true
-categories: 
+categories: scala tutorials
 ---
 
 This a is the first part on a series of tutorials on Scala's language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this `beautiful` language. In this first part, we will cover two points: 

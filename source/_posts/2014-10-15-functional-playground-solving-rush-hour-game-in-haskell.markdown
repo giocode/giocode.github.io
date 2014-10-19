@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Functional playground: solving the Rush Hour game in Haskell"
-date: 2014-10-15 17:01:36 -0700
+date: 2014-10-16 17:01:36 -0700
 comments: true
 sharing: true
 categories: haskell functional tutorials puzzles
