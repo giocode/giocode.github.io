@@ -1,16 +1,16 @@
 ---
 layout: page
 title: "Sabermetrics with Apache Spark"
-date: May 20, 2015 
+date: May 24, 2015 
 comments: true
 sharing: true
 footer: true
 ---
 
 
-It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: "sabermetrics". Analytics have proven invaluable in many aspects: from building dream teams under tight cap constraints, to selecting game-specific strategies to actively engaging with fans and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In this following, we analyze NCAA basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark's graph processing library to answer several questions for retrospection.
+It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: "sabermetrics". Analytics have proven invaluable in many aspects: from [building dream teams under tight cap constraints](http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php), to [selecting game-specific strategies](https://en.wikipedia.org/wiki/Moneyball) to actively [engaging with fans](http://www.nhl.com/ice/news.htm?id=754184) and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In this following, we analyze NCAA Men's college basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark's graph processing library to answer several questions for retrospection.
 
-Apache Spark is a fast and general-purpose technology, which greatly simplify the parallel processing of large data that is distributed over a computing cluster. While Spark handles different types of processing, here we will focus on its graph processing capability. In particular, our goal is to expose the powerful yet generic graph-aggregation operator of Spark:`aggregateMessages`. We can think of this operator as a version of MapReduce for aggregating the neighborhood information in graphs.
+[__Apache Spark__](http://spark.apache.org/) is a fast and general-purpose technology, which greatly simplify the parallel processing of large data that is distributed over a computing cluster. While Spark handles different types of processing, here we will focus on its graph processing capability. In particular, our goal is to expose the powerful yet generic graph-aggregation operator of Spark:`aggregateMessages`. We can think of this operator as a version of MapReduce for aggregating the neighborhood information in graphs.
 
 In fact, many graph processing algorithms such as PageRank rely on iteratively accessing the properties of neighbouring vertices and adjacent edges. By applying `aggregateMessages` on the NCAA College Basketball datasets, we will: 
 
@@ -20,7 +20,7 @@ In fact, many graph processing algorithms such as PageRank rely on iteratively a
 
 ## NCAA College Basketball datasets
 
-As an illustrative example, the NCAA College Basketball datasets consist of two CSV datasets. This first one `teams.csv` contains the list of all college teams that played in NCAA Division I competition. Each team is associated with a 4 digit id number. The second dataset `stats.csv` contains the score and statistics of every game played during the 2014-2015 regular season. 
+As an illustrative example, the [NCAA College Basketball](http://www.ncaa.com/sports/basketball-men) datasets consist of two CSV datasets. This first one `teams.csv` contains the list of all college teams that played in NCAA Division I competition. Each team is associated with a 4 digit id number. The second dataset `stats.csv` contains the score and statistics of every game played during the 2014-2015 regular season. 
 
 ### Loading team data into RDDs
 
@@ -408,7 +408,7 @@ res43: (org.apache.spark.graphx.VertexId, Double) = (1212,51.111111111111114)
 
 To no surprise, the best offensive team is the same as the one who scores most in winning games. To win games, 50 points is not enough in average for a team to win games.
 
-## Defense Stats: D matters as in Direction
+## Defense Stats: The D matters as in Direction
 
 Above, we obtained some statistics such as field goals or three point percentage that a team achieves. What if we want to aggregate instead the average points or rebounds that each team concedes to their opponents? To compute that, we define a new higher-order function `averageConcededStat`. Compared to `averageStat`, this function needs to send the `loserStats` to the winning team and the `winnerStats` to the losing team. To make things more interesting, we are going to make the team name as part of the message `Msg`.
 
@@ -718,3 +718,12 @@ class Graph[VD, ED] {
 ```
 
 This operator applies a user defined `sendMsg` function to each edge in the graph using an `EdgeContext`. Each `EdgeContext` access the required information about the edge and passes that information to its source node and/or destination node using the `sendToSrc` and/or `sendToDst` respectively. After all messages are received by the nodes, the `mergeMsg` function is used to aggregate those messages at each node. 
+
+## Some interesting readings
+
+1. [__Six keys to sports analytics.__](http://newsoffice.mit.edu/2015/mit-sloan-sports-analytics-conference-0302)
+2. [Moneyball: The Art Of Winning An Unfair Game](https://en.wikipedia.org/wiki/Moneyball)
+3. [__Golden State Warriors at the forefront of NBA data analysis__](http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php)
+4. [__How Data and Analytics Have Changed 'The Beautiful Game'__](http://www.huffingtonpost.com/travis-korte/soccer-analytics-data_b_5512271.html)
+5. [NHL, SAP partnership to lead statistical revolution](http://www.nhl.com/ice/news.htm?id=754184)
+
