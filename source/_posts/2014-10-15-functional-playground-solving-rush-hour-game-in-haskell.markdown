@@ -19,6 +19,8 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 
 The Rush Hour game consists of a traffic grid in which some cars and trucks are laid out. The goal is to find a path for the Red Car to exit by moving the other blocking vehicles out of its way. Created by Nob Yoshigahara in the 70's, this game has kept people entertained and puzzled with its several levels of difficulty. 
 
+<!-- more -->
+
 In Rush Hour, each vehicle can move only in either horizontally or vertically. At the start, the Red Car is placed horizontally on the 3rd line from the top. The other cars and trucks are blocking Red Car's straight path to the Exit. 
 
 Now, let's see how functional programming can be of help to solve the Rush Hour puzzle.

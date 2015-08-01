@@ -7,7 +7,7 @@ title: Giocode labs
 subtitle: A playground for code, data and models 
 author: Rindra Ramamonjison
 simple_search: https://www.google.com/search
-description:
+description: This blog is for the curious people who see beauty in functional programming, data science and machine learning.
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -92,7 +92,7 @@ delicious_count: 3
 
 # Disqus Comments
 disqus_short_name: rindra
-disqus_show_comment_count: false
+disqus_show_comment_count: true
 
 # Google Analytics
 google_analytics_tracking_id:

@@ -4,7 +4,7 @@ $blockquote: $type-border !default;
 $sans: "Open Sans","Helvetica Neue", Arial, NanumBarunGothic, "Apple SD Gothic Neo", AppleGothic, "Malgun Gothic", DotumChe, sans-serif !default;
 $serif: "PT Serif", Georgia, Times, "Times New Roman", serif !default;
 $mono: Menlo, Monaco, "Andale Mono", "lucida console", "Courier New", DotumChe, monospace !default;
-$heading-font-family: "Fjalla One", "Georgia", "Helvetica Neue", Arial, NanumBarunGothic, "Apple SD Gothic Neo", AppleGothic, "Malgun Gothic", DotumChe, sans-serif !default;
+$heading-font-family: "Lato", "Fontdiner Swanky", "Fjalla One", "Georgia", "Helvetica Neue", Arial, NanumBarunGothic, "Apple SD Gothic Neo", AppleGothic, "Malgun Gothic", DotumChe, sans-serif !default;
 $header-title-font-family: $heading-font-family !default;
 $header-subtitle-font-family: $serif !default;
 
@@ -31,7 +31,7 @@ body {
   line-height: 1.5em;
   color: $text-color;
   @extend .sans;
-  font-size: 1em;
+  font-size: 1.2em;
 }
 h1 {
   font-size: 2.2em;
