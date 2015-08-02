@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Haskell | Giocode labs]]></title>
   <link href="http://giocode.github.io/blog/categories/haskell/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2014-10-20T19:37:08-07:00</updated>
+  <updated>2015-08-01T17:09:34-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -32,6 +32,9 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 <h2>Rush Hour: the game</h2>
 
 <p>The Rush Hour game consists of a traffic grid in which some cars and trucks are laid out. The goal is to find a path for the Red Car to exit by moving the other blocking vehicles out of its way. Created by Nob Yoshigahara in the 70&rsquo;s, this game has kept people entertained and puzzled with its several levels of difficulty.</p>
+
+<!-- more -->
+
 
 <p>In Rush Hour, each vehicle can move only in either horizontally or vertically. At the start, the Red Car is placed horizontally on the 3rd line from the top. The other cars and trucks are blocking Red Car&rsquo;s straight path to the Exit.</p>
 

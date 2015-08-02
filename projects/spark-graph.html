@@ -1,0 +1,1370 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sabermetrics With Apache Spark - Giocode labs</title>
+  <meta name="author" content="Rindra Ramamonjison">
+
+  
+  <meta name="description" content="Sabermetrics With Apache Spark May 24th, 2015 12:00 am It is no secret analytics have made a big impact in sports. The quest for an objective &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://giocode.github.io/projects/spark-graph.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Giocode labs" type="application/atom+xml">
+  <script src="//use.typekit.net/qja5dag.js"></script>
+  <script>try{Typekit.load();}catch(e){}</script>
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=Fjalla+One" rel="stylesheet" type="text/css">
+<!--- MathJax Configuration -->
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Giocode labs</a></h1>
+  
+    <h2>A playground for code, data and models</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+  
+  
+  
+  
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:giocode.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/about">About</a></li>
+  <li><a href="/Projects">Projects</a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">Sabermetrics With Apache Spark</h1>
+    <p class="meta">
+
+
+
+
+<time class='entry-date' datetime='2015-05-24T00:00:00-07:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:00 am</span></time></p>
+  </header>
+  
+  <p>It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: &ldquo;sabermetrics&rdquo;. Analytics have proven invaluable in many aspects: from <a href="http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php">building dream teams under tight cap constraints</a>, to <a href="https://en.wikipedia.org/wiki/Moneyball">selecting game-specific strategies</a> to actively <a href="http://www.nhl.com/ice/news.htm?id=754184">engaging with fans</a> and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In this following, we analyze NCAA Men&rsquo;s college basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark&rsquo;s graph processing library to answer several questions for retrospection.</p>
+
+<p><a href="http://spark.apache.org/"><strong>Apache Spark</strong></a> is a fast and general-purpose technology, which greatly simplify the parallel processing of large data that is distributed over a computing cluster. While Spark handles different types of processing, here we will focus on its graph processing capability. In particular, our goal is to expose the powerful yet generic graph-aggregation operator of Spark:<code>aggregateMessages</code>. We can think of this operator as a version of MapReduce for aggregating the neighborhood information in graphs.</p>
+
+<p>In fact, many graph processing algorithms such as PageRank rely on iteratively accessing the properties of neighbouring vertices and adjacent edges. By applying <code>aggregateMessages</code> on the NCAA College Basketball datasets, we will:</p>
+
+<ul>
+<li>identify the basic mechanisms and undersand the patterns for using <code>aggregateMessages</code></li>
+<li>apply <code>aggregateMessages</code> to create custom graph aggregation operations</li>
+<li>optimize the performance and efficiency of <code>aggregateMessages</code></li>
+</ul>
+
+
+<h2>NCAA College Basketball datasets</h2>
+
+<p>As an illustrative example, the <a href="http://www.ncaa.com/sports/basketball-men">NCAA College Basketball</a> datasets consist of two CSV datasets. This first one <code>teams.csv</code> contains the list of all college teams that played in NCAA Division I competition. Each team is associated with a 4 digit id number. The second dataset <code>stats.csv</code> contains the score and statistics of every game played during the 2014-2015 regular season.</p>
+
+<h3>Loading team data into RDDs</h3>
+
+<p>To start, we parse and load these datasets into RDDs (<strong>Resilient Distributed Datasets</strong>), which are the core Spark abstraction for any data that is distributed and stored over a cluster. First, we create a class <code>GameStats</code> that records a team&rsquo;s statistics during a game.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">GameStats</span><span class="o">(</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">score</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">fieldGoalMade</span><span class="k">:</span>   <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">fieldGoalAttempt</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">threePointerMade</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">threePointerAttempt</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">threeThrowsMade</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">threeThrowsAttempt</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">offensiveRebound</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">defensiveRebound</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">assist</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">turnOver</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">steal</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">block</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">personalFoul</span><span class="k">:</span> <span class="kt">Int</span>
+</span><span class='line'><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Loading game stats into RDDs</h3>
+
+<p>We also add the following methods to <code>GameStats</code> in order to know how efficient a team&rsquo;s offense was:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Field Goal percentage</span>
+</span><span class='line'><span class="k">def</span> <span class="n">fgPercent</span><span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">fieldGoalMade</span> <span class="o">/</span> <span class="n">fieldGoalAttempt</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Three Point percentage</span>
+</span><span class='line'><span class="k">def</span> <span class="n">tpPercent</span><span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">threePointerMade</span> <span class="o">/</span> <span class="n">threePointerAttempt</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Free throws percentage</span>
+</span><span class='line'><span class="k">def</span> <span class="n">ftPercent</span><span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">threeThrowsMade</span> <span class="o">/</span> <span class="n">threeThrowsAttempt</span>
+</span><span class='line'><span class="k">override</span> <span class="k">def</span> <span class="n">toString</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">&quot;Score: &quot;</span> <span class="o">+</span> <span class="n">score</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, we create a couple of classes for the games&#8217; result.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">abstract</span> <span class="k">class</span> <span class="nc">GameResult</span><span class="o">(</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">season</span><span class="k">:</span>     <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">day</span><span class="k">:</span>        <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">loc</span><span class="k">:</span>        <span class="kt">String</span>
+</span><span class='line'><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">FullResult</span><span class="o">(</span>
+</span><span class='line'>    <span class="k">override</span> <span class="k">val</span> <span class="n">season</span><span class="k">:</span>    <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">override</span> <span class="k">val</span> <span class="n">day</span><span class="k">:</span>       <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">override</span> <span class="k">val</span> <span class="n">loc</span><span class="k">:</span>       <span class="kt">String</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">winnerStats</span><span class="k">:</span>        <span class="kt">GameStats</span><span class="o">,</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">loserStats</span><span class="k">:</span>         <span class="kt">GameStats</span>
+</span><span class='line'><span class="o">)</span> <span class="k">extends</span> <span class="nc">GameResult</span><span class="o">(</span><span class="n">season</span><span class="o">,</span> <span class="n">day</span><span class="o">,</span> <span class="n">loc</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>FullResult</code> has the year and day of the season, the location where the game was played and the game statistics of both the winning and losing teams.</p>
+
+<p>Next, we will create a statistics graph of the regular seasons. In this graph, the nodes are the teams whereas each edge corresponds to a specific game. To create the graph, let us parse the CSV file <code>teams.csv</code> into the RDD <code>teams</code> :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">teams</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[(</span><span class="kt">VertexId</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;./data/teams.csv&quot;</span><span class="o">).</span>
+</span><span class='line'>    <span class="n">filter</span><span class="o">(!</span> <span class="k">_</span><span class="o">.</span><span class="n">startsWith</span><span class="o">(</span><span class="s">&quot;#&quot;</span><span class="o">)).</span>
+</span><span class='line'>    <span class="n">map</span> <span class="o">{</span><span class="n">line</span> <span class="k">=&gt;</span>
+</span><span class='line'>        <span class="k">val</span> <span class="n">row</span> <span class="k">=</span> <span class="n">line</span> <span class="n">split</span> <span class="sc">&#39;,&#39;</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">row</span><span class="o">(</span><span class="mi">0</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span> <span class="n">row</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can check the first few teams in this new RDD:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">teams</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="n">foreach</span><span class="o">{</span><span class="n">println</span><span class="o">}</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1101</span><span class="o">,</span><span class="nc">Abilene</span> <span class="nc">Chr</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1102</span><span class="o">,</span><span class="nc">Air</span> <span class="nc">Force</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1103</span><span class="o">,</span><span class="nc">Akron</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We do the same thing to obtain an RDD of the game results, which will have a type <code>RDD[Edge[FullResult]]</code>. We just parse <code>stats.csv</code> and record the fields that we need: (1) the ID of the winning team, (2) the ID of the losing team, and (3) the game statistics of both teams:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">detailedStats</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[</span><span class="kt">Edge</span><span class="o">[</span><span class="kt">FullResult</span><span class="o">]]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;./data/stats.csv&quot;</span><span class="o">).</span>
+</span><span class='line'>    <span class="n">filter</span><span class="o">(!</span> <span class="k">_</span><span class="o">.</span><span class="n">startsWith</span><span class="o">(</span><span class="s">&quot;#&quot;</span><span class="o">)).</span>
+</span><span class='line'>    <span class="n">map</span> <span class="o">{</span><span class="n">line</span> <span class="k">=&gt;</span>
+</span><span class='line'>        <span class="k">val</span> <span class="n">row</span> <span class="k">=</span> <span class="n">line</span> <span class="n">split</span> <span class="sc">&#39;,&#39;</span>
+</span><span class='line'>        <span class="nc">Edge</span><span class="o">(</span><span class="n">row</span><span class="o">(</span><span class="mi">2</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span> <span class="n">row</span><span class="o">(</span><span class="mi">4</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>            <span class="nc">FullResult</span><span class="o">(</span>
+</span><span class='line'>                <span class="n">row</span><span class="o">(</span><span class="mi">0</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span> <span class="n">row</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">row</span><span class="o">(</span><span class="mi">6</span><span class="o">),</span>
+</span><span class='line'>                <span class="nc">GameStats</span><span class="o">(</span>
+</span><span class='line'>                                <span class="n">score</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                        <span class="n">fieldGoalMade</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">8</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">fieldGoalAttempt</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">9</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">threePointerMade</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                  <span class="n">threePointerAttempt</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">11</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                      <span class="n">threeThrowsMade</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">12</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">threeThrowsAttempt</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">13</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">offensiveRebound</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">14</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">defensiveRebound</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">15</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                               <span class="n">assist</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">16</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                             <span class="n">turnOver</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">17</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">steal</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">18</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">block</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">19</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                         <span class="n">personalFoul</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">20</span><span class="o">).</span><span class="n">toInt</span>
+</span><span class='line'>                <span class="o">),</span>
+</span><span class='line'>                <span class="nc">GameStats</span><span class="o">(</span>
+</span><span class='line'>                                <span class="n">score</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                        <span class="n">fieldGoalMade</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">21</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">fieldGoalAttempt</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">22</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">threePointerMade</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">23</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                  <span class="n">threePointerAttempt</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">24</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                      <span class="n">threeThrowsMade</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">25</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">threeThrowsAttempt</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">26</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">offensiveRebound</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">27</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                     <span class="n">defensiveRebound</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">28</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                               <span class="n">assist</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">20</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                             <span class="n">turnOver</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">30</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">steal</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">31</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">block</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">32</span><span class="o">).</span><span class="n">toInt</span><span class="o">,</span>
+</span><span class='line'>                         <span class="n">personalFoul</span> <span class="k">=</span> <span class="n">row</span><span class="o">(</span><span class="mi">33</span><span class="o">).</span><span class="n">toInt</span>
+</span><span class='line'>                <span class="o">)</span>
+</span><span class='line'>            <span class="o">)</span>
+</span><span class='line'>        <span class="o">)</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We could avoid typing all that by using the nice <a href="http://spark-packages.org/package/databricks/spark-csv">spark-csv package</a> that reads CSV files into <code>SchemaRDD</code>. Let&rsquo;s check what we got:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">detailedStats</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="nc">Edge</span><span class="o">(</span><span class="mi">1165</span><span class="o">,</span><span class="mi">1384</span><span class="o">,</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2006</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="n">N</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">75</span><span class="kt">-</span><span class="err">54</span><span class="o">))</span>
+</span><span class='line'><span class="nc">Edge</span><span class="o">(</span><span class="mi">1393</span><span class="o">,</span><span class="mi">1126</span><span class="o">,</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2006</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="n">H</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">68</span><span class="kt">-</span><span class="err">37</span><span class="o">))</span>
+</span><span class='line'><span class="nc">Edge</span><span class="o">(</span><span class="mi">1107</span><span class="o">,</span><span class="mi">1324</span><span class="o">,</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2006</span><span class="o">,</span><span class="mi">9</span><span class="o">,</span><span class="n">N</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">90</span><span class="kt">-</span><span class="err">73</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We then create our score graph using the collection of teams (of type <code>RDD[(VertexId, String)]</code>) as vertices and the collection <code>detailedStats</code> (of type <code>RDD[(VertexId, String)]</code>) as edges:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">scoreGraph</span> <span class="k">=</span> <span class="nc">Graph</span><span class="o">(</span><span class="n">teams</span><span class="o">,</span> <span class="n">detailedStats</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>For curiosity, let&rsquo;s see which team has won against the 2015 NCAA national champ Duke during regular season. It seems Duke has lost only four games during the regular season:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">scoreGraph</span><span class="o">.</span><span class="n">triplets</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">dstAttr</span> <span class="o">==</span> <span class="s">&quot;Duke&quot;</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">((</span><span class="mi">1274</span><span class="o">,</span><span class="nc">Miami</span> <span class="nc">FL</span><span class="o">),(</span><span class="mi">1181</span><span class="o">,</span><span class="nc">Duke</span><span class="o">),</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2015</span><span class="o">,</span><span class="mi">71</span><span class="o">,</span><span class="n">A</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">90</span><span class="kt">-</span><span class="err">74</span><span class="o">))</span>
+</span><span class='line'><span class="o">((</span><span class="mi">1301</span><span class="o">,</span><span class="nc">NC</span> <span class="nc">State</span><span class="o">),(</span><span class="mi">1181</span><span class="o">,</span><span class="nc">Duke</span><span class="o">),</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2015</span><span class="o">,</span><span class="mi">69</span><span class="o">,</span><span class="n">H</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">87</span><span class="kt">-</span><span class="err">75</span><span class="o">))</span>
+</span><span class='line'><span class="o">((</span><span class="mi">1323</span><span class="o">,</span><span class="nc">Notre</span> <span class="nc">Dame</span><span class="o">),(</span><span class="mi">1181</span><span class="o">,</span><span class="nc">Duke</span><span class="o">),</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2015</span><span class="o">,</span><span class="mi">86</span><span class="o">,</span><span class="n">H</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">77</span><span class="kt">-</span><span class="err">73</span><span class="o">))</span>
+</span><span class='line'><span class="o">((</span><span class="mi">1323</span><span class="o">,</span><span class="nc">Notre</span> <span class="nc">Dame</span><span class="o">),(</span><span class="mi">1181</span><span class="o">,</span><span class="nc">Duke</span><span class="o">),</span><span class="nc">FullResult</span><span class="o">(</span><span class="mi">2015</span><span class="o">,</span><span class="mi">130</span><span class="o">,</span><span class="n">N</span><span class="o">,</span><span class="nc">Score</span><span class="k">:</span> <span class="err">74</span><span class="kt">-</span><span class="err">64</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Aggregating Game Stats</h2>
+
+<p>Having our graph ready, let&rsquo;s start aggregating the stats data in <code>scoreGraph</code>. In Spark, <code>aggregateMessages</code> is the operator for that kind of jobs.
+For example, let&rsquo;s find out the average field goals made per game by the winners. In other words, the games that a team lost will not be counted. To get the average for each team, we first need to have the number of games won by the team and the total field goals that the team made in those games:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Aggregate the total field goals made by winning teams</span>
+</span><span class='line'><span class="k">type</span> <span class="kt">Msg</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Int</span><span class="o">,</span> <span class="nc">Int</span><span class="o">)</span>
+</span><span class='line'><span class="k">type</span> <span class="kt">Context</span> <span class="o">=</span> <span class="nc">EdgeContext</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">FullResult</span>, <span class="kt">Msg</span><span class="o">]</span>
+</span><span class='line'><span class="k">val</span> <span class="n">winningFieldGoalMade</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span> <span class="k">=</span> <span class="n">scoreGraph</span> <span class="n">aggregateMessages</span><span class="o">(</span>
+</span><span class='line'>    <span class="c1">// sendMsg</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">ec</span><span class="k">:</span> <span class="kt">Context</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">ec</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">ec</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">fieldGoalMade</span><span class="o">),</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// mergeMsg</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span><span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span><span class='line'><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>AggregateMessage operator</h3>
+
+<p>There is a lot going on in the above call to <code>aggregateMessages</code>. So let&rsquo;s see it working in slow motion. When we called <code>aggregateMessages</code> on the <code>scoreGraph</code>, we had to pass two functions as arguments.</p>
+
+<h4>SendMsg</h4>
+
+<p>The first function has a signature <code>EdgeContext[VD, ED, Msg] =&gt; Unit</code>. It takes an <code>EdgeContext</code> as input. Since it does not return anything, its return type is <code>Unit</code>. This function is needed for sending message between nodes.</p>
+
+<p>Ok, but what is that <code>EdgeContext</code> type? <code>EdgeContext</code> represents an edge along with its neighboring nodes. It can access both the edge attribute and the source and destination nodes&#8217; attributes. In addition, <code>EdgeContext</code> has two methods to send messages along the edge to its source node or to its destination node. These methods are <code>sendToSrc</code> and <code>sendToDst</code> respectively. Then, the type of messages being sent through the graph is defined by <code>Msg</code>. Similar to vertex and edge types, we can defined the concrete type that <code>Msg</code> takes as we wish.</p>
+
+<h4>Merge</h4>
+
+<p>In addition to <code>sendMsg</code>, the second function that we need to pass to <code>aggregateMessages</code> is a <code>mergeMsg</code> function with the following signature <code>(Msg, Msg) =&gt; Msg</code>. As its name implies, <code>mergeMsg</code> is used to merge two messages received at each node into a new one. Its output must also be of type <code>Msg</code>. Using these two functions, <code>aggregateMessages</code> returns the aggregated messages inside a <code>VertexRDD[Msg]</code>.</p>
+
+<h4>Example</h4>
+
+<p>In our example, we need to aggregate the number of games played and the number of field goals made. Therefore, <code>Msg</code> is simply a pair of <code>Int</code>. Furthermore, each edge context needs to send a message to only its source node, i.e. the winning team. This is because we want to compute the total field goals made by each team for only the games that it won. The actual message sent to each &ldquo;winner&rdquo; node is the pair of integers <code>(1, ec.attr.winnerStats.fieldGoalMade)</code>. Here, <code>1</code> serves as a counter for the number of games won by the source node. The second integer, which is the number of field goals in one game, is extracted from the edge attribute.</p>
+
+<p>As we set out to compute the average field goals per winning game for all teams, we need to apply the <code>mapValues</code> operator to the output of <code>aggregateMessages</code> as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Average field goals made per Game by the winning teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">avgWinningFieldGoalMade</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">winningFieldGoalMade</span> <span class="n">mapValues</span> <span class="o">(</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="o">(</span><span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">total</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">total</span><span class="o">.</span><span class="n">toDouble</span><span class="o">/</span><span class="n">count</span>
+</span><span class='line'><span class="o">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">avgWinningFieldGoalMade</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1260</span><span class="o">,</span><span class="mf">24.71641791044776</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1410</span><span class="o">,</span><span class="mf">23.56578947368421</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1426</span><span class="o">,</span><span class="mf">26.239436619718308</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1166</span><span class="o">,</span><span class="mf">26.137614678899084</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1434</span><span class="o">,</span><span class="mf">25.34285714285714</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Abstracting out the aggregation</h2>
+
+<p>That was kind of cool! We can surely do the same thing for the average points per game scored by winning teams:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Aggregate the points scored by winning teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">winnerTotalPoints</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[(</span><span class="kt">Int</span>, <span class="kt">Int</span><span class="o">)]</span> <span class="k">=</span> <span class="n">scoreGraph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">(</span>
+</span><span class='line'>    <span class="c1">// sendMsg</span>
+</span><span class='line'>    <span class="n">triplet</span> <span class="k">=&gt;</span> <span class="n">triplet</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">triplet</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">score</span><span class="o">),</span>
+</span><span class='line'>    <span class="c1">// mergeMsg</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span><span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span><span class='line'><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Average field goals made per Game by winning teams </span>
+</span><span class='line'><span class="k">var</span> <span class="n">winnersPPG</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>            <span class="n">winnerTotalPoints</span> <span class="n">mapValues</span> <span class="o">(</span>
+</span><span class='line'>                <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">case</span> <span class="o">(</span><span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">total</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">total</span><span class="o">.</span><span class="n">toDouble</span><span class="o">/</span><span class="n">count</span>
+</span><span class='line'>                <span class="o">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnersPPG</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1260</span><span class="o">,</span><span class="mf">71.19402985074628</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1410</span><span class="o">,</span><span class="mf">71.11842105263158</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1426</span><span class="o">,</span><span class="mf">76.30281690140845</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1166</span><span class="o">,</span><span class="mf">76.89449541284404</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1434</span><span class="o">,</span><span class="mf">74.28571428571429</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>What if the coach wants to know the top 5 teams with the highest average three pointer made per winning game? By the way, he might also ask which teams are the most efficient in three pointers.</p>
+
+<h3>Keeping things DRY</h3>
+
+<p>We can copy and modify the previous code but that would be quite repetitive. Instead, let&rsquo;s abstract out the average aggregation operator so that it can work on any statistics that the coach needs. Luckily, Scala&rsquo;s higher-order functions are there to help in this task.</p>
+
+<p>Let&rsquo;s define functions that take a team&rsquo;s <code>GameStats</code> as input and returns specific statistic that we are interested in. For now, we will need the number of three pointer made and the average three pointer percentage:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Getting individual stats</span>
+</span><span class='line'><span class="k">def</span> <span class="n">threePointMade</span><span class="o">(</span><span class="n">stats</span><span class="k">:</span> <span class="kt">GameStats</span><span class="o">)</span> <span class="k">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">threePointerMade</span>
+</span><span class='line'><span class="k">def</span> <span class="n">threePointPercent</span><span class="o">(</span><span class="n">stats</span><span class="k">:</span> <span class="kt">GameStats</span><span class="o">)</span> <span class="k">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">tpPercent</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, we create a generic function that takes as inputs a stats graph and one of the functions defined above, which has a signature <code>GameStats =&gt; Double</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Generic function for stats averaging</span>
+</span><span class='line'><span class="k">def</span> <span class="n">averageWinnerStat</span><span class="o">(</span><span class="n">graph</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">FullResult</span><span class="o">])(</span><span class="n">getStat</span><span class="k">:</span> <span class="kt">GameStats</span> <span class="o">=&gt;</span> <span class="nc">Double</span><span class="o">)</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">type</span> <span class="kt">Msg</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Int</span><span class="o">,</span> <span class="nc">Double</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">winningScore</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span> <span class="k">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">[</span><span class="kt">Msg</span><span class="o">](</span>
+</span><span class='line'>        <span class="c1">// sendMsg</span>
+</span><span class='line'>        <span class="n">triplet</span> <span class="k">=&gt;</span> <span class="n">triplet</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">triplet</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">)),</span>
+</span><span class='line'>        <span class="c1">// mergeMsg</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span><span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>    <span class="n">winningScore</span> <span class="n">mapValues</span> <span class="o">(</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="o">(</span><span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">total</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">total</span><span class="o">/</span><span class="n">count</span>
+</span><span class='line'>        <span class="o">})</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Now, we can get the average stats by passing the functions <code>threePointMade</code> and <code>threePointPercent</code> to <code>averageWinnerStat</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">winnersThreePointMade</span> <span class="k">=</span> <span class="n">averageWinnerStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">threePointMade</span><span class="o">)</span>
+</span><span class='line'><span class="k">val</span> <span class="n">winnersThreePointPercent</span> <span class="k">=</span> <span class="n">averageWinnerStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">threePointPercent</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With little efforts, we can tell coach which five winning teams score the highest number of threes per game:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnersThreePointMade</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span><span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1440</span><span class="o">,</span><span class="mf">11.274336283185841</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1125</span><span class="o">,</span><span class="mf">9.521929824561404</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1407</span><span class="o">,</span><span class="mf">9.008849557522124</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1172</span><span class="o">,</span><span class="mf">8.967441860465117</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1248</span><span class="o">,</span><span class="mf">8.915384615384616</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While we are at it, let&rsquo;s find out the five most efficient teams in three pointers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnersThreePointPercent</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span><span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1101</span><span class="o">,</span><span class="mf">46.90555728464225</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1147</span><span class="o">,</span><span class="mf">44.224282479431224</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1294</span><span class="o">,</span><span class="mf">43.754532434101534</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1339</span><span class="o">,</span><span class="mf">43.52308905887638</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1176</span><span class="o">,</span><span class="mf">43.080814169045105</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Interestingly, the teams that made the most three pointers per winning game are not always the one who are the most efficient at it. But it is ok because at least, they won those games.</p>
+
+<h3>Coach wants more numbers</h3>
+
+<p>Coach seems to argue against that argument. He asks us to get the same statistics but he wants the average over all games that each team has played.</p>
+
+<p>We then have to aggregate the information at all nodes, and not only at the destination nodes. To make our previous abstraction more flexible, let&rsquo;s create the following types:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">Teams</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Winners</span> <span class="k">extends</span> <span class="nc">Teams</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Losers</span> <span class="k">extends</span> <span class="nc">Teams</span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">AllTeams</span> <span class="k">extends</span> <span class="nc">Teams</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We modify the previous higher-order function to have a extra argument <code>Teams</code>, which will help us specify at which nodes we want to collect and aggregate the required game stats. The new function becomes:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">averageStat</span><span class="o">(</span><span class="n">graph</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">FullResult</span><span class="o">])(</span><span class="n">getStat</span><span class="k">:</span> <span class="kt">GameStats</span> <span class="o">=&gt;</span> <span class="nc">Double</span><span class="o">,</span> <span class="n">tms</span><span class="k">:</span> <span class="kt">Teams</span><span class="o">)</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Double</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">type</span> <span class="kt">Msg</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Int</span><span class="o">,</span> <span class="nc">Double</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">aggrStats</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span> <span class="k">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">[</span><span class="kt">Msg</span><span class="o">](</span>
+</span><span class='line'>        <span class="c1">// sendMsg</span>
+</span><span class='line'>        <span class="n">tms</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="k">_</span> <span class="k">:</span> <span class="kt">Winners</span> <span class="o">=&gt;</span> <span class="n">t</span> <span class="k">=&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">)))</span>
+</span><span class='line'>            <span class="k">case</span> <span class="k">_</span> <span class="k">:</span> <span class="kt">Losers</span>  <span class="o">=&gt;</span> <span class="n">t</span> <span class="k">=&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">sendToDst</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">)))</span>
+</span><span class='line'>            <span class="k">case</span> <span class="k">_</span>       <span class="k">=&gt;</span> <span class="n">t</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">t</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">)))</span>
+</span><span class='line'>                <span class="n">t</span><span class="o">.</span><span class="n">sendToDst</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">)))</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="o">,</span>
+</span><span class='line'>        <span class="c1">// mergeMsg</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span><span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">aggrStats</span> <span class="n">mapValues</span> <span class="o">(</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="o">(</span><span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">total</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">total</span><span class="o">/</span><span class="n">count</span>
+</span><span class='line'>            <span class="o">})</span>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, <code>aggregateStat</code> allows us to choose whether we want to aggregate the stats for winners only, for losers only or for all teams. Since coach wants the overall stats averaged over all games played, we aggregate the stats by passing the <code>AllTeams()</code> flag in <code>aggregateStat</code>. In this case, we define the <code>sendMsg</code> argument in <code>aggregateMessages</code> to send the required stats to both the source (the winner) and to the destination (the loser) using <code>EdgeContext</code>&rsquo;s <code>sendToSrc</code> and <code>sendToDst</code> functions respectively. This mechanism is pretty straightforward. We just need make sure we send the right information to the right node. In this case, we send the <code>winnerStats</code> to the winner and the <code>loserStats</code>to the loser.</p>
+
+<p>Ok, you got the idea now. So, let&rsquo;s apply it to please our coach. Here are the teams with the overall highest three pointers per page:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Average Three Point Made Per Game for All Teams </span>
+</span><span class='line'><span class="k">val</span> <span class="n">allThreePointMade</span> <span class="k">=</span> <span class="n">averageStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">threePointMade</span><span class="o">,</span> <span class="nc">AllTeams</span><span class="o">())</span>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">allThreePointMade</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1440</span><span class="o">,</span><span class="mf">10.180811808118081</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1125</span><span class="o">,</span><span class="mf">9.098412698412698</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1172</span><span class="o">,</span><span class="mf">8.575657894736842</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1184</span><span class="o">,</span><span class="mf">8.428571428571429</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1407</span><span class="o">,</span><span class="mf">8.411149825783973</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And here are the five most efficient teams overall in three pointers per Game:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Average Three Point Percent for All Teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">allThreePointPercent</span> <span class="k">=</span> <span class="n">averageStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">threePointPercent</span><span class="o">,</span> <span class="nc">AllTeams</span><span class="o">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">allThreePointPercent</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span><span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1429</span><span class="o">,</span><span class="mf">38.8351815824302</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1323</span><span class="o">,</span><span class="mf">38.522819895594</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1181</span><span class="o">,</span><span class="mf">38.43052051444854</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1294</span><span class="o">,</span><span class="mf">38.41227053353959</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1101</span><span class="o">,</span><span class="mf">38.097896464168954</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Actually, there is only a 2% difference between the most efficient team and the one in 50th position. Most NCAA teams are therefore pretty efficient behind the line. I bet coach knew that already!</p>
+
+<h3>Average Points Per Game</h3>
+
+<p>We can also reuse the <code>averageStat</code> function to get the average points per game for the winners. In particular, let&rsquo;s take a look at the two teams that won games with the highest and lowest scores:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Winning teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">winnerAvgPPG</span> <span class="k">=</span> <span class="n">averageStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">score</span><span class="o">,</span> <span class="nc">Winners</span><span class="o">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnerAvgPPG</span><span class="o">.</span><span class="n">max</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res36</span><span class="k">:</span> <span class="o">(</span><span class="kt">org.apache.spark.graphx.VertexId</span><span class="o">,</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1322</span><span class="o">,</span><span class="mf">90.73333333333333</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnerAvgPPG</span><span class="o">.</span><span class="n">min</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res39</span><span class="k">:</span> <span class="o">(</span><span class="kt">org.apache.spark.graphx.VertexId</span><span class="o">,</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1197</span><span class="o">,</span><span class="mf">60.5</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apparently, the most defensive team can win game by scoring only 60 points whereas the most offensive team can score an average of 90 points.</p>
+
+<p>Next, let us average the points per game for all games played and look at the two teams with the best and worst offense during the 2015 season:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Average Points Per Game of All Teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">allAvgPPG</span> <span class="k">=</span> <span class="n">averageStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">score</span><span class="o">,</span> <span class="nc">AllTeams</span><span class="o">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">allAvgPPG</span><span class="o">.</span><span class="n">max</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res42</span><span class="k">:</span> <span class="o">(</span><span class="kt">org.apache.spark.graphx.VertexId</span><span class="o">,</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1322</span><span class="o">,</span><span class="mf">83.81481481481481</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">allAvgPPG</span><span class="o">.</span><span class="n">min</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res43</span><span class="k">:</span> <span class="o">(</span><span class="kt">org.apache.spark.graphx.VertexId</span><span class="o">,</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1212</span><span class="o">,</span><span class="mf">51.111111111111114</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To no surprise, the best offensive team is the same as the one who scores most in winning games. To win games, 50 points is not enough in average for a team to win games.</p>
+
+<h2>Defense Stats: The D matters as in Direction</h2>
+
+<p>Above, we obtained some statistics such as field goals or three point percentage that a team achieves. What if we want to aggregate instead the average points or rebounds that each team concedes to their opponents? To compute that, we define a new higher-order function <code>averageConcededStat</code>. Compared to <code>averageStat</code>, this function needs to send the <code>loserStats</code> to the winning team and the <code>winnerStats</code> to the losing team. To make things more interesting, we are going to make the team name as part of the message <code>Msg</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">def</span> <span class="n">averageConcededStat</span><span class="o">(</span><span class="n">graph</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">FullResult</span><span class="o">])(</span><span class="n">getStat</span><span class="k">:</span> <span class="kt">GameStats</span> <span class="o">=&gt;</span> <span class="nc">Double</span><span class="o">,</span> <span class="n">rxs</span><span class="k">:</span> <span class="kt">Teams</span><span class="o">)</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[(</span><span class="kt">String</span>, <span class="kt">Double</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">type</span> <span class="kt">Msg</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Int</span><span class="o">,</span> <span class="nc">Double</span><span class="o">,</span> <span class="nc">String</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">aggrStats</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span> <span class="k">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">[</span><span class="kt">Msg</span><span class="o">](</span>
+</span><span class='line'>        <span class="c1">// sendMsg</span>
+</span><span class='line'>        <span class="n">rxs</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="k">_</span> <span class="k">:</span> <span class="kt">Winners</span> <span class="o">=&gt;</span> <span class="n">t</span> <span class="k">=&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">),</span> <span class="n">t</span><span class="o">.</span><span class="n">srcAttr</span><span class="o">))</span>
+</span><span class='line'>            <span class="k">case</span> <span class="k">_</span> <span class="k">:</span> <span class="kt">Losers</span>  <span class="o">=&gt;</span> <span class="n">t</span> <span class="k">=&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">sendToDst</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">),</span> <span class="n">t</span><span class="o">.</span><span class="n">dstAttr</span><span class="o">))</span>
+</span><span class='line'>            <span class="k">case</span> <span class="k">_</span>       <span class="k">=&gt;</span> <span class="n">t</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">t</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">),</span><span class="n">t</span><span class="o">.</span><span class="n">srcAttr</span><span class="o">))</span>
+</span><span class='line'>                <span class="n">t</span><span class="o">.</span><span class="n">sendToDst</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="n">getStat</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">),</span><span class="n">t</span><span class="o">.</span><span class="n">dstAttr</span><span class="o">))</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="o">,</span>
+</span><span class='line'>        <span class="c1">// mergeMsg</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span><span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_3</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">aggrStats</span> <span class="n">mapValues</span> <span class="o">(</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="o">(</span><span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">total</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">total</span><span class="o">/</span><span class="n">count</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">})</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With that, we can calculate the average points conceded by winning and losing teams as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">winnersAvgConcededPoints</span> <span class="k">=</span> <span class="n">averageConcededStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">score</span><span class="o">,</span> <span class="nc">Winners</span><span class="o">())</span>
+</span><span class='line'><span class="k">val</span> <span class="n">losersAvgConcededPoints</span> <span class="k">=</span> <span class="n">averageConcededStat</span><span class="o">(</span><span class="n">scoreGraph</span><span class="o">)(</span><span class="n">score</span><span class="o">,</span> <span class="nc">Losers</span><span class="o">())</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">losersAvgConcededPoints</span><span class="o">.</span><span class="n">min</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res</span><span class="k">:</span> <span class="o">(</span><span class="kt">VertexId</span><span class="o">,</span> <span class="o">(</span><span class="kt">String</span><span class="o">,</span> <span class="kt">Double</span><span class="o">))</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1101</span><span class="o">,(</span><span class="nc">Abilene</span> <span class="nc">Chr</span><span class="o">,</span><span class="mf">74.04761904761905</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnersAvgConcededPoints</span><span class="o">.</span><span class="n">min</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res</span><span class="k">:</span> <span class="o">(</span><span class="kt">org.apache.spark.graphx.VertexId</span><span class="o">,</span> <span class="o">(</span><span class="kt">String</span><span class="o">,</span> <span class="kt">Double</span><span class="o">))</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1101</span><span class="o">,(</span><span class="nc">Abilene</span> <span class="nc">Chr</span><span class="o">,</span><span class="mf">74.04761904761905</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">losersAvgConcededPoints</span><span class="o">.</span><span class="n">max</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res</span><span class="k">:</span> <span class="o">(</span><span class="kt">VertexId</span><span class="o">,</span> <span class="o">(</span><span class="kt">String</span><span class="o">,</span> <span class="kt">Double</span><span class="o">))</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1464</span><span class="o">,(</span><span class="nc">Youngstown</span> <span class="nc">St</span><span class="o">,</span><span class="mf">78.85714285714286</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">winnersAvgConcededPoints</span><span class="o">.</span><span class="n">max</span><span class="o">()(</span><span class="nc">Ordering</span><span class="o">.</span><span class="n">by</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span><span class='line'><span class="n">res</span><span class="k">:</span> <span class="o">(</span><span class="kt">VertexId</span><span class="o">,</span> <span class="o">(</span><span class="kt">String</span><span class="o">,</span> <span class="kt">Double</span><span class="o">))</span> <span class="k">=</span> <span class="o">(</span><span class="mi">1464</span><span class="o">,(</span><span class="nc">Youngstown</span> <span class="nc">St</span><span class="o">,</span><span class="mf">71.125</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The above tells us that Abilene Christian University is the most defensive team. They concede the least points whether they win a game or not. On the other hand, Youngstown has the worst defense.</p>
+
+<h2>Joining Aggregated Stats into Graphs</h2>
+
+<p>The previous example shows us how flexible the <code>aggregateMessages</code> operator is. We can define the type <code>Msg</code> of the messages to be aggregated to fit our needs. Moreover, we can select which nodes receive the messages. Finally, we can also define how we want to merge the messages.</p>
+
+<p>As a final example, let us aggregate many statistics about each team and join this information into the nodes of the graph. To start, we create its own class for the team stats:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Average Stats of All Teams </span>
+</span><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">TeamStat</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">wins</span><span class="k">:</span> <span class="kt">Int</span>  <span class="o">=</span> <span class="mi">0</span>      <span class="c1">// Number of wins</span>
+</span><span class='line'>     <span class="o">,</span><span class="n">losses</span><span class="k">:</span> <span class="kt">Int</span>  <span class="o">=</span> <span class="mi">0</span>      <span class="c1">// Number of losses</span>
+</span><span class='line'>        <span class="o">,</span><span class="n">ppg</span><span class="k">:</span> <span class="kt">Int</span>  <span class="o">=</span> <span class="mi">0</span>      <span class="c1">// Points per game</span>
+</span><span class='line'>        <span class="o">,</span><span class="n">pcg</span><span class="k">:</span> <span class="kt">Int</span>  <span class="o">=</span> <span class="mi">0</span>      <span class="c1">// Points conceded per game</span>
+</span><span class='line'>        <span class="o">,</span><span class="n">fgp</span><span class="k">:</span> <span class="kt">Double</span>  <span class="o">=</span> <span class="mi">0</span>   <span class="c1">// Field goal percentage</span>
+</span><span class='line'>        <span class="o">,</span><span class="n">tpp</span><span class="k">:</span> <span class="kt">Double</span>  <span class="o">=</span> <span class="mi">0</span>   <span class="c1">// Three point percentage</span>
+</span><span class='line'>        <span class="o">,</span><span class="n">ftp</span><span class="k">:</span> <span class="kt">Double</span>  <span class="o">=</span> <span class="mi">0</span>   <span class="c1">// Free Throw percentage</span>
+</span><span class='line'>     <span class="o">){</span>
+</span><span class='line'>    <span class="k">override</span> <span class="k">def</span> <span class="n">toString</span> <span class="k">=</span> <span class="n">wins</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">losses</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, we collect the average stats for all teams using <code>aggregateMessages</code> below. For that, we define the type of the message to be an 8-element tuple that holds the counter for games played, wins, losses and other statistics that will be stored in <code>TeamStat</code> as listed above.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">type</span> <span class="kt">Msg</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Int</span><span class="o">,</span> <span class="nc">Int</span><span class="o">,</span> <span class="nc">Int</span><span class="o">,</span> <span class="nc">Int</span><span class="o">,</span> <span class="nc">Int</span><span class="o">,</span> <span class="nc">Double</span><span class="o">,</span> <span class="nc">Double</span><span class="o">,</span> <span class="nc">Double</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">val</span> <span class="n">aggrStats</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span> <span class="k">=</span> <span class="n">scoreGraph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">(</span>
+</span><span class='line'>        <span class="c1">// sendMsg</span>
+</span><span class='line'>        <span class="n">t</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">t</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">((</span>   <span class="mi">1</span><span class="o">,</span>
+</span><span class='line'>                                <span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">score</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">.</span><span class="n">score</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">fgPercent</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">tpPercent</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">ftPercent</span>
+</span><span class='line'>                           <span class="o">))</span>
+</span><span class='line'>                <span class="n">t</span><span class="o">.</span><span class="n">sendToDst</span><span class="o">((</span>   <span class="mi">1</span><span class="o">,</span>
+</span><span class='line'>                                <span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">.</span><span class="n">score</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">winnerStats</span><span class="o">.</span><span class="n">score</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">.</span><span class="n">fgPercent</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">.</span><span class="n">tpPercent</span><span class="o">,</span>
+</span><span class='line'>                                <span class="n">t</span><span class="o">.</span><span class="n">attr</span><span class="o">.</span><span class="n">loserStats</span><span class="o">.</span><span class="n">ftPercent</span>
+</span><span class='line'>                           <span class="o">))</span>
+</span><span class='line'>             <span class="o">}</span>
+</span><span class='line'>        <span class="o">,</span>
+</span><span class='line'>        <span class="c1">// mergeMsg</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span> <span class="n">x</span><span class="o">.</span><span class="n">_1</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span>
+</span><span class='line'>                    <span class="n">x</span><span class="o">.</span><span class="n">_3</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_3</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_4</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_4</span><span class="o">,</span>
+</span><span class='line'>                    <span class="n">x</span><span class="o">.</span><span class="n">_5</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_5</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_6</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_6</span><span class="o">,</span>
+</span><span class='line'>                    <span class="n">x</span><span class="o">.</span><span class="n">_7</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_7</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_8</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_8</span>
+</span><span class='line'>                <span class="o">)</span>
+</span><span class='line'>    <span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Given the aggregate message <code>aggrStats</code>, we map them into a collection of <code>TeamStat</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">teamStats</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">TeamStat</span><span class="o">]</span> <span class="k">=</span> <span class="n">aggrStats</span> <span class="n">mapValues</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">m</span><span class="k">:</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">m</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="o">(</span> <span class="n">count</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>                    <span class="n">wins</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>                  <span class="n">losses</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>                  <span class="n">totPts</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>              <span class="n">totConcPts</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">totFG</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">totTP</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span>
+</span><span class='line'>                   <span class="n">totFT</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span>  <span class="k">=&gt;</span> <span class="nc">TeamStat</span><span class="o">(</span> <span class="n">wins</span><span class="o">,</span> <span class="n">losses</span><span class="o">,</span>
+</span><span class='line'>                                                <span class="n">totPts</span><span class="o">/</span><span class="n">count</span><span class="o">,</span>
+</span><span class='line'>                                                <span class="n">totConcPts</span><span class="o">/</span><span class="n">count</span><span class="o">,</span>
+</span><span class='line'>                                                <span class="n">totFG</span><span class="o">/</span><span class="n">count</span><span class="o">,</span>
+</span><span class='line'>                                                <span class="n">totTP</span><span class="o">/</span><span class="n">count</span><span class="o">,</span>
+</span><span class='line'>                                                <span class="n">totFT</span><span class="o">/</span><span class="n">count</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, let us join the <code>teamStats</code> into the graph. For that, we first create a class <code>Team</code> as a new type for the vertex attribute. <code>Team</code> will have the name and the <code>TeamStat</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">case</span> <span class="k">class</span> <span class="nc">Team</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">stats</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">TeamStat</span><span class="o">])</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">override</span> <span class="k">def</span> <span class="n">toString</span> <span class="k">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;: &quot;</span> <span class="o">+</span> <span class="n">stats</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, we use the <code>joinVertices</code> operator that we have seen in the previous chapter:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Joining the average stats to vertex attributes</span>
+</span><span class='line'><span class="k">def</span> <span class="n">addTeamStat</span><span class="o">(</span><span class="n">id</span><span class="k">:</span> <span class="kt">VertexId</span><span class="o">,</span> <span class="n">t</span><span class="k">:</span> <span class="kt">Team</span><span class="o">,</span> <span class="n">stats</span><span class="k">:</span> <span class="kt">TeamStat</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Team</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="n">stats</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">val</span> <span class="n">statsGraph</span><span class="k">:</span> <span class="kt">Graph</span><span class="o">[</span><span class="kt">Team</span>, <span class="kt">FullResult</span><span class="o">]</span> <span class="k">=</span>
+</span><span class='line'>    <span class="n">scoreGraph</span><span class="o">.</span><span class="n">mapVertices</span><span class="o">((</span><span class="k">_</span><span class="o">,</span> <span class="n">name</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Team</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="nc">None</span><span class="o">)).</span>
+</span><span class='line'>               <span class="n">joinVertices</span><span class="o">(</span><span class="n">teamStats</span><span class="o">)(</span><span class="n">addTeamStat</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We can see that the join has worked well by printing the first three vertices in the new graph <code>statsGraph</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">statsGraph</span><span class="o">.</span><span class="n">vertices</span><span class="o">.</span><span class="n">take</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1260</span><span class="o">,</span><span class="nc">Loyola</span><span class="o">-</span><span class="nc">Chicago</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">17</span><span class="kt">-</span><span class="err">13</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1410</span><span class="o">,</span><span class="nc">TX</span> <span class="nc">Pan</span> <span class="nc">American</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">7</span><span class="kt">-</span><span class="err">21</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1426</span><span class="o">,</span><span class="nc">UT</span> <span class="nc">Arlington</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">15</span><span class="kt">-</span><span class="err">15</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To conclude this task, let us find out the top 10 teams in the regular seasons. To do so, we define an <code>Ordering</code> for <code>Option[TeamStat]</code> as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">scala.math.Ordering</span>
+</span><span class='line'><span class="k">object</span> <span class="nc">winsOrdering</span> <span class="k">extends</span> <span class="nc">Ordering</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">TeamStat</span><span class="o">]]</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">def</span> <span class="n">compare</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">TeamStat</span><span class="o">],</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">TeamStat</span><span class="o">])</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">None</span><span class="o">)</span>       <span class="k">=&gt;</span> <span class="mi">0</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="n">a</span><span class="o">),</span> <span class="nc">None</span><span class="o">)</span>    <span class="k">=&gt;</span> <span class="mi">1</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="n">b</span><span class="o">))</span>    <span class="k">=&gt;</span> <span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>        <span class="k">case</span> <span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="n">a</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="n">b</span><span class="o">))</span> <span class="k">=&gt;</span> <span class="k">if</span> <span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="n">wins</span> <span class="o">==</span> <span class="n">b</span><span class="o">.</span><span class="n">wins</span><span class="o">)</span> <span class="n">a</span><span class="o">.</span><span class="n">losses</span> <span class="n">compare</span> <span class="n">b</span><span class="o">.</span><span class="n">losses</span>
+</span><span class='line'>                                   <span class="k">else</span> <span class="n">a</span><span class="o">.</span><span class="n">wins</span> <span class="n">compare</span> <span class="n">b</span><span class="o">.</span><span class="n">wins</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">import</span> <span class="nn">scala.reflect.classTag</span>
+</span><span class='line'><span class="k">import</span> <span class="nn">scala.reflect.ClassTag</span>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">statsGraph</span><span class="o">.</span><span class="n">vertices</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="n">v</span> <span class="k">=&gt;</span> <span class="n">v</span><span class="o">.</span><span class="n">_2</span><span class="o">.</span><span class="n">stats</span><span class="o">,</span><span class="kc">false</span><span class="o">)(</span><span class="n">winsOrdering</span><span class="o">,</span> <span class="n">classTag</span><span class="o">[</span><span class="kt">Option</span><span class="o">[</span><span class="kt">TeamStat</span><span class="o">]]).</span>
+</span><span class='line'>     <span class="o">|</span>                             <span class="n">take</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1246</span><span class="o">,</span><span class="nc">Kentucky</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">34</span><span class="kt">-</span><span class="err">0</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1437</span><span class="o">,</span><span class="nc">Villanova</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">32</span><span class="kt">-</span><span class="err">2</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1112</span><span class="o">,</span><span class="nc">Arizona</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">31</span><span class="kt">-</span><span class="err">3</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1458</span><span class="o">,</span><span class="nc">Wisconsin</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">31</span><span class="kt">-</span><span class="err">3</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1211</span><span class="o">,</span><span class="nc">Gonzaga</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">31</span><span class="kt">-</span><span class="err">2</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1320</span><span class="o">,</span><span class="nc">Northern</span> <span class="nc">Iowa</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">30</span><span class="kt">-</span><span class="err">3</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1323</span><span class="o">,</span><span class="nc">Notre</span> <span class="nc">Dame</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">29</span><span class="kt">-</span><span class="err">5</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1181</span><span class="o">,</span><span class="nc">Duke</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">29</span><span class="kt">-</span><span class="err">4</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1438</span><span class="o">,</span><span class="nc">Virginia</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">29</span><span class="kt">-</span><span class="err">3</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1268</span><span class="o">,</span><span class="nc">Maryland</span><span class="k">:</span> <span class="kt">Some</span><span class="o">(</span><span class="err">27</span><span class="kt">-</span><span class="err">6</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that the <code>ClassTag</code> parameter is required in <code>sortBy</code> to make use of Scala&rsquo;s reflection. That is why we had the above imports.</p>
+
+<h2>Performance optimization with TripletFields</h2>
+
+<p>In addition to the <code>sendMsg</code> and <code>mergeMsg</code>, <code>aggregateMessages</code> can also take an optional argument <code>tripletsFields</code> which indicates what data is accessed in the EdgeContext. The main reason for explicitly specifying such information is to help optimize the performance of the <code>aggregateMessages</code> operation.</p>
+
+<p>In fact, <code>TripletFields</code> represents a subset of the fields of an <em>EdgeTriplet</em> and it enables GraphX to populate only those fields when necessary.</p>
+
+<p>The default value is TripletFields.All which means that the <code>sendMsg</code> function may access any of the fields in the EdgeContext. Otherwise, the tripletFields argument is used to tell GraphX that only part of the EdgeContext will be required so that an efficient join strategy can be used. All possible options for the tripletsFields are listed below:</p>
+
+<ul>
+<li><code>TripletFields.All</code>: expose all the fields (source, edge, and destination).</li>
+<li><code>TripletFields.Dst</code>: expose the destination and edge fields but not the source field.</li>
+<li><code>TripletFields.EdgeOnly</code>: expose only the edge field.</li>
+<li><code>TripletFields.None</code>: None of the triplet fields are exposed.</li>
+<li><code>TripletFields.Src</code>: expose the source and edge fields but not the destination field.</li>
+</ul>
+
+
+<p>Using our previous example, if we are interested in computing the total number of wins and losses for each team, we will not need to access any field of the <code>EdgeContext</code>. In this case, we should use <code>TripletFields.None</code> to indicate so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// Number of wins of the teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">numWins</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">scoreGraph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">(</span>
+</span><span class='line'>    <span class="n">triplet</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">triplet</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>         <span class="c1">// No attribute is passed but an integer</span>
+</span><span class='line'>    <span class="o">},</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">,</span>
+</span><span class='line'>    <span class="nc">TripletFields</span><span class="o">.</span><span class="nc">None</span>
+</span><span class='line'><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Number of losses of the teams</span>
+</span><span class='line'><span class="k">val</span> <span class="n">numLosses</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">scoreGraph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">(</span>
+</span><span class='line'>    <span class="n">triplet</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">triplet</span><span class="o">.</span><span class="n">sendToDst</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>         <span class="c1">// No attribute is passed but an integer</span>
+</span><span class='line'>    <span class="o">},</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">,</span>
+</span><span class='line'>    <span class="nc">TripletFields</span><span class="o">.</span><span class="nc">None</span>
+</span><span class='line'><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To see, that this works, let&rsquo;s print the top 5 and bottom 5 teams:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">numWins</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span><span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1246</span><span class="o">,</span><span class="mi">34</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1437</span><span class="o">,</span><span class="mi">32</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1112</span><span class="o">,</span><span class="mi">31</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1458</span><span class="o">,</span><span class="mi">31</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1211</span><span class="o">,</span><span class="mi">31</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">numLosses</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1363</span><span class="o">,</span><span class="mi">28</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1146</span><span class="o">,</span><span class="mi">27</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1212</span><span class="o">,</span><span class="mi">27</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1197</span><span class="o">,</span><span class="mi">27</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1263</span><span class="o">,</span><span class="mi">27</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Should you want the name of the top 5 teams, you need to access the <code>srcAttr</code> attribute. In this case, we need to set the <code>tripletFields</code> to <code>TripletFields.Src</code>:</p>
+
+<p>Kentucky as undefeated team in regular season:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">numWinsOfTeams</span><span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[(</span><span class="kt">String</span>, <span class="kt">Int</span><span class="o">)]</span> <span class="k">=</span> <span class="n">scoreGraph</span><span class="o">.</span><span class="n">aggregateMessages</span><span class="o">(</span>
+</span><span class='line'>    <span class="n">t</span> <span class="k">=&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">t</span><span class="o">.</span><span class="n">sendToSrc</span><span class="o">(</span><span class="n">t</span><span class="o">.</span><span class="n">srcAttr</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>         <span class="c1">// Pass source attribute only</span>
+</span><span class='line'>    <span class="o">},</span>
+</span><span class='line'>    <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_2</span> <span class="o">+</span> <span class="n">y</span><span class="o">.</span><span class="n">_2</span><span class="o">),</span>
+</span><span class='line'>    <span class="nc">TripletFields</span><span class="o">.</span><span class="nc">Src</span>
+</span><span class='line'><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Et voila!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">numWinsOfTeams</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="kc">false</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1246</span><span class="o">,(</span><span class="nc">Kentucky</span><span class="o">,</span><span class="mi">34</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1437</span><span class="o">,(</span><span class="nc">Villanova</span><span class="o">,</span><span class="mi">32</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1112</span><span class="o">,(</span><span class="nc">Arizona</span><span class="o">,</span><span class="mi">31</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1458</span><span class="o">,(</span><span class="nc">Wisconsin</span><span class="o">,</span><span class="mi">31</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1211</span><span class="o">,(</span><span class="nc">Gonzaga</span><span class="o">,</span><span class="mi">31</span><span class="o">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">scala</span><span class="o">&gt;</span> <span class="n">numWinsOfTeams</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">_2</span><span class="o">.</span><span class="n">_2</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">5</span><span class="o">).</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1146</span><span class="o">,(</span><span class="nc">Cent</span> <span class="nc">Arkansas</span><span class="o">,</span><span class="mi">2</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1197</span><span class="o">,(</span><span class="nc">Florida</span> <span class="n">A</span><span class="o">&amp;</span><span class="n">M</span><span class="o">,</span><span class="mi">2</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1398</span><span class="o">,(</span><span class="nc">Tennessee</span> <span class="nc">St</span><span class="o">,</span><span class="mi">3</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1263</span><span class="o">,(</span><span class="nc">Maine</span><span class="o">,</span><span class="mi">3</span><span class="o">))</span>
+</span><span class='line'><span class="o">(</span><span class="mi">1420</span><span class="o">,(</span><span class="nc">UMBC</span><span class="o">,</span><span class="mi">4</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kentucky has not lost any of its 34 games during the regular season. Too bad that they could not make it into the championship final.</p>
+
+<h2>Warning about MapReduceTriplets operator</h2>
+
+<p>Prior to Spark 1.2, there was no <code>aggregateMessages</code> method in <code>Graph</code>. Instead, the now deprecated <code>mapReduceTriplets</code> was the primary aggregation operator. The API for <code>mapReduceTriplets</code> is:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">class</span> <span class="nc">Graph</span><span class="o">[</span><span class="kt">VD</span>, <span class="kt">ED</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">mapReduceTriplets</span><span class="o">[</span><span class="kt">Msg</span><span class="o">](</span>
+</span><span class='line'>      <span class="n">map</span><span class="k">:</span> <span class="kt">EdgeTriplet</span><span class="o">[</span><span class="kt">VD</span>, <span class="kt">ED</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Iterator</span><span class="o">[(</span><span class="kt">VertexId</span>, <span class="kt">Msg</span><span class="o">)],</span>
+</span><span class='line'>      <span class="n">reduce</span><span class="k">:</span> <span class="o">(</span><span class="kt">Msg</span><span class="o">,</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Msg</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Compared to <code>mapReduceTriplets</code>, the new operator <code>aggregateMessages</code> is more expressive as it employs the message passing mechanism instead of returning an iterator of messages as <code>mapReduceTriplets</code> does. In addition, <code>aggregateMessages</code> explicitly requires the user to specify the TripletFields object for performance improvement as we explained above. In addition to API improvements, <code>aggregateMessages</code> is optimized for performance.</p>
+
+<p>Because <code>mapReduceTriplets</code> is now deprecated, we will not discuss it further. If you have to use it with earlier versions of Spark, you can refer to the Spark programming guide.</p>
+
+<h2>Summary</h2>
+
+<p>In brief, AggregateMessages is a useful and generic operator that provides a functional abstraction for aggregating neighbourhood information in Spark graphs. Its definition is summarized below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">class</span> <span class="nc">Graph</span><span class="o">[</span><span class="kt">VD</span>, <span class="kt">ED</span><span class="o">]</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">aggregateMessages</span><span class="o">[</span><span class="kt">Msg:</span> <span class="kt">ClassTag</span><span class="o">](</span>
+</span><span class='line'>      <span class="n">sendMsg</span><span class="k">:</span> <span class="kt">EdgeContext</span><span class="o">[</span><span class="kt">VD</span>, <span class="kt">ED</span>, <span class="kt">Msg</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="nc">Unit</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">mergeMsg</span><span class="k">:</span> <span class="o">(</span><span class="kt">Msg</span><span class="o">,</span> <span class="kt">Msg</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Msg</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">tripletFields</span><span class="k">:</span> <span class="kt">TripletFields</span> <span class="o">=</span> <span class="nc">TripletFields</span><span class="o">.</span><span class="nc">All</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">:</span> <span class="kt">VertexRDD</span><span class="o">[</span><span class="kt">Msg</span><span class="o">]</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This operator applies a user defined <code>sendMsg</code> function to each edge in the graph using an <code>EdgeContext</code>. Each <code>EdgeContext</code> access the required information about the edge and passes that information to its source node and/or destination node using the <code>sendToSrc</code> and/or <code>sendToDst</code> respectively. After all messages are received by the nodes, the <code>mergeMsg</code> function is used to aggregate those messages at each node.</p>
+
+<h2>Some interesting readings</h2>
+
+<ol>
+<li><a href="http://newsoffice.mit.edu/2015/mit-sloan-sports-analytics-conference-0302">Six keys to sports analytics.</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Moneyball">Moneyball: The Art Of Winning An Unfair Game</a></li>
+<li><a href="http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php"><strong>Golden State Warriors at the forefront of NBA data analysis</strong></a></li>
+<li><a href="http://www.huffingtonpost.com/travis-korte/soccer-analytics-data_b_5512271.html">How Data and Analytics Have Changed &lsquo;The Beautiful Game&rsquo;</a></li>
+<li><a href="http://www.nhl.com/ice/news.htm?id=754184">NHL, SAP partnership to lead statistical revolution</a></li>
+</ol>
+
+
+  
+    <footer>
+      <p class="meta">
+        
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-24T00:00:00-07:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:00 am</span></time>
+        
+      </p>
+      
+        <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://giocode.github.io/projects/spark-graph.html" data-via="" data-counturl="http://giocode.github.io/projects/spark-graph.html" >Tweet</a>
+  
+  
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rindra Ramamonjison 
+<!--   -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> | Themed with <a href="https://github.com/lucaslew/whitespace">Whitespace</a></span> &#8211;>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = '';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://giocode.github.io/projects/spark-graph.html';
+        var disqus_url = 'http://giocode.github.io/projects/spark-graph.html';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
