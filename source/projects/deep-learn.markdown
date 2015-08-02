@@ -24,7 +24,7 @@ In this section, we present the basic model of feed-forward neural networks. Nex
 Let’s start by describing the architecture of the neural network. As illustrated in Figure , it consists of L layers of connected neurons or units. The layers are index as l = 1, . . . ,L, in which the first L − 1 layers are hidden and the last layer l = L is the output layer. The input data x = [1, x1, . . . ,xp], which has p raw features, enters the network from the leftmost units. It then flows through the network towards the output nodes on the right. Each layer l has d(l) neurons and a bias node. The bias node outputs a constant value 1, which corresponds to an intercept term. On the other hand, a neuron transforms the input, also called activation, to an output using a nonlinear operation ✓. The resulting output is called the activity of the neuron. Except for the bias node, all nodes between two consecutive layers are connected by arrows. In particular, the arrow between node i of layer l and node j of the next layer multiplies the activity x(l)
 i of layer l by the weight w(l)ij and passes the result to node j. All activities of layer l that goesinto node j is combined to obtain the activation s(l)j as follows:
 
-<img src="http://snowplowanalytics.com/assets/img/blog/2015/05/spark_logo.png"/>
+{% img {{ root_url }}/source/images/neural/net.jpg %}
 
 ```julia
 ##----------------------------------------------------------------------
