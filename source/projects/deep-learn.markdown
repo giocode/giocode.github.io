@@ -8,23 +8,42 @@ footer: true
 ---
 
 
-Finding good features is an important yet challenging task in most machine learning applications. For computer vision tasks, deep learning techniques, based on multi-layer neural networks, are effective in extracting good learning representations from image data. Although powerful, deep neural networks are prone to overfitting. Therefore, we study different regularization techniques that mitigate this overfitting. In the following, we focus on the feed-forward neural network and describe its mechanisms and regularization techniques. Finally, we describe an implementation of neural network using the new Julia programming language with an example experiment of hand-written digit classification.
-
+Finding good features is an important yet challenging task in most machine learning applications. For computer vision tasks, deep learning techniques, based on multi-layer neural networks, are effective in extracting good learning representations from image data. Although powerful, deep neural networks are prone to overfitting. In this project, I studied different regularization techniques that mitigate  overfitting. Precisely, we present the basic model of feed-forward neural networks. Next, we present the procedures for fitting the network to the training data. In particular, the backpropagation algorithm, which is used to compute the network weights, is derived for the case of multi-label classification. Next, we will show how different optimization procedures can be built on top of the backpropagation algorithm to minimize the training error. In addition, a prototype neural network library is implemented in the programming language Julia and described in the following.
 
 ## Deep Neural Networks 
 
-Neural networks are biologically inspired machine learning models that offer lots of flexibility in modeling a target function. It is composed of multiple layers of neurons and was shown to be a universal approximation [1]. Although flexible, neural network can easily overfit. Therefore, regularization techniques are needed to train neural networks. In this project, we have investigated different regularization techniques. The objective of the project is to implement a prototype neural network library in Julia,which can be used to investigate different regularization techniques and optimization methods. Note that this work is still in progress. Here, we present a thorough review of neural networks and describe different regularization techniques. Finally, we describe the implementation before giving our concluding remarks.
-
-### Feed-forward Neural Networks
-In this section, we present the basic model of feed-forward neural networks. Next, we present the procedures for fitting the network to the training data. First, the backpropagation algorithm, which is used to compute the network weights, is derived for the case of multi-label classification. Next, we will show how different optimization procedures can be built on top of the backpropagation algorithm to minimize the cross-entropy training error.
-
+Neural networks are biologically inspired machine learning models that offer lots of flexibility in modeling a target function. It is composed of multiple layers of neurons and was shown to be a universal approximation [1]. Although flexible, neural network can easily overfit. Therefore, regularization techniques are needed to train neural networks. The focus of the project is to investigate different regularization techniques. 
 
 ### Multi-layer Network Model
 
-Let’s start by describing the architecture of the neural network. As illustrated in Figure , it consists of L layers of connected neurons or units. The layers are index as l = 1, . . . ,L, in which the first L − 1 layers are hidden and the last layer l = L is the output layer. The input data x = [1, x1, . . . ,xp], which has p raw features, enters the network from the leftmost units. It then flows through the network towards the output nodes on the right. Each layer l has d(l) neurons and a bias node. The bias node outputs a constant value 1, which corresponds to an intercept term. On the other hand, a neuron transforms the input, also called activation, to an output using a nonlinear operation ✓. The resulting output is called the activity of the neuron. Except for the bias node, all nodes between two consecutive layers are connected by arrows. In particular, the arrow between node i of layer l and node j of the next layer multiplies the activity x(l)
-i of layer l by the weight w(l)ij and passes the result to node j. All activities of layer l that goesinto node j is combined to obtain the activation s(l)j as follows:
+{% img right ../images/neural/net.png %}
 
-{% img right /images/net.png 250 250 %}
+Let’s start by describing the architecture of the neural network. As illustrated in Figure , it consists of \\(L\\) layers of connected neurons or units. The layers are index as \\(l = 1, . . . ,L\\), in which the first \\(L − 1\\) layers are hidden and the last layer \\(l = L\\) is the output layer. 
+The input data \\(x = [1, x_1, . . . ,x_p]\\), which has p raw features, enters the network from the leftmost units. It then flows through the network towards the output nodes on the right. Each layer \\(l\\) has \\(d^{(l)}\\) neurons and a bias node. The bias node outputs a constant value 1, which corresponds to an intercept term. On the other hand, a neuron transforms the input, also called activation, to an output using a nonlinear operation \\(\theta\\). The resulting output is called the activity of the neuron. Except for the bias node, all nodes between two consecutive layers are connected by arrows. In particular, the arrow between node \\(i\\) of layer \\(l\\) and node \\(j\\) of the next layer multiplies the activity \\(x^{(l)}\\)
+i of layer l by the weight w(l)ij and passes the result to node \\(j\\). All activities of layer \\(l\\) that goesinto node \\(j\\) is combined to obtain the activation \\(s^{(l)}_j\\) as follows:
+
+$$s^{(l)}_j = $$
+
+This later is then transformed to an activation that is passed to all nodes of the next layer:
+
+$$x^{(l+1)}_j = $$
+
+By concatenating all activation inputs and outputs (including the bias nodes’), the above operations can be concisely described in vector notations:
+
+$$s^{(l)} =$$
+
+$$x^{(l+1)} =$$
+
+For classification tasks, the dimension \\(d^{(L)}\\) of the network output vector \\(x^{(L+1)}\\) is equal to the number of class labels \\(C\\). In fact, \\(x^{(L+1)}\\) models the posterior probabilities that a sample belongs to each class given the feature data x^{(1)}. To enforce that the outputs sum to one, we use the softmax activation function:
+
+$$x^{(L+1)}_j$$
+
+For the hidden layers, we instead use the hyperbolic tangent function:
+
+$$x^{(l+1)}_j = $$
+
+Unlike x(L+1), the output vectors x(l) of the hidden layers all include a bias \\(x^{(l)}_1 = 1\\). Thus, \\(x^{(l)}\\) has \\(d^{(l)} + 1\\) elements for all \\(l = 1, . . . ,L\\). These moving parts of a neural network are summarized in the Table 1 and the chain of transformations from input to output is illustrated below:
+
 
 ```julia
 ##----------------------------------------------------------------------
@@ -38,17 +57,17 @@ type NeuralNet
 	weights 						   	# Weight matrices  
 end
 ```
-
+What we have described above is the _**forward propagation**_ of data from inputs to the outputs of the network. When predicting the class label of a test sample \\(x_{new}\\), the corresponding outputs \\(h_k(x_new) = x^{(L+1)}_k\\)  \\(k = 1, . . . C\\) are calculated using the above chain of transformations. Next, we will describe how to set the weight matrices \\(\mathbf{w} = (W(l)\\) \\(l=1,...,L\\) using procedure called backpropagation in conjunction with forward propagation.
 
 ### Model fitting using backpropagation
 
-Now, we consider the question of how to set up the neural network. Since it is computationally hard to find the optimal size and depth of the network, a good choice is conventionally found by trial-anderror. However, in Section (3), we will present an efficient technique called dropout to generate and average the predictions of many network configurations. In this section, we will focus on finding the optimal weight parameter w given a configuration and training data.
+Now, we consider the question of how to set up the neural network. Since it is computationally hard to find the optimal size and depth of the network, a good choice is conventionally found by trial-anderror. However, we will later present an efficient technique called _**dropout**_ to generate and average the predictions of many network configurations. In this section, we will focus on finding the optimal weight parameter \(w given a configuration and training data.
 
 The next thing we need is an error measure for the multi-label classification task. Assuming the class conditional distribution of the training data is multinomial, we employ the negative likelihood as the error function: 
 
-where xn is a feature input vector and yn is a C⇥1 vector that encodes the class label using one-of-C rule. The function h is parameterized by the weights w. In (4), we can identify E as a cross-entropy error function that measures the “distance” between the estimated MAP probabilities h (xn;w) and the true label vector yn.
+where \\(\mathbf{x}_n\\) is a feature input vector and \\(\mathbf{y}_n\\) is a \\(C x 1\\) vector that encodes the class label using one-of-C rule. The function \\(h\\) is parameterized by the weights w. In (4), we can identify \\(E\\) as a cross-entropy error function that measures the “distance” between the estimated MAP probabilities \\(h(xn;w)\\) and the true label vector \\(yn\\).
 
-The error surface E is not convex w.r.t. the weights w. Nonetheless, its derivatives are still useful for finding directions towards a good local optimum. In fact, finding the global optimum is not only computationally prohibitive, but also it can be harmful. In Section (3), we will discuss the importance to early stopping our search to avoid overfitting. In any case, we always need a way to cheaply compute all partial derivatives. Fortunately, there is an efficient algorithm, called the backpropagation [3] that has O (M) run-time complexity. Here,M is the total number of weights in the network. 
+The error surface \\(E\\) is not convex w.r.t. the weights \\(w\\). Nonetheless, its derivatives are still useful for finding directions towards a good local optimum. In fact, finding the global optimum is not only computationally prohibitive, but also it can be harmful. In Section (3), we will discuss the importance to early stopping our search to avoid overfitting. In any case, we always need a way to cheaply compute all partial derivatives. Fortunately, there is an efficient algorithm, called the backpropagation [3] that has \\(O(M)\\) run-time complexity. Here, \\(M\\) is the total number of weights in the network. 
 
 ## Model fitting and prediction algorithms
 
@@ -118,9 +137,13 @@ function predict(net::NeuralNet, xnew)
 end
 ```
 
-
-
 #### Forward propagation 
+
+dsdsd
+
+{% img right ../images/neural/forward.png %}
+
+
 
 ```julia
 ##----------------------------------------------------------------------
@@ -165,6 +188,15 @@ end
 ```
 
 #### Backward propagation
+
+
+dsds
+
+
+{% img right ../images/neural/backward.png %}
+
+
+dsds
 
 ```julia
 ##----------------------------------------------------------------------
@@ -211,10 +243,10 @@ end
 Next, let’s present different iterative methods for optimizing the weights w(l)ij . There are two general strategies for doing this:
 
 1. Batch gradient descent update the weights using the gradient of the error contributed by all training examples. This is done after a single pass through all the examples as follows:
-2. Stochastic gradient descent (SGD) is a more efficient method as it immediately updates the
-weights after seeing each training example[4]. Another advantage of the stochastic approach is that it takes advantage of
-randomization to escape poor local optimum. The overall SGD algorithm is presented in
-Table 2.
+2. Stochastic gradient descent (SGD) is a more efficient method as it immediately updates the weights after seeing each training example[4]. Another advantage of the stochastic approach is that it takes advantage of randomization to escape poor local optimum. The overall SGD algorithm is presented in Table 2.
+
+{% img right ../images/neural/table2.png %}
+
 
 Different acceleration techniques have also been proposed to speed up the training procedure of neural networks. These include Nesterov’s method, conjugate gradient descent (which only works for batch mode) as well as Newton-type methods. Due to the computational hurdles with training large neural networks, first-order methods such as SGD are more practical.
 
