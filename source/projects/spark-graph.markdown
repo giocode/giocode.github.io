@@ -5,10 +5,11 @@ date: May 24, 2015
 comments: true
 sharing: true
 footer: true
+categories: scala tutorial graphx spark analytics
 ---
 
 
-It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: "sabermetrics". Analytics have proven invaluable in many aspects: from [building dream teams under tight cap constraints](http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php), to [selecting game-specific strategies](https://en.wikipedia.org/wiki/Moneyball) to actively [engaging with fans](http://www.nhl.com/ice/news.htm?id=754184) and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In this following, we analyze NCAA Men's college basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark's graph processing library to answer several questions for retrospection.
+It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: "sabermetrics". Analytics have proven invaluable in many aspects: from [building dream teams under tight cap constraints](http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php), to [selecting game-specific strategies](https://en.wikipedia.org/wiki/Moneyball) to actively [engaging with fans](http://www.nhl.com/ice/news.htm?id=754184) and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In the following, we analyze NCAA Men's college basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark's graph processing library to answer several questions for retrospection.
 
 [__Apache Spark__](http://spark.apache.org/) is a fast and general-purpose technology, which greatly simplify the parallel processing of large data that is distributed over a computing cluster. While Spark handles different types of processing, here we will focus on its graph processing capability. In particular, our goal is to expose the powerful yet generic graph-aggregation operator of Spark:`aggregateMessages`. We can think of this operator as a version of MapReduce for aggregating the neighborhood information in graphs.
 
@@ -719,7 +720,7 @@ class Graph[VD, ED] {
 
 This operator applies a user defined `sendMsg` function to each edge in the graph using an `EdgeContext`. Each `EdgeContext` access the required information about the edge and passes that information to its source node and/or destination node using the `sendToSrc` and/or `sendToDst` respectively. After all messages are received by the nodes, the `mergeMsg` function is used to aggregate those messages at each node. 
 
-## Some interesting readings
+## Some interesting reads
 
 1. [Six keys to sports analytics.](http://newsoffice.mit.edu/2015/mit-sloan-sports-analytics-conference-0302)
 2. [Moneyball: The Art Of Winning An Unfair Game](https://en.wikipedia.org/wiki/Moneyball)
