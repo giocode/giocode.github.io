@@ -721,9 +721,9 @@ This operator applies a user defined `sendMsg` function to each edge in the grap
 
 ## Some interesting readings
 
-1. [__Six keys to sports analytics.__](http://newsoffice.mit.edu/2015/mit-sloan-sports-analytics-conference-0302)
+1. [Six keys to sports analytics.](http://newsoffice.mit.edu/2015/mit-sloan-sports-analytics-conference-0302)
 2. [Moneyball: The Art Of Winning An Unfair Game](https://en.wikipedia.org/wiki/Moneyball)
-3. [__Golden State Warriors at the forefront of NBA data analysis__](http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php)
-4. [__How Data and Analytics Have Changed 'The Beautiful Game'__](http://www.huffingtonpost.com/travis-korte/soccer-analytics-data_b_5512271.html)
+3. [Golden State Warriors at the forefront of NBA data analysis](http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php)
+4. [How Data and Analytics Have Changed 'The Beautiful Game'](http://www.huffingtonpost.com/travis-korte/soccer-analytics-data_b_5512271.html)
 5. [NHL, SAP partnership to lead statistical revolution](http://www.nhl.com/ice/news.htm?id=754184)
 
