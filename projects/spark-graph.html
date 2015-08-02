@@ -66,7 +66,7 @@
   
 <ul class="main-navigation">
   <li><a href="/about">About</a></li>
-  <li><a href="/Projects">Projects</a></li>
+  <li><a href="/projects/index.html">Projects</a></li>
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
 </ul>
@@ -87,7 +87,7 @@
 <time class='entry-date' datetime='2015-05-24T00:00:00-07:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:00 am</span></time></p>
   </header>
   
-  <p>It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: &ldquo;sabermetrics&rdquo;. Analytics have proven invaluable in many aspects: from <a href="http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php">building dream teams under tight cap constraints</a>, to <a href="https://en.wikipedia.org/wiki/Moneyball">selecting game-specific strategies</a> to actively <a href="http://www.nhl.com/ice/news.htm?id=754184">engaging with fans</a> and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In this following, we analyze NCAA Men&rsquo;s college basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark&rsquo;s graph processing library to answer several questions for retrospection.</p>
+  <p>It is no secret analytics have made a big impact in sports. The quest for an objective understanding of the game has even a name: &ldquo;sabermetrics&rdquo;. Analytics have proven invaluable in many aspects: from <a href="http://www.sfgate.com/warriors/article/Golden-State-Warriors-at-the-forefront-of-NBA-5753776.php">building dream teams under tight cap constraints</a>, to <a href="https://en.wikipedia.org/wiki/Moneyball">selecting game-specific strategies</a> to actively <a href="http://www.nhl.com/ice/news.htm?id=754184">engaging with fans</a> and so on. No matter what the goal is, gaining useful insights requires a quick ability to process big data and handle its complexities. In the following, we analyze NCAA Men&rsquo;s college basketball game stats gathered during one season. As sports-data experts, we are going to leverage Spark&rsquo;s graph processing library to answer several questions for retrospection.</p>
 
 <p><a href="http://spark.apache.org/"><strong>Apache Spark</strong></a> is a fast and general-purpose technology, which greatly simplify the parallel processing of large data that is distributed over a computing cluster. While Spark handles different types of processing, here we will focus on its graph processing capability. In particular, our goal is to expose the powerful yet generic graph-aggregation operator of Spark:<code>aggregateMessages</code>. We can think of this operator as a version of MapReduce for aggregating the neighborhood information in graphs.</p>
 
@@ -1263,7 +1263,7 @@ For example, let&rsquo;s find out the average field goals made per game by the w
 
 <p>This operator applies a user defined <code>sendMsg</code> function to each edge in the graph using an <code>EdgeContext</code>. Each <code>EdgeContext</code> access the required information about the edge and passes that information to its source node and/or destination node using the <code>sendToSrc</code> and/or <code>sendToDst</code> respectively. After all messages are received by the nodes, the <code>mergeMsg</code> function is used to aggregate those messages at each node.</p>
 
-<h2>Some interesting readings</h2>
+<h2>Some interesting reads</h2>
 
 <ol>
 <li><a href="http://newsoffice.mit.edu/2015/mit-sloan-sports-analytics-conference-0302">Six keys to sports analytics.</a></li>
