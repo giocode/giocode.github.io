@@ -93,13 +93,14 @@
 
 <p>Neural networks are biologically inspired machine learning models that offer lots of flexibility in modeling a target function. It is composed of multiple layers of neurons and was shown to be a universal approximation [1]. Although flexible, neural network can easily overfit. Therefore, regularization techniques are needed to train neural networks. The focus of the project is to investigate different regularization techniques.</p>
 
-<h3>Multi-layer Network Model</h3>
+<h3>Feed-forward Neural Network Model</h3>
 
-<p><img class="right" src="../images/neural/net.png"></p>
+<p>Let’s start by describing the architecture of the neural network.  As illustrated in the following figure, it consists of \(L\) layers of connected neurons or units. The layers are index as \(l = 1, &hellip; ,L\), in which the first \(L − 1\) layers are hidden and the last layer \(l = L\) is the output layer.</p>
 
-<p>Let’s start by describing the architecture of the neural network. As illustrated in Figure , it consists of \(L\) layers of connected neurons or units. The layers are index as \(l = 1, &hellip; ,L\), in which the first \(L − 1\) layers are hidden and the last layer \(l = L\) is the output layer.
-The input data \(x = [1, x_1, &hellip; ,x_p]\), which has p raw features, enters the network from the leftmost units. It then flows through the network towards the output nodes on the right. Each layer \(l\) has \(d^{(l)}\) neurons and a bias node. The bias node outputs a constant value 1, which corresponds to an intercept term. On the other hand, a neuron transforms the input, also called activation, to an output using a nonlinear operation \(\theta\). The resulting output is called the activity of the neuron. Except for the bias node, all nodes between two consecutive layers are connected by arrows. In particular, the arrow between node \(i\) of layer \(l\) and node \(j\) of the next layer multiplies the activity \(x^{(l)}\)
-i of layer l by the weight w(l)ij and passes the result to node \(j\). All activities of layer \(l\) that goesinto node \(j\) is combined to obtain the activation \(s^{(l)}_j\) as follows:</p>
+<p><img src="../images/neural/net.png"></p>
+
+<p>The input data \(x = [1, x_1, &hellip; ,x_p]\), which has p raw features, enters the network from the leftmost units. It then flows through the network towards the output nodes on the right. Each layer \(l\) has \(d^{(l)}\) neurons and a bias node. The bias node outputs a constant value 1, which corresponds to an intercept term. On the other hand, a neuron transforms the input, also called activation, to an output using a nonlinear operation \(\theta\). The resulting output is called the activity of the neuron. Except for the bias node, all nodes between two consecutive layers are connected by arrows. In particular, the arrow between node \(i\) of layer \(l\) and node \(j\) of the next layer multiplies the activity \(x^{(l)}\)
+i of layer l by the weight w(l)ij and passes the result to node \(j\). All activities of layer \(l\) that goes into node \(j\) is combined to obtain the activation \(s^{(l)}_j\) as follows:</p>
 
 <p>$$s^{(l)}_j = $$</p>
 
@@ -122,6 +123,15 @@ i of layer l by the weight w(l)ij and passes the result to node \(j\). All activ
 <p>$$x^{(l+1)}_j = $$</p>
 
 <p>Unlike x(L+1), the output vectors x(l) of the hidden layers all include a bias \(x^{(l)}_1 = 1\). Thus, \(x^{(l)}\) has \(d^{(l)} + 1\) elements for all \(l = 1, &hellip; ,L\). These moving parts of a neural network are summarized in the Table 1 and the chain of transformations from input to output is illustrated below:</p>
+
+<p>In summary, a neural network is characterized by:
+- the total number of layers
+- the input and output dimensions
+- the number of units at each <strong>hidden layer</strong> (i.e. layer between input and output)
+- an activation function at each neuron or node
+- a set of weights matrices that relate the input and output between layers.</p>
+
+<p>In Julia, we can define a neural network by the following data type:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -146,22 +156,135 @@ i of layer l by the weight w(l)ij and passes the result to node \(j\). All activ
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>What we have described above is the <em><strong>forward propagation</strong></em> of data from inputs to the outputs of the network. When predicting the class label of a test sample \(x<em>{new}\), the corresponding outputs \(h_k(x_new) = x^{(L+1)}</em>k\)  \(k = 1, &hellip; C\) are calculated using the above chain of transformations. Next, we will describe how to set the weight matrices \(\mathbf{w} = (W(l)\) \(l=1,&hellip;,L\) using procedure called backpropagation in conjunction with forward propagation.</p>
+<h4>Predicting the class of test samples</h4>
 
-<h3>Model fitting using backpropagation</h3>
+<p><img src="../images/neural/forward.png"></p>
 
-<p>Now, we consider the question of how to set up the neural network. Since it is computationally hard to find the optimal size and depth of the network, a good choice is conventionally found by trial-anderror. However, we will later present an efficient technique called <em><strong>dropout</strong></em> to generate and average the predictions of many network configurations. In this section, we will focus on finding the optimal weight parameter (w given a configuration and training data.</p>
+<p>Given these parameters, the relationship between the inputs and the outputs of the network is determined by a process called <em><strong>forward propagation</strong></em>. When predicting the class label of a new test sample \(\mathbf{x} \) the corresponding outputs \(h_k(\mathbf{x}) = x^{(L+1)}_k\)  \(k = 1, &hellip; C\) are calculated using the chain of transformations previously described. Implementing the prediction is very simple. All we need to do is to run  the forward propagation algorithm with the new sample <code>xnew</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
+</span><span class='line'><span class="c">## predict: predict the labels of new samples using forward propagation </span>
+</span><span class='line'><span class="c">## Inputs:</span>
+</span><span class='line'><span class="c">##        - Neural network structure</span>
+</span><span class='line'><span class="c">##        - New samples of size N x p </span>
+</span><span class='line'><span class="c">## Output: a vector of pairs containing:</span>
+</span><span class='line'><span class="c">##        - Maximum posterior probability of predicted class </span>
+</span><span class='line'><span class="c">##        - Label of predicted class ∈ {1,...,C}</span>
+</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
+</span><span class='line'><span class="k">function</span><span class="nf"> predict</span><span class="p">(</span><span class="n">net</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">xnew</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">x</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">forwardPropagate</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">xnew</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">prob</span><span class="p">,</span> <span class="n">class</span> <span class="o">=</span> <span class="n">findmax</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="k">end</span><span class="p">])</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The implementation of forward propagation follows directly from the above equations as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
+</span><span class='line'><span class="c">## Forward propagation subroutine</span>
+</span><span class='line'><span class="c">## Inputs: </span>
+</span><span class='line'><span class="c">##        - Training example: xn</span>
+</span><span class='line'><span class="c">##        - Neural network structure: number of layers, number of units</span>
+</span><span class='line'><span class="c">## Outputs: </span>
+</span><span class='line'><span class="c">##        - L+1 output vectors x[l] (including input vector x[1] = xn)</span>
+</span><span class='line'><span class="c">##        - L input vectors s[l] </span>
+</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
+</span><span class='line'><span class="k">function</span><span class="nf"> forwardPropagate</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">xn</span><span class="p">::</span><span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">})</span>
+</span><span class='line'>  <span class="c"># println(&quot;Forward propagation..&quot;)</span>
+</span><span class='line'>  <span class="c"># Network topology</span>
+</span><span class='line'>  <span class="n">L</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">numLayers</span>                      <span class="c"># number of all layers excluding input </span>
+</span><span class='line'>  <span class="n">C</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">numOutputs</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Cells containg L input vectors and L+1 output vectors</span>
+</span><span class='line'>  <span class="n">s</span> <span class="o">=</span> <span class="n">cell</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c"># inputs of all layers </span>
+</span><span class='line'>  <span class="n">x</span> <span class="o">=</span> <span class="n">cell</span><span class="p">(</span><span class="n">L</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c"># outputs of all layers</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Compute input s[l] and output x[l+1] at each layer</span>
+</span><span class='line'>  <span class="c"># Input vector x[1] has no bias node</span>
+</span><span class='line'>  <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xn</span>
+</span><span class='line'>  <span class="c"># Hidden layers</span>
+</span><span class='line'>  <span class="k">for</span> <span class="n">l</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">L</span><span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>      <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">l</span><span class="p">])</span>
+</span><span class='line'>      <span class="n">s</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">W</span><span class="o">&#39;*</span><span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+</span><span class='line'>      <span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">map</span><span class="p">(</span><span class="n">tanh</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">l</span><span class="p">])]</span>   <span class="c"># use tanh</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="c"># Output layer</span>
+</span><span class='line'>  <span class="n">s</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">L</span><span class="p">])</span><span class="o">&#39;</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">L</span><span class="p">]</span>
+</span><span class='line'>  <span class="n">x</span><span class="p">[</span><span class="n">L</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="k">if</span> <span class="n">C</span> <span class="o">==</span> <span class="mi">1</span>
+</span><span class='line'>             <span class="n">logit</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">L</span><span class="p">])</span>
+</span><span class='line'>           <span class="k">else</span>
+</span><span class='line'>               <span class="n">softmax</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">L</span><span class="p">])</span>
+</span><span class='line'>           <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># return output and input vectors</span>
+</span><span class='line'>    <span class="n">x</span><span class="p">,</span> <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Model fitting using backpropagation</h2>
+
+<p>Previously, we assumed that the neural network model is already trained, i.e. the set of weight matrices are pre-configured. But how do we set these weight matrices \(W^{(l)}, l=1,&hellip;,L\)? In the following, we answer that question using another procedure called <strong><strong>backpropagation</strong></strong> in conjunction with forward propagation. A related question is how big and how deep should the network be. Since, it is computationally prohibitive to find the optimal size and depth of the network, a good choice is conventionally found by trial-and-error. However, we will later present an efficient technique called <em><strong>dropout</strong></em> to generate and average the predictions of many network configurations. In this section, we will focus on finding the optimal weight parameter (w given a configuration and training data.</p>
 
 <p>The next thing we need is an error measure for the multi-label classification task. Assuming the class conditional distribution of the training data is multinomial, we employ the negative likelihood as the error function:</p>
 
-<p>where \(\mathbf{x}<em>n\) is a feature input vector and \(\mathbf{y}</em>n\) is a \(C x 1\) vector that encodes the class label using one-of-C rule. The function \(h\) is parameterized by the weights w. In (4), we can identify \(E\) as a cross-entropy error function that measures the “distance” between the estimated MAP probabilities \(h(xn;w)\) and the true label vector \(yn\).</p>
+<p>where \(x_n\) is a feature input vector and \(y_n\) is a \(C\) by  \(1\) vector that encodes the class label using <em>one-of-C rule</em>. The function \(h\) is parameterized by the weights \(w)&#46; In (4), we can identify \(E\) as a cross-entropy error function that measures the “distance” between the estimated MAP probabilities \(h(xn;w)\) and the true label vector \(yn\).</p>
 
-<p>The error surface \(E\) is not convex w.r.t. the weights \(w\). Nonetheless, its derivatives are still useful for finding directions towards a good local optimum. In fact, finding the global optimum is not only computationally prohibitive, but also it can be harmful. In Section (3), we will discuss the importance to early stopping our search to avoid overfitting. In any case, we always need a way to cheaply compute all partial derivatives. Fortunately, there is an efficient algorithm, called the backpropagation [3] that has \(O(M)\) run-time complexity. Here, \(M\) is the total number of weights in the network.</p>
+<p>The error surface \(E\) is not convex w.r.t. the weights \(w\). Nonetheless, its derivatives are still useful for finding directions towards a good local optimum. In fact, finding the global optimum is not only computationally prohibitive here, but also it can be harmful. We will discuss more about this issue later and emphasize the importance to stopping our search  early to avoid overfitting. In any case, we always need a way to cheaply compute all partial derivatives. Fortunately, there is a clever algorithm, called the <em>backpropagation</em> [3] that does it with \(O(M)\) runtime complexity. Here, \(M\) is the total number of weights in the network.</p>
 
-<h2>Model fitting and prediction algorithms</h2>
-
-<p>Previously, we have described the implementation of deep neural network models. e describe the main functions of the neural network implemented with Julia programming
-language.</p>
+<p>The implementation of the model training or fitting function is shown below:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -215,7 +338,7 @@ language.</p>
 </span><span class='line'><span class="c">##        - fitting options </span>
 </span><span class='line'><span class="c">##        - maximum number of optimization iterations </span>
 </span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="p">@</span><span class="n">debug</span> <span class="k">function</span><span class="nf"> fit</span><span class="o">!</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">options</span><span class="p">::</span><span class="n">FitOptions</span><span class="p">,</span> <span class="n">maxIter</span><span class="p">::</span><span class="kt">Int</span><span class="p">)</span>
+</span><span class='line'><span class="k">function</span><span class="nf"> fit</span><span class="o">!</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">options</span><span class="p">::</span><span class="n">FitOptions</span><span class="p">,</span> <span class="n">maxIter</span><span class="p">::</span><span class="kt">Int</span><span class="p">)</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="c"># assume trainData if preprocessed to make learning faster</span>
 </span><span class='line'>  <span class="c"># e.g. successive examples come from different classes </span>
@@ -252,131 +375,7 @@ language.</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="c">## predict: predict the labels of new samples using forward propagation </span>
-</span><span class='line'><span class="c">## Inputs:</span>
-</span><span class='line'><span class="c">##        - Neural network structure</span>
-</span><span class='line'><span class="c">##        - New samples of size N x p </span>
-</span><span class='line'><span class="c">## Output: a vector of pairs containing:</span>
-</span><span class='line'><span class="c">##        - Maximum posterior probability of predicted class </span>
-</span><span class='line'><span class="c">##        - Label of predicted class ∈ {1,...,C}</span>
-</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="k">function</span><span class="nf"> predict</span><span class="p">(</span><span class="n">net</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">xnew</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">x</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">forwardPropagate</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">xnew</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">prob</span><span class="p">,</span> <span class="n">class</span> <span class="o">=</span> <span class="n">findmax</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="k">end</span><span class="p">])</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Forward propagation</h4>
-
-<p>dsdsd</p>
-
-<p><img class="right" src="../images/neural/forward.png"></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="c">## Forward propagation subroutine</span>
-</span><span class='line'><span class="c">## Inputs: </span>
-</span><span class='line'><span class="c">##        - Training example: xn</span>
-</span><span class='line'><span class="c">##        - Neural network structure: number of layers, number of units</span>
-</span><span class='line'><span class="c">## Outputs: </span>
-</span><span class='line'><span class="c">##        - L+1 output vectors x[l] (including input vector x[1] = xn)</span>
-</span><span class='line'><span class="c">##        - L input vectors s[l] </span>
-</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="p">@</span><span class="n">debug</span> <span class="k">function</span><span class="nf"> forwardPropagate</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">xn</span><span class="p">::</span><span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">})</span>
-</span><span class='line'>  <span class="c"># println(&quot;Forward propagation..&quot;)</span>
-</span><span class='line'>  <span class="c"># Network topology</span>
-</span><span class='line'>  <span class="n">L</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">numLayers</span>                      <span class="c"># number of all layers excluding input </span>
-</span><span class='line'>  <span class="n">C</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">numOutputs</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="c"># Cells containg L input vectors and L+1 output vectors</span>
-</span><span class='line'>  <span class="n">s</span> <span class="o">=</span> <span class="n">cell</span><span class="p">(</span><span class="n">L</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c"># inputs of all layers </span>
-</span><span class='line'>  <span class="n">x</span> <span class="o">=</span> <span class="n">cell</span><span class="p">(</span><span class="n">L</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c"># outputs of all layers</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># Compute input s[l] and output x[l+1] at each layer</span>
-</span><span class='line'>  <span class="c"># Input vector x[1] has no bias node</span>
-</span><span class='line'>  <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xn</span>
-</span><span class='line'>  <span class="c"># Hidden layers</span>
-</span><span class='line'>  <span class="k">for</span> <span class="n">l</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">L</span><span class="o">-</span><span class="mi">1</span>
-</span><span class='line'>      <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">l</span><span class="p">])</span>
-</span><span class='line'>      <span class="n">s</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">W</span><span class="o">&#39;*</span><span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
-</span><span class='line'>      <span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">map</span><span class="p">(</span><span class="n">tanh</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">l</span><span class="p">])]</span>   <span class="c"># use tanh</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>  <span class="c"># Output layer</span>
-</span><span class='line'>  <span class="n">s</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">L</span><span class="p">])</span><span class="o">&#39;</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="n">L</span><span class="p">]</span>
-</span><span class='line'>  <span class="n">x</span><span class="p">[</span><span class="n">L</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="k">if</span> <span class="n">C</span> <span class="o">==</span> <span class="mi">1</span>
-</span><span class='line'>             <span class="n">logit</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">L</span><span class="p">])</span>
-</span><span class='line'>           <span class="k">else</span>
-</span><span class='line'>               <span class="n">softmax</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">L</span><span class="p">])</span>
-</span><span class='line'>           <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c"># return output and input vectors</span>
-</span><span class='line'>  <span class="n">x</span><span class="p">,</span> <span class="n">s</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Backward propagation</h4>
-
-<p>dsds</p>
-
-<p><img class="right" src="../images/neural/backward.png"></p>
-
-<p>dsds</p>
+<p>Basically, the training is performed after multiple iterations of both the forward and backward propagations. Through these rounds, the neural network is trained to model the right relationship between the input and the output. The backward propagation computes the sensisitivy matrices \(\Delta\) as follows:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -455,23 +454,160 @@ language.</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Optimization methods</h2>
+<h2>Optimization the weights</h2>
 
-<p>Next, let’s present different iterative methods for optimizing the weights w(l)ij . There are two general strategies for doing this:</p>
+<p>After the sensitivity matrices are calculated by the weight matrices, the weight matrices are optimized. There are two general strategies for doing this:</p>
 
 <ol>
-<li>Batch gradient descent update the weights using the gradient of the error contributed by all training examples. This is done after a single pass through all the examples as follows:</li>
+<li>Batch gradient descent update the weights using the gradient of the error contributed by all training examples. This is done after a single pass through all the examples.</li>
 <li>Stochastic gradient descent (SGD) is a more efficient method as it immediately updates the weights after seeing each training example[4]. Another advantage of the stochastic approach is that it takes advantage of randomization to escape poor local optimum. The overall SGD algorithm is presented in Table 2.</li>
 </ol>
 
 
 <p><img class="right" src="../images/neural/table2.png"></p>
 
-<p>Different acceleration techniques have also been proposed to speed up the training procedure of neural networks. These include Nesterov’s method, conjugate gradient descent (which only works for batch mode) as well as Newton-type methods. Due to the computational hurdles with training large neural networks, first-order methods such as SGD are more practical.</p>
+<p>Different acceleration techniques have also been proposed to speed up the training procedure of neural networks. These include Nesterov’s method, conjugate gradient descent (which only works for batch mode) as well as Newton-type methods. Due to the computational hurdles with training large neural networks, first-order methods such as SGD are more practical. The implementation of simple SGD method is displayed below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
+</span><span class='line'><span class="c">## updateWeights: update and return the weight matrices at each iteration</span>
+</span><span class='line'><span class="c">## Inputs:</span>
+</span><span class='line'><span class="c">##        - Neural network structure</span>
+</span><span class='line'><span class="c">##        - Sensitivity matrices Δ[l], ∀l ∈ {1,..,L}</span>
+</span><span class='line'><span class="c">##        - Output vectors x[l], ∀l ∈ {1,..,L+1} </span>
+</span><span class='line'><span class="c">##        - Class label of example: yn </span>
+</span><span class='line'><span class="c">## Output: </span>
+</span><span class='line'><span class="c">##        - weights matrices</span>
+</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
+</span><span class='line'><span class="k">function</span><span class="nf"> updateWeights</span><span class="o">!</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="err">Δ</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">yn</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">L</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">numLayers</span>
+</span><span class='line'>  <span class="n">C</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">numOutputs</span>
+</span><span class='line'>  <span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">numInputs</span><span class="p">,</span> <span class="n">reshape</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">numHidden</span><span class="p">,</span> <span class="n">length</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">numHidden</span><span class="p">),</span><span class="mi">1</span><span class="p">),</span> <span class="n">nn</span><span class="o">.</span><span class="n">numOutputs</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Softmax output</span>
+</span><span class='line'>  <span class="n">h</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">L</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Step size</span>
+</span><span class='line'>  <span class="err">μ</span> <span class="o">=</span> <span class="mf">0.1</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># yn is encoded as one-of-C vector</span>
+</span><span class='line'>  <span class="n">yv</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="n">C</span><span class="p">),</span> <span class="n">yn</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Gradient of error w.r.t softmax output vector</span>
+</span><span class='line'>  <span class="err">∇</span><span class="n">e_h</span> <span class="o">=</span> <span class="o">-</span> <span class="n">vec</span><span class="p">(</span><span class="n">yv</span> <span class="o">./</span> <span class="n">h</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Gradient of error w.r.t weight matrix W[L] </span>
+</span><span class='line'>  <span class="c"># assuming softmax output activation and cross-entropy error</span>
+</span><span class='line'>  <span class="err">∇</span><span class="n">e_WL</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">L</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">C</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="p">[</span><span class="n">L</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">j</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">C</span>
+</span><span class='line'>          <span class="err">∇</span><span class="n">e_WL</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">L</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">yv</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="c"># SGD update of weight matrix W[L]</span>
+</span><span class='line'>  <span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">L</span><span class="p">]</span> <span class="o">-</span> <span class="err">μ</span> <span class="o">*</span> <span class="err">∇</span><span class="n">e_WL</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Gradient of error w.r.t weight matrix @ input W[1] </span>
+</span><span class='line'>  <span class="c"># Input has no bias node: W1 is d[1] x d[2] matrix</span>
+</span><span class='line'>  <span class="err">∇</span><span class="n">e_W1</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</span><span class='line'>  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">j</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">C</span>
+</span><span class='line'>          <span class="err">∇</span><span class="n">e_W1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dot</span><span class="p">(</span><span class="err">∇</span><span class="n">e_h</span><span class="p">,</span> <span class="n">vec</span><span class="p">(</span><span class="err">Δ</span><span class="p">[</span><span class="mi">1</span><span class="p">][:,</span><span class="n">j</span><span class="p">]))</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># SGD update of weight matrix W[1]</span>
+</span><span class='line'>  <span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="err">μ</span> <span class="o">*</span> <span class="err">∇</span><span class="n">e_W1</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c"># Gradient of error w.r.t weight matrices of hidden layers</span>
+</span><span class='line'>  <span class="k">for</span> <span class="n">l</span> <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="n">L</span><span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>      <span class="c"># Gradient of error w.r.t weight matrix Wl</span>
+</span><span class='line'>      <span class="c"># x[l] has bias node: Wl is (d[l]+1) x d[l+1] matrix</span>
+</span><span class='line'>      <span class="err">∇</span><span class="n">e_Wl</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="kt">Float64</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'>      <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+</span><span class='line'>          <span class="k">for</span> <span class="n">j</span> <span class="k">in</span> <span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>              <span class="err">∇</span><span class="n">e_Wl</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dot</span><span class="p">(</span><span class="err">∇</span><span class="n">e_h</span><span class="p">,</span> <span class="n">vec</span><span class="p">(</span><span class="err">Δ</span><span class="p">[</span><span class="n">l</span><span class="p">][:,</span><span class="n">j</span><span class="p">]))</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># SGD update the weight matrices </span>
+</span><span class='line'>      <span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">-</span> <span class="err">μ</span> <span class="o">*</span> <span class="err">∇</span><span class="n">e_Wl</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">nn</span><span class="o">.</span><span class="n">weights</span>
+</span><span class='line'><span class="k">end</span>    
+</span></code></pre></td></tr></table></div></figure>
+
 
 <h2>Regularization techniques</h2>
 
-<p>Neural networks offer a considerable flexibility to the extent that they can approximate any function with abritrary complexity. Therefore, they can also easily overfit the data and fail to generalize to give accurate predictions when presented with new data samples. To prevent this, we can use three types of regularization methods: weight decay, early stopping and dropout.</p>
+<p>Neural networks offer a considerable flexibility to the extent that they can approximate any function with abritrary complexity. However, they can also easily overfit the data and fail to generalize to give accurate predictions when presented with new data samples. To prevent this, we can use three types of regularization methods: weight decay, early stopping and dropout.</p>
 
 <h4>Weight decay</h4>
 
@@ -485,56 +621,6 @@ Precisely, it seeks to shrink the weights towards zero.</p>
 <h4>Dropout</h4>
 
 <p>Dropout is another regularization technique that was recently proposed in [6]. The key idea is to randomly drop the units during training with a probability p. When a unit is dropped, all its incoming and outgoing connections are also temporarily removed. For each training point, we sample the network by droping units randomly to produce a “thinned” network. This is usually done within a mini-batch and the weight of each arrow becomes average over the points in the mini-batch. If for one point, the unit connecting the arrow was dropped, its weight counts as zero. At test time, the entire network is used but the weights are scaled by the probability p.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="c">## updateWeights: update and return the weight matrices at each iteration</span>
-</span><span class='line'><span class="c">## Inputs:</span>
-</span><span class='line'><span class="c">##        - Neural network structure</span>
-</span><span class='line'><span class="c">##        - Sensitivity matrices Δ[l], ∀l ∈ {1,..,L}</span>
-</span><span class='line'><span class="c">##        - Output vectors x[l], ∀l ∈ {1,..,L+1} </span>
-</span><span class='line'><span class="c">##        - Class label of example: yn </span>
-</span><span class='line'><span class="c">## Output: </span>
-</span><span class='line'><span class="c">##        - weights matrices</span>
-</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="k">function</span><span class="nf"> updateWeights</span><span class="o">!</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="err">Δ</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">yn</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Weight initialization</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='julia'><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'><span class="c">## initWeights: initializate weights matrices</span>
-</span><span class='line'><span class="c">## Inputs:</span>
-</span><span class='line'><span class="c">##        - Neural network structure</span>
-</span><span class='line'><span class="c">##        - Sensitivity matrices Δ[l], ∀l ∈ {1,..,L}</span>
-</span><span class='line'><span class="c">##        - Output vectors x[l], ∀l ∈ {1,..,L+1} </span>
-</span><span class='line'><span class="c">##        - Class label of example: yn </span>
-</span><span class='line'><span class="c">##----------------------------------------------------------------------</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">function</span><span class="nf"> initWeights</span><span class="o">!</span><span class="p">(</span><span class="n">nn</span><span class="p">::</span><span class="n">NeuralNet</span><span class="p">,</span> <span class="n">X</span><span class="p">::</span><span class="n">Array</span><span class="p">{</span><span class="kt">Float64</span><span class="p">})</span>
-</span></code></pre></td></tr></table></div></figure>
-
 
 <h2>References</h2>
 
