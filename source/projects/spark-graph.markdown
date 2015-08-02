@@ -5,7 +5,6 @@ date: May 24, 2015
 comments: true
 sharing: true
 footer: true
-categories: scala tutorial graphx spark analytics
 ---
 
 
