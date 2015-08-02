@@ -74,7 +74,7 @@ html {
   overflow-y: scroll;
 }
 body {
-  > div {
+  > div#main {
     background: $page-bg;
     border-bottom: 0;
     > div {
