@@ -4,7 +4,7 @@
   <title><![CDATA[Giocode labs]]></title>
   <link href="http://giocode.github.io/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-02T00:51:53-07:00</updated>
+  <updated>2015-08-03T16:25:56-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -12,6 +12,151 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Slick Database Programming in Scala]]></title>
+    <link href="http://giocode.github.io/blog/2015/06/02/functional-database-programming-with-slick/"/>
+    <updated>2015-06-02T19:38:49-07:00</updated>
+    <id>http://giocode.github.io/blog/2015/06/02/functional-database-programming-with-slick</id>
+    <content type="html"><![CDATA[<h2 id="awesome-are-scala-collections">Awesome are Scala Collections.</h2>
+<p>Working with Scala collections is simply a joy and apparently effortless! Their interfaces are rich, consistent and nicely separated from implementation. Yet, we have many to choose from and each collection offers different characteristics in terms of performance, mutability and laziness. <img class="right" src="../images/slick.png" width="260" height="260" />Chances are you will find the right tool for the job. In addition, Scala collections work great with for-comprehensions. With Scala, not only do we have power but also we have a flexibility to express our computations: either in a Map-Reduce-Filter pattern or simply using a for expression. With Scala collections, we can always get rid of boilerplate and understand performance. </p>
+
+<h3 id="so-is-slick">So is Slick!</h3>
+<p>With the Slick library, database programming would also enjoy such simplicity. Slick is a cool library that enable to query and access relational databases in plain Scala. Slick enables us to treat database tables almost as if they were Scala collections. In addition, it also gives us full control over when a database access happens and which data is transferred. In addition to its functional relational mapping features, Slick queries are type safe expressions. In other words, the compiler can catch inconsistencies at compile-time. Furthermore, we can compose simple queries into more complex ones and we can do so before even running them against the database. Apart from that, Slick also simplifies database managementt asks from creating schema and data models to managing connections and query transactions.</p>
+
+<p>In this tutorial, I will highlight Slick’s functional features and use the database of a Wine restaurant as an illustrative example. </p>
+
+<!-- more -->
+
+<h2 id="getting-started-with-slick">Getting Started with Slick</h2>
+
+<p>Programming a Slick database application consists of the following steps: </p>
+
+<ol>
+  <li>Configuring the database driver dependencies in SBT. </li>
+  <li>Defining the database schema.</li>
+  <li>Creating Slick queries</li>
+  <li>Connecting to the database </li>
+  <li>Run the queries or CRUD operations</li>
+</ol>
+
+<p>Let’s go through these steps in detail.</p>
+
+<h3 id="configuring-build-dependencies">Configuring Build Dependencies</h3>
+
+<p>We start by creating an SBT Scala project and configure the build settings in build.sbt:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;wine-slick-example&quot;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">version</span> <span class="o">:=</span> <span class="s">&quot;1.0&quot;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">scalaVersion</span> <span class="o">:=</span> <span class="s">&quot;2.11.6&quot;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">libraryDependencies</span> <span class="o">+=</span> <span class="s">&quot;org.scala-lang&quot;</span> <span class="o">%</span> <span class="s">&quot;scala-compiler&quot;</span> <span class="o">%</span> <span class="n">scalaVersion</span><span class="o">.</span><span class="n">value</span>
+</span><span class="line">
+</span><span class="line"><span class="n">libraryDependencies</span> <span class="o">++=</span> <span class="nc">List</span><span class="o">(</span>
+</span><span class="line">  <span class="s">&quot;com.typesafe.slick&quot;</span> <span class="o">%%</span> <span class="s">&quot;slick&quot;</span>           <span class="o">%</span> <span class="s">&quot;2.1.0&quot;</span><span class="o">,</span>
+</span><span class="line">  <span class="s">&quot;com.h2database&quot;</span>      <span class="o">%</span> <span class="s">&quot;h2&quot;</span>              <span class="o">%</span> <span class="s">&quot;1.3.0&quot;</span><span class="o">,</span>
+</span><span class="line">  <span class="s">&quot;ch.qos.logback&quot;</span>      <span class="o">%</span> <span class="s">&quot;logback-classic&quot;</span> <span class="o">%</span> <span class="s">&quot;1.1.2&quot;</span>
+</span><span class="line"><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>This file declares the library dependencies that a Slick project at least needs: the Slick library, the database driver library and a logging library. Here, we have chosen H2 database for simplicity. If you were to use MySQL or PostgreSQL, then the H2 dependency should be replaced by the corresponding JDBC driver. </p>
+
+<p>Once the SBT configurations are set, we can build our Slick application and start by importing the H2 Library: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">import</span> <span class="nn">scala.slick.driver.H2Driver</span>
+</span><span class="line"><span class="k">import</span> <span class="nn">scala.slick.driver.H2Driver.simple._</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>These help Slick to understand the functions provided by the database-specific driver (e.g. H2 driver here). It is convenient to import everything from <code>H2Driver.simple</code> to make sure all required implicit conversions and extension methods are in place when Slick needs them.</p>
+
+<h3 id="defining-the-schema">Defining the Schema</h3>
+
+<p>After these simple configurations, we need define the database table and the type of each row in the table. In our example, we will only define one table of wines. Therefore, let’s create a case class <code>Wine</code> and define its properties: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Message type </span>
+</span><span class="line"><span class="k">final</span> <span class="k">case</span> <span class="k">class</span> <span class="nc">Wine</span><span class="o">(</span><span class="n">color</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">maker</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">year</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span>
+</span><span class="line">					  <span class="n">country</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">price</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">id</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">0L</span><span class="o">){</span>
+</span><span class="line">    <span class="k">override</span> <span class="k">def</span> <span class="n">toString</span> <span class="k">=</span> <span class="n">f</span><span class="s">&quot;$name $year ($country ~ $color)&quot;</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Next, let’s define the table <code>WineTable</code>:  </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Define a Table[Wine]</span>
+</span><span class="line"><span class="k">final</span> <span class="k">class</span> <span class="nc">WineTable</span><span class="o">(</span><span class="n">tag</span><span class="k">:</span> <span class="kt">Tag</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Table</span><span class="o">[</span><span class="kt">Wine</span><span class="o">](</span><span class="n">tag</span><span class="o">,</span> <span class="s">&quot;wine&quot;</span><span class="o">)</span> <span class="o">{</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">id</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Long</span><span class="o">](</span><span class="s">&quot;id&quot;</span><span class="o">,</span> <span class="n">O</span><span class="o">.</span><span class="nc">PrimaryKey</span><span class="o">,</span> <span class="n">O</span><span class="o">.</span><span class="nc">AutoInc</span><span class="o">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">color</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="s">&quot;color&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">maker</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="s">&quot;maker&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">name</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="s">&quot;name&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">year</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Int</span><span class="o">](</span><span class="s">&quot;year&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">country</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="s">&quot;country&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="n">price</span> <span class="k">=</span> <span class="n">column</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="s">&quot;price&quot;</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="o">*</span> <span class="k">=</span> <span class="o">(</span><span class="n">color</span><span class="o">,</span> <span class="n">maker</span><span class="o">,</span> <span class="n">name</span><span class="o">,</span> <span class="n">year</span><span class="o">,</span> <span class="n">country</span><span class="o">,</span> <span class="n">price</span><span class="o">,</span> <span class="n">id</span><span class="o">)</span> <span class="o">&lt;&gt;</span> <span class="o">(</span><span class="nc">Wine</span><span class="o">.</span><span class="n">tupled</span><span class="o">,</span> <span class="nc">Wine</span><span class="o">.</span><span class="n">unapply</span><span class="o">)</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In the above code, we tell Slick three important things: </p>
+
+<ul>
+  <li>First, we tell Slick to define a table of wine by extending the abstract class <code>Table</code> with the type parameter <code>Wine</code>. By convention (since Slick 2.0), we also need to pass an extra tag argument with the table name. Note that the tag is however automatically passed by Slick and we do not need to specify it. </li>
+  <li>Second, we specify the type, name and any constraint for each column in the table by defining a get method for each property of <code>Wine</code>. For example, we add the constraint for <code>id</code> to be an auto-incrementing primary key.</li>
+  <li>Finally, the projecion operator <code>*</code> is defined to map each row in <code>WineTable</code> to the Scala class <code>Wine</code> using <code>Wine</code>’s default <code>tupled</code> and <code>unapply</code> method.</li>
+</ul>
+
+<h3 id="creating-queries">Creating queries</h3>
+
+<h2 id="more-about-crud-operations">More about CRUD operations</h2>
+
+<h3 id="creating-tables">Creating tables</h3>
+
+<h3 id="select-statement">Select statement</h3>
+
+<h3 id="inserting-rows">Inserting rows</h3>
+
+<h3 id="updating-rows">Updating rows</h3>
+
+<h3 id="deleting-rows">Deleting rows</h3>
+
+<h2 id="joins-and-aggregates">Joins and Aggregates</h2>
+
+<h2 id="reactive-streams-in-slick-30">Reactive Streams in Slick 3.0</h2>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Functional Playground: Solving the Rush Hour Game in Haskell]]></title>
@@ -450,7 +595,7 @@ After evaluating the previous state, we add it to the list of explored states an
     <link href="http://giocode.github.io/blog/2014/10/15/scala-flavors-a-tasting-tour/"/>
     <updated>2014-10-15T17:50:32-07:00</updated>
     <id>http://giocode.github.io/blog/2014/10/15/scala-flavors-a-tasting-tour</id>
-    <content type="html"><![CDATA[<p>This a is the first part on a series of tutorials on Scala’s language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this <code>beautiful</code> language. In this first part, we will cover two points: </p>
+    <content type="html"><![CDATA[<p>This a is the first part on a series of tutorials on Scala’s language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this <code>beautiful</code> language. In this first part, we will cover two points: <img class="left" src="../images/scalabovolo.png" width="200" height="300" /></p>
 
 <ul>
   <li>Scala’s type system</li>
@@ -464,6 +609,8 @@ After evaluating the previous state, we add it to the list of explored states an
 <h3 id="values-variables-and-types">Values, variables and Types</h3>
 
 <p>There are two possible ways to associate a name to a value or an expression. The first one is <code>val</code>, which is used to permanently bind a value to an indentifier. Once a val is set, its value can no longer be reassigned. In other words, vals are like constants. </p>
+
+<!-- more -->
 
 <div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>

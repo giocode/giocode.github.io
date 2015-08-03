@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tutorials | Giocode labs]]></title>
   <link href="http://giocode.github.io/blog/categories/tutorials/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-02T00:51:53-07:00</updated>
+  <updated>2015-08-03T16:25:56-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -436,7 +436,7 @@ So that’s how elegant a state-space search can be implemented in Haskell. <cod
     <link href="http://giocode.github.io/blog/2014/10/15/scala-flavors-a-tasting-tour/"/>
     <updated>2014-10-15T17:50:32-07:00</updated>
     <id>http://giocode.github.io/blog/2014/10/15/scala-flavors-a-tasting-tour</id>
-    <content type="html"><![CDATA[<p>This a is the first part on a series of tutorials on Scala’s language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this <code>beautiful</code> language. In this first part, we will cover two points: </p>
+    <content type="html"><![CDATA[<p>This a is the first part on a series of tutorials on Scala’s language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this <code>beautiful</code> language. In this first part, we will cover two points: <img class="left" src="../images/scalabovolo.png" width="200" height="300"></p>
 
 <ul>
   <li>Scala’s type system</li>
@@ -450,6 +450,8 @@ So that’s how elegant a state-space search can be implemented in Haskell. <cod
 <h3 id="values-variables-and-types">Values, variables and Types</h3>
 
 <p>There are two possible ways to associate a name to a value or an expression. The first one is <code>val</code>, which is used to permanently bind a value to an indentifier. Once a val is set, its value can no longer be reassigned. In other words, vals are like constants. </p>
+
+<!-- more -->
 
 <p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
