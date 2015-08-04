@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Haskell | Giocode labs]]></title>
   <link href="http://giocode.github.io/blog/categories/haskell/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-03T19:34:15-07:00</updated>
+  <updated>2015-08-03T19:50:35-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -432,7 +432,7 @@ So that’s how elegant a state-space search can be implemented in Haskell. <cod
 
 <p>Yay! Now, try it with a super tough challenge.</p>
 
-<p></p>
+<!--  -->
 
 ]]></content>
   </entry>

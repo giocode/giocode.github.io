@@ -4,7 +4,7 @@
   <title><![CDATA[Giocode labs]]></title>
   <link href="http://giocode.github.io/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-03T19:34:15-07:00</updated>
+  <updated>2015-08-03T19:50:35-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -22,9 +22,9 @@
 <p>Working with Scala collections is simply a joy and apparently effortless! Their interfaces are rich, consistent and nicely separated from implementation. Yet, we have many to choose from and each collection offers different characteristics in terms of performance, mutability and laziness. <img class="right" src="./images/slick.png" width="260" height="260" />Chances are you will find the right tool for the job. In addition, Scala collections work great with for-comprehensions. With Scala, not only do we have power but also we have a flexibility to express our computations: either in a Map-Reduce-Filter pattern or simply using a for expression. With Scala collections, we can always get rid of boilerplate and understand performance. </p>
 
 <h3 id="so-is-slick">So is Slick!</h3>
-<p>With the Slick library, database programming would also enjoy such simplicity. Slick is a cool library that enable to query and access relational databases in plain Scala. Slick enables us to treat database tables almost as if they were Scala collections. In addition, it also gives us full control over when a database access happens and which data is transferred. In addition to its functional relational mapping features, Slick queries are type safe expressions. In other words, the compiler can catch inconsistencies at compile-time. Furthermore, we can compose simple queries into more complex ones and we can do so before even running them against the database. Apart from that, Slick also simplifies database managementt asks from creating schema and data models to managing connections and query transactions.</p>
+<p>With the Slick library, database programming would also enjoy such simplicity. Slick is a cool library that enable to query and access relational databases in plain Scala. Slick enables us to treat database tables almost as if they were Scala collections. In addition, it also gives us full control over when a database access happens and which data is transferred. In addition to its functional relational mapping features, Slick queries are type safe expressions. In other words, the compiler can catch inconsistencies at compile-time. Furthermore, we can compose simple queries into more complex ones and we can do so before even running them against the database. Apart from that, Slick also simplifies database management tasks such as describing schema, creating data models, managing connections and building transactions.</p>
 
-<p>In this tutorial, I will highlight Slick’s functional features and use the database of a Wine restaurant as an illustrative example. </p>
+<p>In this tutorial, I will highlight Slick’s functional features and use the wine database of <em>Scala Vino Restaurant</em> as an illustrative example. </p>
 
 <!-- more -->
 
@@ -1001,21 +1001,7 @@ After evaluating the previous state, we add it to the list of explored states an
 
 <p>Yay! Now, try it with a super tough challenge.</p>
 
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-  var disqus_shortname = 'Rico'; // required: replace example with your forum shortname
-
-  /* * * DON'T EDIT BELOW THIS LINE * * */
-  (function() {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<p><a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></p>
+<!--  -->
 
 ]]></content>
   </entry>
@@ -1375,22 +1361,6 @@ The difference between methods and functions in Scala is similar to that of inst
 This function literal takes as input <code>v</code>, which has a type of a two-element tuple <code>(Double, String)</code>. Then, it returns of a value of the same type but with the ingredient quantity scaled by the number of serving <code>p</code>. We did not to specify the type signature of the function since Scala could infer to type of <code>v</code> from the type of <code>this.ingredients</code>.</p>
 
 <p>We have reached the end of the Part 1 of this tour on “Scala flavors”. In Part 2, we will revisit some Scala object-oriented features including <em>case classes</em> and <em>companion objects</em>. We’ll also get a taste of <em>first-class functions</em> in Scala. Finally, we’ll touch on immutability vs. mutability in Scala.</p>
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-  /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-  var disqus_shortname = 'Rico'; // required: replace example with your forum shortname
-
-  /* * * DON'T EDIT BELOW THIS LINE * * */
-  (function() {
-      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
-
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<p><a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></p>
 
 ]]></content>
   </entry>
