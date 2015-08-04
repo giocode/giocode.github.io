@@ -2,7 +2,7 @@
 layout: page
 title: "Deep Learning for Image Classification"
 date: December 15, 2014 22:20:12 -0700
-comments: true
+comments: false
 sharing: true
 footer: true
 ---

@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+
+<html xmlns='http://www.w3.org/1999/xhtml' dir='ltr'>
+
+<head>
+  
+
+  <title>
+  
+    Panoramio - Photo of Scala del Bernini, Santa Maria Maggiore
+  
+</title>
+  <meta name='description' content='Photo-sharing community. Discover the world through photos.' />
+  <meta http-equiv="X-UA-Compatible" content="IE=9" />
+  <link rel='shortcut icon' type='image/x-icon' href='/img/favicon.ico' />
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400|Open+Sans:300&amp;subset=latin,latin-ext,cyrillic,cyrillic-ext,greek,greek-ext,vietnamese">
+  
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-184567-1'],
+                ['_trackPageview', '/photo/...']);
+      
+        _gaq.push(['_trackEvent',
+          "AcrylicPageView",
+          "True",
+          null || undefined,
+          null || undefined,
+          !false,
+          ]);
+      
+
+      (function() {
+        var ga = document.createElement('script');
+        ga.src = ('https:' == document.location.protocol ?
+            'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        ga.setAttribute('async', 'true');
+        document.documentElement.firstChild.appendChild(ga);
+      })();
+    </script>
+  
+  <script type="text/javascript">
+    var close_str = '[Close]';
+    var we_cant_find_str =
+       'We can\u0027t find \u003Cem\u003E%s\u003C/em\u003E.';
+  </script>
+  
+    <link rel='stylesheet' type='text/css' href='/css/screen_interim.ltr.css?v=402346' />
+  
+    <link rel='stylesheet' type='text/css' href='/css/acrylic.ltr.css?v=be9479' />
+  
+  
+    <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js'></script>
+  
+    <script type='text/javascript' src='/js/jquery-history.js'></script>
+  
+    <script type='text/javascript' src='//maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places,search&amp;language=en&amp;client=google-panoramio'></script>
+  
+    <script type='text/javascript' src='/wapi/wapi.js?v=1.h&amp;sv=ed9971'></script>
+  
+    <script type='text/javascript' src='/js_lib/panoramio.js?v=5c85bc'></script>
+  
+    <script type='text/javascript' src='/js/photo.js?sv=e37f7b'></script>
+  
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="canonical" href="http://www.panoramio.com/photo/114709250" />
+  <script type="text/javascript">
+    //<![CDATA[
+
+  pano.translation.register(
+      'Are you sure you want to remove this photo from the group?',
+      'Are you sure you want to remove this photo from the group?');
+  pano.translation.register(
+      'Loading…',
+      'Loading…');
+  pano.translation.register(
+      'Please add an explanation to your relocation suggestion.',
+      'Please add an explanation to your relocation suggestion.');
+
+
+var addToFavoritesTxt = "Add to favorites";
+var removeFromFavoritesTxt = "Remove from favorites";
+
+/*
+ * Jeditable http://www.appelsiini.net/download/jquery.jeditable.js - jQuery in place edit plugin
+ *
+ * Copyright (c) 2006-2007 Mika Tuupola, Dylan Verheul
+ *
+ * Licensed under the MIT license:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *
+ */
+eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)d[e(c)]=k[c]||e(c);k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('(4($){$.1Y.d=4(A,11){5 0={A:A,x:\'1X\',B:\'B\',j:\'13\',f:\'T\',g:\'T\',1n:\'14\',I:\'r\',1d:\'1W\',1e:\'1V...\',z:\'1U 1T 1S\',o:{},k:{}};2(11){$.G(0,11)}5 Y=$.d.h[0.j].Y||4(){};5 c=$.d.h[0.j].c||4(){};5 F=$.d.h[0.j].F||$.d.h[\'O\'].F;5 s=$.d.h[0.j].s||$.d.h[\'O\'].s;5 q=$.d.h[0.j].q||$.d.h[\'O\'].q;5 Q=0.Q||4(){};$(6).a(\'1R\',0.1Q);0.1m=\'T\'==0.f;0.1l=\'T\'==0.g;u 6.12(4(){2(!$.P($(6).7())){$(6).7(0.z)}$(6)[0.1n](4(e){5 1=6;2(1.y){u}2(0.f!=\'N\'){0.f=0.1m?$(1).f():0.f}2(0.g!=\'N\'){0.g=0.1l?$(1).g():0.g}2($(6).7().1k().1j(/;/,\'\')==0.z.1k().1j(/;/,\'\')){$(6).7(\'\')}1.y=1f;1.w=$(1).7();$(1).7(\'\');5 8=$(\'<8/>\');$(1).m(8);2(0.Z){2(\'1i\'==0.Z){8.a(\'10\',$(1).a(\'10\'))}b{8.a(\'10\',0.Z)}}2(0.D){2(\'1i\'==0.D){8.a(\'D\',$(1).a(\'D\'));8.1h(\'1g\',$(1).1h(\'1g\'))}b{8.a(\'D\',0.D)}}5 3=q.9(8,[0,1]);5 C;2(0.1c){5 t=19(4(){3.1a=1f;s.9(8,[0.1e,0,1])},1P);5 o={};o[0.B]=1.B;2($.H(0.o)){$.G(o,0.o.9(1,[1.w,0]))}b{$.G(o,0.o)}$.1O({j:0.1d,1N:0.1c,J:o,1M:v,1L:4(1b){1K.18(t);C=1b;3.1a=v}})}b 2(0.J){C=0.J;2($.H(0.J)){C=0.J.9(1,[1.w,0])}}b{C=1.w}s.9(8,[C,0,1]);3.a(\'x\',0.x);F.9(8,[0,1]);2(0.l){3.l()}Y.9(8,[0,1]);$(\':3:1J:1I:15\',8).1H();3.1G(4(e){2(e.1F==1E){e.17();X()}});5 t;2(\'r\'==0.I){3.S(4(e){t=19(X,1D)})}b 2(\'c\'==0.I){3.S(4(e){8.c()})}b 2($.H(0.I)){3.S(4(e){0.I.9(1,[3.p(),0])})}b{3.S(4(e){})}8.c(4(e){2(t){18(t)}e.17();c.9(8,[0,1]);2($.H(0.A)){5 R=0.A.9(1,[3.p(),0]);$(1).7(R);1.y=v;Q.9(1,[1.16,0]);2(!$.P($(1).7())){$(1).7(0.z)}}b{5 k={};k[0.x]=3.p();k[0.B]=1.B;2($.H(0.k)){$.G(k,0.k.9(1,[1.w,0]))}b{$.G(k,0.k)}$(1).7(0.1C);$.1B(0.A,k,4(R){$(1).7(R);1.y=v;Q.9(1,[1.16,0]);2(!$.P($(1).7())){$(1).7(0.z)}})}u v});4 X(){$(1).7(1.w);1.y=v;2(!$.P($(1).7())){$(1).7(0.z)}}})})};$.d={h:{O:{q:4(0,i){5 3=$(\'<3 j="1A">\');$(6).m(3);u(3)},s:4(E,0,i){$(\':3:15\',6).p(E)},F:4(0,i){2(0.c){5 c=$(\'<3 j="c">\');c.p(0.c);$(6).m(c)}2(0.r){5 r=$(\'<3 j="1z">\');r.p(0.r);$(6).m(r);$(r).14(4(){$(i).7(i.w);i.y=v})}}},13:{q:4(0,i){5 3=$(\'<3>\');2(0.f!=\'N\'){3.f(0.f)}2(0.g!=\'N\'){3.g(0.g)}3.a(\'1y\',\'1x\');$(6).m(3);u(3)}},n:{q:4(0,i){5 n=$(\'<n>\');2(0.W){n.a(\'W\',0.W)}b{n.g(0.g)}2(0.V){n.a(\'V\',0.V)}b{n.f(0.f)}$(6).m(n);u(n)}},l:{q:4(0,i){5 l=$(\'<l>\');$(6).m(l);u(l)},s:4(E,0,i){2(1w==E.1v){1u(\'5 L = \'+E);1t(5 M 1s L){2(\'K\'==M){1r}5 U=$(\'<U>\').p(M).m(L[M]);$(\'l\',6).m(U)}}$(\'l\',6).1q().12(4(){2($(6).p()==L[\'K\']){$(6).a(\'K\',\'K\')}})}}},1p:4(x,3){$.d.h[x]=3}}})(1o);',62,123,'settings|self|if|input|function|var|this|html|form|apply|attr|else|submit|editable||width|height|types|original|type|submitdata|select|append|textarea|loaddata|val|element|cancel|content||return|false|revert|name|editing|placeholder|target|id|input_content|style|string|buttons|extend|isFunction|onblur|data|selected|json|key|none|defaults|trim|callback|str|blur|auto|option|cols|rows|reset|plugin|cssclass|class|options|each|text|click|first|innerHTML|preventDefault|clearTimeout|setTimeout|disabled|result|loadurl|loadtype|loadtext|true|display|css|inherit|replace|toLowerCase|autoheight|autowidth|event|jQuery|addInputType|children|continue|in|for|eval|constructor|String|off|autocomplete|button|hidden|post|indicator|500|27|keyCode|keydown|focus|enabled|visible|window|success|async|url|ajax|100|tooltip|title|edit|to|Click|Loading|GET|value|fn'.split('|'),0,{}));
+/* Copyright (c) 2007 Paul Bakaus (paul.bakaus@googlemail.com) and Brandon Aaron (brandon.aaron@gmail.com || http://brandonaaron.net)
+ * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
+ * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
+ */
+(function($){$.dimensions={version:'1.2'};$.each(['Height','Width'],function(i,name){$.fn['inner'+name]=function(){if(!this[0])return;var torl=name=='Height'?'Top':'Left',borr=name=='Height'?'Bottom':'Right';return this.is(':visible')?this[0]['client'+name]:num(this,name.toLowerCase())+num(this,'padding'+torl)+num(this,'padding'+borr);};$.fn['outer'+name]=function(options){if(!this[0])return;var torl=name=='Height'?'Top':'Left',borr=name=='Height'?'Bottom':'Right';options=$.extend({margin:false},options||{});var val=this.is(':visible')?this[0]['offset'+name]:num(this,name.toLowerCase())+num(this,'border'+torl+'Width')+num(this,'border'+borr+'Width')+num(this,'padding'+torl)+num(this,'padding'+borr);return val+(options.margin?(num(this,'margin'+torl)+num(this,'margin'+borr)):0);};});$.each(['Left','Top'],function(i,name){$.fn['scroll'+name]=function(val){if(!this[0])return;return val!=undefined?this.each(function(){this==window||this==document?window.scrollTo(name=='Left'?val:$(window)['scrollLeft'](),name=='Top'?val:$(window)['scrollTop']()):this['scroll'+name]=val;}):this[0]==window||this[0]==document?self[(name=='Left'?'pageXOffset':'pageYOffset')]||$.boxModel&&document.documentElement['scroll'+name]||document.body['scroll'+name]:this[0]['scroll'+name];};});$.fn.extend({position:function(){var left=0,top=0,elem=this[0],offset,parentOffset,offsetParent,results;if(elem){offsetParent=this.offsetParent();offset=this.offset();parentOffset=offsetParent.offset();offset.top-=num(elem,'marginTop');offset.left-=num(elem,'marginLeft');parentOffset.top+=num(offsetParent,'borderTopWidth');parentOffset.left+=num(offsetParent,'borderLeftWidth');results={top:offset.top-parentOffset.top,left:offset.left-parentOffset.left};}return results;},offsetParent:function(){var offsetParent=this[0].offsetParent;while(offsetParent&&(!/^body|html$/i.test(offsetParent.tagName)&&$.css(offsetParent,'position')=='static'))offsetParent=offsetParent.offsetParent;return $(offsetParent);}});function num(el,prop){return parseInt($.curCSS(el.jquery?el[0]:el,prop,true))||0;};})(jQuery);
+
+var nbComments = 2;
+var mk;
+
+
+function switchStarred() {
+  var on = $("#favorite-icon").hasClass('icon_favorite_selected')
+  var post_base_url = '/do/favorites/photo/' + 114709250
+  var args = {xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA', 'owner_id': 4879288 }
+
+  if (on) {
+    $('#favorite-text').css('display', 'inline-block');
+    $('#unfavorite-text').hide();
+    $('#favorite-icon').addClass('icon_favorite');
+    $('#favorite-icon').removeClass('icon_favorite_selected');
+    $.post(post_base_url + '/remove', args, function() {
+      loadCounterSnippet(true);
+    });
+  }
+  else {
+    $('#favorite-text').hide();
+    $('#unfavorite-text').css('display', 'inline-block');
+    $('#favorite-icon').removeClass('icon_favorite');
+    $('#favorite-icon').addClass('icon_favorite_selected');
+    $.post(post_base_url + '/add', args, function () {
+      loadCounterSnippet(true);
+    });
+  }
+  return false;
+}
+
+
+/**
+ * Make a photo as liked (aka best of).
+ */
+function likePhoto() {
+  $.post('/do/bestof/photo/' + 114709250 + '/add',
+         { xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+, 'owner_id': 4879288 }, function() {
+    $('#likeit').hide();
+    $('#unlikeit').show();
+    loadCounterSnippet(true);
+  });
+  return false;
+}
+
+
+/**
+ * Unlike a previously liked photo.
+ */
+function unlikePhoto() {
+  $.post('/do/bestof/photo/' + 114709250 + '/remove',
+         { xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+, 'owner_id': 4879288 }, function() {
+    $('#unlikeit').hide();
+    $('#likeit').show();
+    loadCounterSnippet(true);
+  });
+  return false;
+}
+
+
+/**
+ * Mark a photo as "best" (add tag "portfolio_light.tag_name" to the photo).
+ */
+function markPhotoAsBest() {
+  $.post(
+      '/do/tags/photo/' + 114709250 + '/add',
+      {
+          xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+,
+          'tags': 'best',
+          'owner_id': 4879288 },
+      function() {
+          $('#mark_as_best').hide();
+          $('#marked_as_best').show();
+      });
+  return false;
+}
+
+
+/**
+ * Mark a photo as not "best" (remove tag "portfolio_light.tag_name" from the
+ * photo).
+ */
+function markPhotoAsNotBest() {
+  $.post(
+      '/do/tags/photo/' + 114709250 + '/remove',
+      {
+          xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+,
+          'tags': 'best',
+          'owner_id': 4879288 },
+      function() {
+          $('#mark_as_best').show();
+          $('#marked_as_best').hide();
+      });
+  return false;
+}
+
+/**
+ * Add a photo marker with a photo to the map received as parameter.
+ *
+ * @param {double} lat The latitude on which the marker should be positioned.
+ * @param {double} lon The longitude on which the marker should be positioned.
+ * @param {string} url The marker image source.
+ * @param {google.maps.Map} map The map that will hold the new marker.
+ * @param {integer} photo_id The id of the photo used to link the marker.
+ */
+function addNearbyPhoto(lat, lon, url, map, photoId) {
+  var point = new google.maps.LatLng(lat, lon);
+  var icon = new google.maps.MarkerImage(
+    url,
+    new google.maps.Size(32, 32),
+    undefined,
+    new google.maps.Point(16, 32));
+  var marker = new google.maps.Marker({
+      'position': point,
+      'icon': icon,
+      'map': map,
+      'clickable': true,
+      'visible': true});
+  var clickHandler = function() {
+    window.location.href="/photo/" + photoId;
+  };
+  google.maps.event.addListener(marker, 'click', clickHandler);
+}
+
+/**
+ * The query to review again the photo has been received correctly.
+ *
+ * Note that the it was maybe not possible to accept the review. You will know
+ * looking at the value of successful (must be equal to [photo_id]).
+ *
+ * @param {string} response received from the server to the review query.
+ */
+function reviewRequestReceived(msg) {
+  try {
+    var review_results = eval('(' + msg + ')');
+    if (review_results["successful"][0] == 114709250) {
+      $("#second_review_spin_wheel, #second_review_span").hide();
+      alert("We will review this photo again shortly.");
+    }
+    else {
+      reviewRequestError();
+    }
+  }
+  catch(err) {
+    reviewRequestError();
+  }
+}
+
+/**
+ * The query to review again the photo has not been received correctly.
+ */
+function reviewRequestError() {
+  $("#second_review_spin_wheel, #second_review_span").hide();
+  alert("Ops, it didn\u0027t work. Please try again later.");
+}
+
+/**
+ * Request a second review for this photo.
+ *
+ * @return {bool} False to stop the default processing of the event that called
+ *   this function (if any).
+ */
+function requestReview() {
+  $.ajax({
+      type: "POST",
+      url: "/do/review_request/",
+      data: { xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+, photo_ids: 114709250 },
+      success: reviewRequestReceived,
+      error: reviewRequestError
+  });
+  $("#second_review_spin_wheel").show();
+  $("#second_review_span").hide();
+  return false;
+}
+
+var ownerId = 4879288;
+var photoId = 114709250;
+var xsrfToken = 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA';
+
+// Variables for the Translate comments feature.
+var currentLanguage = 'en';
+var translatedFromStr = 'Translated from %(language)s.';
+var translateErrorStr = 'Translation was unsuccessful.';
+// The following language map can be fetched from translate by
+// http://translate.google.com/translate_a/l?client=X&hl=X&cb=1
+// It would cost an additional http call, and it will not cover translations
+// for some of Panoramio supported languages (e.g., ma, ast), so we just
+// precompute it here.
+var languageMap = {  // Supported source languages by Google Translate.
+  'af': 'Afrikaans',
+  'sq': 'Albanian',
+  'ar': 'Arabic',
+  'be': 'Belarusian',
+  'bg': 'Bulgarian',
+  'ca': 'Catalan',
+  'zh-CN': 'Simplified Chinese',
+  'zh-TW': 'Traditional Chinese',
+  'hr': 'Croatian',
+  'cs': 'Czech',
+  'da': 'Danish',
+  'nl': 'Dutch',
+  'en': 'English',
+  'et': 'Estonian',
+  'tl': 'Filipino',
+  'fi': 'Finnish',
+  'fr': 'French',
+  'gl': 'Galician',
+  'de': 'German',
+  'el': 'Greek',
+  'ht': 'Haitian Creole',
+  'iw': 'Hebrew',
+  'hi': 'Hindi',
+  'hu': 'Hungarian',
+  'is': 'Icelandic',
+  'id': 'Indonesian',
+  'ga': 'Irish',
+  'it': 'Italian',
+  'ja': 'Japanese',
+  'lv': 'Latvian',
+  'lt': 'Lithuanian',
+  'mk': 'Macedonian',
+  'ms': 'Malay',
+  'mt': 'Maltese',
+  'no': 'Norwegian',
+  'fa': 'Persian',
+  'pl': 'Polish',
+  'pt': 'Portuguese',
+  'ro': 'Romanian',
+  'ru': 'Russian',
+  'sr': 'Serbian',
+  'sk': 'Slovak',
+  'sl': 'Slovenian',
+  'es': 'Spanish',
+  'sw': 'Swahili',
+  'sv': 'Swedish',
+  'th': 'Thai',
+  'tr': 'Turkish',
+  'uk': 'Ukrainian',
+  'vi': 'Vietnamese',
+  'cy': 'Welsh',
+  'yi': 'Yiddish'
+};
+
+var widget = null;
+function initWapi() {
+  var options = {
+      'width': 295,
+      'height': 48,
+      'columns': 6,
+      'rows': 1,
+      'croppedPhotos': true,
+      'orientation': panoramio.PhotoListWidgetOptions.HORIZONTAL,
+      'attributionStyle': panoramio.tos.Style.HIDDEN,
+      'photoUrlGetter': function(photo) { return photo.getPhotoUrl(); }
+  };
+  var request = {
+      'user': 4879288,
+      'order': panoramio.PhotoOrder.DATE_DESC};
+  widget = new panoramio.PhotoListWidget('wapi_photo_list', request, options);
+  widget.enablePreviousArrow(false);
+  widget.enableNextArrow(false);
+  widget.setPosition(51);
+}
+
+/**
+ * Load or reload the photo counter snippet. It can be used to initialize the
+ * snippet, and also to refresh it. Calling this function replaces the previous
+ * counter snippet.
+ *
+ * @param {boolean} isRefresh If the snippet is refreshed as opposed to be
+ *     initialized. Should only be called exactly once with isRefresh=false per
+ *     photo page.
+ */
+function loadCounterSnippet(isRefresh) {
+  $('#counter_snippet').html(
+      '<img src="/img/loading-p.gif" alt="Loading" /> ' +
+      'Loading…');
+  var source = isRefresh ? 'photo-refresh' : 'photo';
+  var ajaxData = {
+      photographer_id: 4879288,
+      photo_id: 114709250,
+      visitor_id: '',
+      page: source};
+  $.ajax({url: '/photo_counter_snippet',
+          data: ajaxData,
+          success: updateCounterSnippet,
+          error: updateCounterSnippetError});
+}
+
+function updateCounterSnippet(data, textStatus) {
+  if (textStatus != 'success') {
+    return;
+  }
+  $('#counter_snippet').html(data);
+}
+
+function updateCounterSnippetError(data, textStatus, error) {
+  $('#counter_snippet').html('');
+}
+
+pano.globals.set('xsrfToken', 'an:O9jULBE7jNut_otK_TJkgwd_4uMm\u002DKyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA');
+var inviteToGroup = null;
+$(document).ready(function() {
+  inviteToGroup = new pano.group.InviteToGroup(
+    4879288,
+    114709250);
+});
+
+$(document).ready(function() {
+  
+  if (location.hash.match(/#?tcomment$/)) {
+    $("#tcomment").focus();
+  }
+  
+  $("#submit_comment").attr("disabled", false);
+  $("#help_format").click(function() { window.open(this.href, this.target, 'width=660,height=430'); return false });
+  $("#help_format_description").click(function() { window.open(this.href, this.target, 'width=660,height=430'); return false });
+  $("#favorite-link").click(switchStarred);
+  $("#comments_wrapper .delete-comment-link").click(deleteComment);
+  
+    $("#comments_wrapper .translate-comment-link").click(
+        panoramio_photo.translateComment);
+  
+
+  var windowHeight = $(window).height() - 20;
+  $('#main-photo_photo').css({'max-height': windowHeight + 'px'});
+
+  $("#sendLink").toggle(function() {
+    var position = $(this).position();
+    $("#send_friend").css({ position: "absolute", top: position.top + "px", left: position.left + "px"}).slideDown("fast");
+  }, function() {
+    $("#send_friend").slideUp("fast");
+  });
+
+  
+    $("#likeit").show();
+  
+  $("#likeit").click(likePhoto);
+  $("#unlikeit").click(unlikePhoto);
+
+  
+    
+      $("#mark_as_best").show();
+    
+    $("#mark_as_best").click(markPhotoAsBest);
+    $("#mark_as_not_best").click(markPhotoAsNotBest);
+  
+
+  $("#comment").submit(function() {
+    if ($.trim($("#tcomment").val()).length == 0)
+      alert("You should write something before clicking on the \u0027Send comment\u0027 button");
+    else
+    {
+      $("#submit_comment").val("Sending comment...").attr("disabled", true);
+      $.post("/do/send_comment/", {
+        xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+,
+        owner_id: 4879288,
+        photo_id: 114709250,
+        comment: $("#tcomment").val(),
+        
+        token: "" }, sent);
+    }
+
+    return false;
+  });
+
+  $("#second_review_link").click(requestReview);
+
+  initWapi();
+  loadCounterSnippet(false);
+
+  
+
+  function enableShowMoreButtonForDescriptionIfNeeded() {
+    $("#photo-description").removeClass('too_long_description');
+    if ($("#photo-description-formatted").height() > 70) {
+      $("#photo-description").addClass('too_long_description');
+    }
+  }
+  enableShowMoreButtonForDescriptionIfNeeded();
+
+  $("#show-more-bar").click(function() {
+    $("#photo-description").addClass('expanded');
+  });
+  $("#show-less-bar").click(function() {
+    $("#photo-description").removeClass('expanded');
+  });
+
+
+  
+    var mm1 = $("#minimap1")[0];
+    var m1 = new google.maps.Map(mm1, {
+      'panControl': true,
+      'mapTypeId': google.maps.MapTypeId.SATELLITE,
+      'streetViewControl': false,
+      'mapTypeControl': true,
+      'panControl': false,
+      'zoomControl': true,
+      'zoomControlOptions': {'style': google.maps.ZoomControlStyle.SMALL},
+      'scaleControl': true});
+
+    var bounds = new google.maps.LatLngBounds();
+
+    
+      var p = new google.maps.LatLng(
+        41.898155, 12.498499);
+      bounds.extend(p);
+
+      /* photo location marker - with big icon */
+      mk = new google.maps.Marker({
+        'position': p,
+        'clickable': false,
+        'map': m1,
+        'zIndex': 99992});
+    
+
+    
+
+    google.maps.event.addListenerOnce(m1, 'zoom_changed', function() {
+      var zoom = Math.min(14, Math.max(m1.getZoom() - 2, 0));
+      
+      m1.setZoom(zoom);
+    });
+    m1.fitBounds(bounds);
+
+    
+      
+        
+          addNearbyPhoto(41.889901,
+                         12.49337,
+                         "http://mw2.google.com/mw-panoramio/photos/mini_square/82456591.jpg",
+                         m1,
+                         82456591)
+        
+      
+        
+          addNearbyPhoto(41.889908,
+                         12.493406,
+                         "http://mw2.google.com/mw-panoramio/photos/mini_square/64638994.jpg",
+                         m1,
+                         64638994)
+        
+      
+    
+
+    
+      
+        
+          addNearbyPhoto(41.89474,
+                         12.503426,
+                         "http://mw2.google.com/mw-panoramio/photos/mini_square/77372752.jpg",
+                         m1,
+                         77372752)
+        
+      
+        
+      
+    
+  
+
+  
+    
+      var miniPosition = p;
+    
+  
+
+});
+
+$(document).ready(function() {
+  panoramio_photo.initialize(photoId, 2, xsrfToken);
+});
+
+function startsWith(str, start)
+{
+  return start == str.substr(0, start.length);
+}
+
+
+
+
+function deleteComment()
+{
+  var id = this.id.substring(1);
+
+  var successCallback = function() {
+    $("#" + id).slideUp("slow", function() { $(this).remove(); });
+    if (--nbComments == 0) {
+      $("#users_comments").hide();
+    }
+  };
+  var errorCallback = function() {
+    $("#d" + id).show();
+  };
+  $.ajax({
+    "type": "POST",
+    "url": "/do/delete_comment/",
+    "data": { xsrf_token: 'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA'
+,
+              "owner_id": 4879288,
+              "photo_id": 114709250,
+              "comment_id": id,
+              "token": "" },
+    "success": successCallback,
+    "error": errorCallback
+  });
+
+  $(this).hide();
+
+  return false;
+}
+
+
+  
+  jQuery.getScript('//apis.google.com/js/plusone.js');
+
+
+    //]]>
+  </script>
+
+</head>
+
+
+<body id="generic"
+  >
+  
+  <div id="dialog_group_invite_overlay" class="overlay"></div>
+  <div id="dialog_group_invite" class="dialog_div"></div>
+
+  <div id="dialog_group_leave_overlay" class="overlay"></div>
+  <div id="dialog_group_leave" class="dialog_div"></div>
+
+
+  
+
+  
+
+  
+    
+
+
+
+
+<div class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="/?no_redirect" class="navbar-left">
+      <span class="navbar-logo">
+        <span class="navbar-logo-image"></span>
+        <span class="navbar-logo-text">
+          <span class="navbar-logo-separator"></span>
+          
+          <span>Google Maps</span>
+        </span>
+      </span>
+    </a>
+
+    <div class="collapsed-menu">
+      <div id="collapsed-menu-button" class="goog-toolbar-menu-button collapsed-menu-icon">
+
+        <div class="collapse-menu-container goog-menu" style="display: none; background-color: rgba(0,0,0,0.8); width: 100%;">
+            <div class="collapse-menu-profile">
+              
+                <button class="jfk-button jfk-button-primary"
+                    id="navbar-signup-button"
+                    
+                    onclick="location.href='/signup';">Sign up</button>
+                <a id="navbar-signup-link" class="navbar-signup-link-collapsed"
+                    
+                    href="/signin">Sign in</a>
+              
+            </div>
+
+            <div class="collapse-menu-profile-links">
+              
+                <div class="collapse-menu-profile-link-container">
+                      
+                  <a href="/help" class="collapse-menu-profile-link">Help</a>
+                </div>
+              
+            </div>
+
+            <div class="collapse-menu-explore-links">
+              <div class="collapse-menu-explore-column">
+                <div class="collapse-menu-explore-column-header"
+                    
+                    >Explore Panoramio</div>
+                <a href="/map" class="collapse-menu-explore-column-link"
+                    
+                    >World map</a>
+                <a href="/places" class="collapse-menu-explore-column-link"
+                    
+                    >Cool places</a>
+                <a href="/tags" class="collapse-menu-explore-column-link"
+                    
+                    >Tags</a>
+              </div>
+
+              <div class="collapse-menu-explore-column">
+                    
+                <div class="collapse-menu-explore-column-header">Community</div>
+                    
+                <a href="/groups" class="collapse-menu-explore-column-link">Groups</a>
+                    
+                <a href="/contest" class="collapse-menu-explore-column-link">Photo contest</a>
+                    
+                <a href="/blog" class="collapse-menu-explore-column-link">Blog</a>
+                    
+                <a href="/forum" class="collapse-menu-explore-column-link">Discussion forums</a>
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+    </div>
+
+    <div class="search-menu">
+      <div id="search-menu-icon"></div>
+    </div>
+
+
+    <div id="explore-menu-button-wrapper">
+      <div id="explore-menu-button" class="menu_bar-button goog-toolbar-menu-button">
+        
+        <div class="menu_bar-button_label">Explore</div>
+        <div class="goog-menu" style="display: none; background-color: rgba(0,0,0,0.8)">
+          <div class="explore-menu">
+
+            <div class="explore-menu-column">
+              <div class="explore-menu-column-header"
+                  
+                  >Explore Panoramio</div>
+              <a href="/map" class="explore-menu-column-link"
+                  
+                  >World map</a>
+              <a href="/places" class="explore-menu-column-link"
+                  
+                  >Cool places</a>
+              <a href="/tags" class="explore-menu-column-link"
+                  
+                  >Tags</a>
+            </div>
+
+            <div class="explore-menu-column">
+              
+              <div class="explore-menu-column-header">Community</div>
+              
+              <a href="/groups" class="explore-menu-column-link">Groups</a>
+              
+              <a href="/contest" class="explore-menu-column-link">Photo contest</a>
+              
+              <a href="/blog" class="explore-menu-column-link">Blog</a>
+              
+              <a href="/forum" class="explore-menu-column-link">Discussion forums</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="explore-wrapper">
+      <input type=text class="explore-input" id="explore-expanded-input"
+          
+          placeholder="Search for a place">
+    </div>
+
+    <div id="explore-collapsed-wrapper">
+      <input type=text class="explore-input" id="explore-collapsed-input"
+          
+          placeholder="Search for a place">
+    </div>
+
+    <div class="navbar-profile">
+      
+        <div id="navbar-signin-link-container">
+          
+          <a id="navbar-signin-direct-link" href="/signin/google">Sign in</a>
+          <div id="signin-menu-button" class="goog-menu-button">
+            <div class="goog-menu" style="display: none; background-color: rgba(0,0,0,0.8);">
+              <div id="signin-menu-container">
+                <a id="navbar-signin-drop-link"
+                    
+                    href="/signin/google">Sign in with a Google account</a>
+                <a id="navbar-signin-legacy-drop-link"
+                    
+                    href="/signin/legacy">Use a legacy account</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="jfk-button jfk-button-primary"
+            id="navbar-signup-button"
+            
+            onclick="location.href='/signup';">Sign up</button>
+      
+    </div>
+
+    
+  </div>
+</div>
+
+
+      
+        
+          
+            
+          
+        
+      
+
+
+
+
+
+
+<script type="text/javascript">
+//<![CDATA[
+  pano.translation.register('Connect account',
+  
+                            'Connect account');
+  pano.translation.register('Connecting account…',
+  
+                            'Connecting account...');
+  pano.translation.register('Connecting to Google+ failed.',
+  
+                            'Connecting to Google+ failed.');
+
+  $(document).ready(function() {
+    $('#gplus_profile_avatar').error(function() {
+      $(this).unbind('error');
+      $(this).attr('src', '/img/user_avatar.png');
+    });
+  });
+//]]>
+</script>
+
+<div id="gplus-upgrade-dialog" style="display: none;"
+     
+  title="Connect your Google+ account to Panoramio">
+  <div id="gplus-upgrade-dialog-content">
+    <div id="gplus_profile_explanation">
+     
+      
+        This is how your name and profile photo will appear on Panoramio if you connect this Google+ account.
+        You cannot switch to a different account later.
+        <a href="/help/gplus-faq" target="_blank">Learn more</a>.
+      </div>
+    <img src="/img/user_avatar.png" width="120" height="120"
+        id="gplus_profile_avatar" alt="">
+    <div class="gplus_profile_info">
+      <div id="gplus_profile_name"></div>
+      <div id="gplus_profile_location"></div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+  pano.acrylic.Header.start(null,
+                            'an:O9jULBE7jNut_otK_TJkgwd_4uMm-KyZ5aPHdO1QUB46MTQzODU3MDUyOTk0MTEzMA', true);
+</script>
+
+  
+
+  <div class="content_wrapper">
+
+  
+
+
+  
+  
+
+  
+  
+
+  <div id="photo-col">
+
+    <div id="main-photo-wrapper">
+      <a id="main-photo" href="/photo_explorer#user=4879288&amp;with_photo_id=114709250&amp;order=date_desc">
+        <img src="http://static.panoramio.com/photos/large/114709250.jpg" alt="Scala del Bernini, Santa Maria Maggiore" id="main-photo_photo" />
+      </a>
+    </div>
+
+    <div>
+      <div class="photo_page-stats_container">
+        <div id="counter_snippet" class="photo_page_counter_snippet"></div>
+        
+          <a class="icon_sprite icon_flag photo_page-stats" href="/offensive/photo?id=114709250"
+              title="Report inappropriate or offensive"></a>
+        
+        <div id="photo-page-prev-next-container">
+          
+          
+            <a href="/photo/114709276"><img src="/img/prev-uphoto.png" width="21" height="21" alt=""></a>
+          
+          
+            <a href="/photo/110041937"><img src="/img/next-uphoto.png" width="21" height="21" alt=""></a>
+          
+        </div>
+      </div>
+
+      <div id="photo-title-box"
+        
+      >
+        <div id="photo-title-icon"
+          
+        ></div>
+        <h1 id="photo-title"
+          
+        >
+            Scala del Bernini, Santa Maria Maggiore
+          </h1>
+      </div>
+    </div>
+
+    <div>
+      <div style="float: right;">
+        
+          
+        
+      </div>
+      
+          <g:plusone size="medium" annotation="none"></g:plusone>
+      
+      <div class="photo-share-icons">
+        
+          <a class="icon_sprite icon_twitter" target="_blank" title="Share on Twitter"
+              href="http://twitter.com/?status=Scala%20del%20Bernini%2C%20Santa%20Maria%20Maggiore%20-%20http%3A//panoramio.com/photo/114709250"
+              onclick="_gaq.push(['_trackSocial', 'twitter', 'tweet', '/twitter/photo_id=114709250']);"
+              ></a>
+        
+        
+      </div>
+    </div>
+
+    <div>
+      <div class="photo-page-earth-status">
+        
+          
+            
+              
+                
+                  
+                    Not selected for Google Earth or Google Maps <a href='/help/photos_google_earth#not_selected'>[?]</a>
+                    
+                  
+                
+              
+            
+          
+        
+      </div>
+    </div>
+
+    
+
+    <div class="photo_description " id="photo-description">
+      <div class="edit_icon"></div>
+      <div class="photo_description_formatted gray"
+           id="photo-description-formatted">
+        
+          
+        
+      </div>
+      <div class="show_more_bar" id="show-more-bar">
+        <span>Show more</span></div>
+      <div class="show_less_bar" id="show-less-bar">
+        <span>Show less</span></div>
+      <textarea class="photo_description_editor" id="photo-description-editor"
+          ></textarea>
+      <a class="group_button save_description_button"
+         id="save-description-button">Save</a>
+      <a class="cancel_description_button"
+         id="cancel-description-button">Cancel</a>
+      <a href="/help_format/" class="help_format"
+         id="help_format_description"
+         rel="help" target="_blank">
+      Want to use bold, italic, links?
+    </a>
+    </div>
+
+    <div id="comments_wrapper">
+      
+        <h2 id="users_comments">
+           
+              Comments (2)
+           
+        </h2>
+        <div class="paginator-wrapper">
+          
+            
+
+
+
+
+          
+        </div>
+        
+        
+          <div class="comment" id="84549416">
+            <img class="comment-avatar" width="48" src="http://static.panoramio.com/avatars/user/4704517.jpg?v=000000" alt="" />
+            <div class="comment-inner">
+              
+                <div class="comment-author">
+                  <a href="/user/4704517">Andrjuschenka</a> on December 13, 2014
+                </div>
+                <div id="c84549416"
+                     class="photo-comment-text">
+                  <p>A beautiful marble snail ...!</p>
+
+<p>I <strong>like</strong> your photo very, very much! :-)</p>
+
+<p>Have a pleasant evening! :-):-)</p>
+
+<p>Andreas</p>
+                </div>
+                
+                  <div class="translated-text" id="tr84549416"
+                       ></div>
+                  <div class="translate-comment"
+                     ><a class="translate-comment-link"
+                         id="t84549416" href="#"
+                         >Translate</a></div>
+                
+                
+              
+            </div>
+          </div>
+        
+          <div class="comment" id="86511053">
+            <img class="comment-avatar" width="48" src="http://static.panoramio.com/avatars/user/4704517.jpg?v=000000" alt="" />
+            <div class="comment-inner">
+              
+                <div class="comment-author">
+                  <a href="/user/4704517">Andrjuschenka</a> on April 12
+                </div>
+                <div id="c86511053"
+                     class="photo-comment-text">
+                  <p>Ok - I confess: I <strong>favor</strong> it ....! :-D</p>
+                </div>
+                
+                  <div class="translated-text" id="tr86511053"
+                       ></div>
+                  <div class="translate-comment"
+                     ><a class="translate-comment-link"
+                         id="t86511053" href="#"
+                         >Translate</a></div>
+                
+                
+              
+            </div>
+          </div>
+        
+      
+    </div>
+    <div class="paginator-wrapper">
+      
+        
+
+
+
+
+      
+    </div>
+
+    
+      <a id="comment"></a>
+      <p id="sign2comment">
+        
+          <a href="/signup/?referer=/photo/114709250">Sign up</a> to comment.
+          <a href="/signin/?referer=/photo/114709250">Sign in</a> if you already did it.
+        
+      </p>
+    
+  </div>
+
+  <div id="info-col"
+    
+    >
+
+    <div class="interim-info-card photo-page-card">
+      <div id="profile_pic_info">
+        <a href="/user/4879288"><img src="http://static.panoramio.com/avatars/user/4879288.jpg?v=000000"
+             width="60" height="60" alt="Jana "
+             id="profile_pic_avatar"></a>
+        <div id="profile_info">
+          <div id="profile_name">
+            <a href="/user/4879288?with_photo_id=114709250" rel="author">Jana </a>
+          </div>
+          <div id="profile_location">
+            
+          </div>
+          <div id="profile-stats">
+            
+            <a href="/user/4879288">
+              <span class="profile-stats-text">
+                  835 photos</span></a>
+          </div>
+        </div>
+      </div>
+      <div class="photo_page-info_card_img_row" id="photo_page-owner_photos">
+      </div>
+      <div id="wapi_photo_list"></div>
+      <div class="photo_page-info_card_img_row_footer">
+        
+          <h3 id="wapi_photo_h">
+            More photos by <a href="/user/4879288?with_photo_id=114709250" rel="author">Jana </a>
+          </h3>
+        
+      </div>
+    </div>
+
+    <div class="interim-info-card photo-page-card">
+      
+        
+          <div id="map_info_breadcrumbs">
+            <a href="/map/">World</a> &bull;
+              <a href="/map/#lt=41.898155&amp;ln=12.498499&amp;z=12&amp;k=2">Italy</a> &bull; <a href="/map/#lt=41.898155&amp;ln=12.498499&amp;z=9&amp;k=2">Lazio</a>
+          </div>
+          <div id="map_info_name">
+              <a href="/map/#lt=41.898155&amp;ln=12.498499&amp;z=12&amp;k=2">Roma</a>
+          </div>
+        
+        
+          <div id='minimap1'></div>
+        
+        
+          <div id="nearby_photos"><a href="/photo/82456591"><img class="nearby-img" src="http://mw2.google.com/mw-panoramio/photos/square/82456591.jpg"
+                          height="44" width="44" alt="" /></a><a href="/photo/64638994"><img class="nearby-img" src="http://mw2.google.com/mw-panoramio/photos/square/64638994.jpg"
+                          height="44" width="44" alt="" /></a><a href="/photo/114709250"><img class="selected-nearby-img" src="http://mw2.google.com/mw-panoramio/photos/square/114709250.jpg"
+                    height="44" width="44" alt="" /></a><a href="/photo/77372752"><img class="nearby-img" src="http://mw2.google.com/mw-panoramio/photos/square/77372752.jpg"
+                          height="44" width="44" alt="" /></a><div class="next-photo"></div></div>
+        
+
+        <div id="nearby">
+          
+            <p id="place">
+              
+                Photo taken in Rione XV Esquilino, Roma, Italy
+              
+              
+            </p>
+          
+          
+
+          <div id="location"
+            class="photo_mapped">
+            
+              
+
+<div class="geo"><a title="see this area" href="/map/#lt=41.898155&amp;ln=12.498499&amp;z=4&amp;k=2"><abbr class="latitude" title="41.898155">41&deg; 53' 53.36" N</abbr>&nbsp;
+    
+    
+    <abbr class="longitude" title="12.498499">12&deg; 29' 54.60" E</abbr></a></div>
+
+            
+            
+              
+                
+                  <p id="misplaced">
+                    <a id="map_photo" href="/map_photo/?id=114709250">
+                      
+                        Misplaced? Suggest new location
+                      
+                    </a>
+                  </p>
+                
+              
+            
+          </div>  
+        </div>
+         
+      </div>
+
+    
+      <div class="interim-info-card photo-page-card">
+        <h2>Tags</h2>
+        <ul id="interim-tags">
+          
+            <li id="tag_element_0">
+              <a href="/user/4879288/tags/IT%20-%20Roma">
+                IT - Roma
+              </a>
+            </li>
+          
+            <li id="tag_element_1">
+              <a href="/user/4879288/tags/Italy">
+                Italy
+              </a>
+            </li>
+          
+          <li id="show_all_tags">
+            <a href="#">
+              
+                Show all tags (2)
+              
+            </a>
+          </li>
+        </ul>
+      </div>
+    
+
+    <div class="interim-info-card photo-page-card">
+      <h2>Photo details</h2>
+      <ul id="details">
+        
+        <li>
+          Uploaded on December 12, 2014
+        </li>
+
+        <li class="license c">
+          
+            &copy;
+          
+
+          All Rights Reserved
+          <br />by Jana 
+          
+
+        </li>
+        
+
+        
+          <li id="tech-details">
+            <ul>
+              
+                <li>Camera: PENTAX              PENTAX K-r         </li>
+              
+                <li>Taken on 2014/11/22 13:53:23</li>
+              
+                <li>Exposure: 0.167s (1/6)</li>
+              
+                <li>Focal Length: 26.25mm</li>
+              
+                <li>F/Stop: f/8.000</li>
+              
+                <li>ISO Speed: ISO1600</li>
+              
+                <li>Exposure Bias: 0.00 EV</li>
+              
+                <li>No flash</li>
+              
+            </ul>
+          </li>
+        
+      </ul>
+    </div>
+
+    <div class="interim-info-card photo-page-card">
+      <h2>Groups</h2>
+      <div id="group_membership_ajax"
+           js_load="/photo/114709250/get_group_membership?owner=4879288">
+        
+      </div>
+
+      
+    </div>
+  </div> 
+
+
+  
+    
+
+
+
+
+
+
+<script type="text/javascript">
+  pano.glass.register(
+      pano.glass.components.Footer.start,
+      [{"django_id":"ar","language_name":"\u0639\u0631\u0628\u064a","text_domain":"ar_EG.utf8"},{"django_id":"ast","language_name":"Asturian","text_domain":"ast_ES.utf8"},{"django_id":"be","language_name":"\u0431\u0435\u043b\u0430\u0440\u0443\u0441\u043a\u0430\u044f","text_domain":"be_BY.utf8"},{"django_id":"bg","language_name":"\u0411\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438","text_domain":"bg_BG.utf8"},{"django_id":"bs","language_name":"Bosanski","text_domain":"bs_BA.utf8"},{"django_id":"ca","language_name":"Catal\u00e0","text_domain":"ca_ES.utf8"},{"django_id":"cs","language_name":"\u010ce\u0161tina","text_domain":"cs_CZ.utf8"},{"django_id":"da","language_name":"Dansk","text_domain":"da_DK.utf8"},{"django_id":"de","language_name":"Deutsch","text_domain":"de_DE.utf8"},{"django_id":"el","language_name":"\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac","text_domain":"el_GR.utf8"},{"django_id":"en","language_name":"English","text_domain":"en_US.utf8"},{"django_id":"es","language_name":"Espa\u00f1ol","text_domain":"es_ES.utf8"},{"django_id":"eo","language_name":"Esperanto","text_domain":"eo_XX.utf8"},{"django_id":"eu","language_name":"Euskara","text_domain":"eu_ES.utf8"},{"django_id":"fa","language_name":"\u0641\u0627\u0631\u0633\u064a","text_domain":"fa_IR.utf8"},{"django_id":"fr","language_name":"Fran\u00e7ais","text_domain":"fr_FR.utf8"},{"django_id":"gl","language_name":"Galego","text_domain":"gl_ES.utf8"},{"django_id":"he","language_name":"\u05e2\u05b4\u05d1\u05b0\u05e8\u05b4\u05d9\u05ea","text_domain":"he_IL.utf8"},{"django_id":"hr","language_name":"Hrvatski","text_domain":"hr_HR.utf8"},{"django_id":"id","language_name":"Indonesia","text_domain":"id_ID.utf8"},{"django_id":"it","language_name":"Italiano","text_domain":"it_IT.utf8"},{"django_id":"hu","language_name":"Magyar","text_domain":"hu_HU.utf8"},{"django_id":"ja","language_name":"\u65e5\u672c\u8a9e","text_domain":"ja_JP.utf8"},{"django_id":"ko","language_name":"\ud55c\uad6d\uc5b4","text_domain":"ko_KR.utf8"},{"django_id":"lt","language_name":"Lietuvi\u0161kai","text_domain":"lt_LT.utf8"},{"django_id":"mk","language_name":"\u041c\u0430\u043a\u0435\u0434\u043e\u043d\u0441\u043a\u0438","text_domain":"mk_MK.utf8"},{"django_id":"ms","language_name":"Bahasa Melayu","text_domain":"ms_ALL.utf8"},{"django_id":"nl","language_name":"Nederlands","text_domain":"nl_NL.utf8"},{"django_id":"no","language_name":"Norsk (Bokm\u00e5l)","text_domain":"no_NO.utf8"},{"django_id":"pl","language_name":"Polski","text_domain":"pl_PL.utf8"},{"django_id":"pt","language_name":"Portugu\u00eas (Portugal)","text_domain":"pt_PT.utf8"},{"django_id":"pt_BR","language_name":"Portugu\u00eas (Brasil)","text_domain":"pt_BR.utf8"},{"django_id":"ro","language_name":"Rom\u00e2n\u0103","text_domain":"ro_RO.utf8"},{"django_id":"ru","language_name":"\u0420\u0443\u0441\u0441\u043a\u0438\u0439","text_domain":"ru_RU.utf8"},{"django_id":"sk","language_name":"Slovensk\u00fd","text_domain":"sk_SK.utf8"},{"django_id":"sl","language_name":"Sloven\u0161\u010dina","text_domain":"sl_SI.utf8"},{"django_id":"sq","language_name":"Shqip","text_domain":"sq_AL.utf8"},{"django_id":"sr","language_name":"Srpski","text_domain":"sr_CS.utf8"},{"django_id":"fi","language_name":"Suomi","text_domain":"fi_FI.utf8"},{"django_id":"sv","language_name":"Svenska","text_domain":"sv_SE.utf8"},{"django_id":"ta","language_name":"\u0ba4\u0bae\u0bbf\u0bb4\u0bcd","text_domain":"ta_ALL.utf8"},{"django_id":"th","language_name":"\u0e20\u0e32\u0e29\u0e32\u0e44\u0e17\u0e22","text_domain":"th_TH.utf8"},{"django_id":"tr","language_name":"T\u00fcrk\u00e7e","text_domain":"tr_TR.utf8"},{"django_id":"uk","language_name":"\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u043e\u044e","text_domain":"uk_UA.utf8"},{"django_id":"vi","language_name":"Ti\u1ebfng Vi\u1ec7t","text_domain":"vi_VN.utf8"},{"django_id":"zh_CN","language_name":"\u4e2d\u6587\uff08\u7b80\u4f53\uff09","text_domain":"zh_CN.utf8"},{"django_id":"zh_TW","language_name":"\u4e2d\u6587 (\u7e41\u9ad4)","text_domain":"zh_TW.utf8"}],
+      "en");
+</script>
+
+<div class="interim-footer-root" id="footer">
+  <ul class="interim-footer-links"><li><a href="/terms">Terms of Service</a></li><li><a href="/privacy">Privacy Policy</a></li><li><a href="/api">API</a></li><li><a href="/help">Help</a></li><li class="footer-with_button"><div id="footer-language_button"
+          class="jfk-select glass_jfk-button_borderless
+                 footer-language_button"></div></li></ul>
+</div>
+
+  
+  </div>
+</body>
+
+</html>

@@ -2,7 +2,7 @@
 layout: post
 title: "Functional playground: solving the Rush Hour game in Haskell"
 date: 2014-10-16 17:01:36 -0700
-comments: true
+comments: false
 sharing: true
 categories: haskell functional tutorials puzzles
 ---
@@ -57,6 +57,7 @@ moveCar car _ = car
 {% endcodeblock %}
 
 The next function `move` takes a State and a Move then returns a new State. 
+
 {% codeblock lang:haskell %}
 move :: State -> Move -> State 
 move state (key, dir) = Map.insert key newCar state where 
@@ -113,6 +114,7 @@ Beginning with the end in mind, let's declare the function `statesearch`. It tak
 3. A list of Paths to be explored
 
 Then, `statesearch` returns a Path to the exit as output. A path is simply a tuple composed of the current state and a list of moves that led to that state from the initial one. 
+
 {% codeblock lang:haskell %}
 type Path = (State, [Move])				
 {% endcodeblock %}
@@ -125,6 +127,7 @@ type UnexploredPaths = [Path]
 {% endcodeblock %}
 
 In our state-space search, we also need a function `solved` that checks  if for a given state we have reached our goal. We assume that the key for the Red Car is the character `'X'`. So here, we just check if it is already in front of the exit.
+
 {% codeblock lang:haskell %}
 gridSize = 6
 solved :: State -> Bool 
@@ -192,6 +195,7 @@ So that's how elegant a state-space search can be implemented in Haskell. `state
 
 ## Time to play 
 Well, before we can show some descent user-interface to this puzzle. We'll need helpers functions that converts a string representation of the grid to a State and vice versa. So, we define the following functions: 
+
 {% codeblock lang:haskell %}
 type Line = String
 stateToLines :: State -> [Line]
@@ -199,6 +203,7 @@ linesToState :: [Line] -> State
 {% endcodeblock %}
 
 Let's illustrate how these would work with an example without showing their implementations. Suppose our initial state prints like this: 
+
 {% codeblock%}
 -A----
 -A---D
@@ -208,7 +213,8 @@ XXXC-D
 ------
 {% endcodeblock %}
 
-Then, the function `linesToState` would return the following State when applied to the above `[Line]` representation: 
+Then, the function `linesToState` would return the following State when applied to the above `[Line]` representation:
+
 {% codeblock lang:haskell %}
 Map.fromList [('A',Car {x = 2, y = 1, o = V, sz = 2}),
 				('B',Car {x = 2, y = 5, o = H, sz = 3}),
@@ -283,7 +289,7 @@ Yay! Now, try it with a super tough challenge.
 
 
 
-{% if page.comments %}
+<!-- {% if page.comments %}
 <div id="disqus_thread"></div>
 <script type="text/javascript">
   /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
@@ -299,5 +305,5 @@ Yay! Now, try it with a super tough challenge.
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-{% endif%}
+{% endif%} -->
 

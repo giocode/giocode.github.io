@@ -2,24 +2,26 @@
 layout: post
 title: "Scala Flavors: a tasting tour Part 1"
 date: 2014-10-15 17:50:32 -0700
-comments: true
+comments: false
 categories: scala tutorials
 ---
 
-This a is the first part on a series of tutorials on Scala's language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this `beautiful` language. In this first part, we will cover two points: 
+This a is the first part on a series of tutorials on Scala's language features. This series are written for anyone who are new to Scala, knows its syntax a bit but are excited and scared at the same type by the bipolarity of this `beautiful` language. In this first part, we will cover two points: {% img left ../images/scalabovolo.png 200 300 %}
+
 
 - Scala's type system
 - Scala's purely object-oriented language features
+
 
 ## Starting strong and safe
 
 Scala's type system is strong, static and safe. What does that mean? 
 
-
 ### Values, variables and Types
 
 There are two possible ways to associate a name to a value or an expression. The first one is `val`, which is used to permanently bind a value to an indentifier. Once a val is set, its value can no longer be reassigned. In other words, vals are like constants. 
 
+<!-- more -->
 
 {% codeblock lang:scala %}
 scala> val y = 5.0
