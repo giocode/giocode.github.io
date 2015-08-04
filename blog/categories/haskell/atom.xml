@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Haskell | Giocode labs]]></title>
   <link href="http://giocode.github.io/blog/categories/haskell/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-03T19:27:12-07:00</updated>
+  <updated>2015-08-03T19:34:15-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -83,8 +83,9 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 </span><span class='line'><span class="nf">moveCar</span> <span class="n">car</span> <span class="kr">_</span> <span class="ow">=</span> <span class="n">car</span>
 </span></code></pre></td></tr></table></div></figure></p>
 
-<p>The next function <code>move</code> takes a State and a Move then returns a new State. 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>The next function <code>move</code> takes a State and a Move then returns a new State. </p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -175,8 +176,9 @@ In this blog post, I will demonstrate the functional way of solving problems usi
   <li>A list of Paths to be explored</li>
 </ol>
 
-<p>Then, <code>statesearch</code> returns a Path to the exit as output. A path is simply a tuple composed of the current state and a list of moves that led to that state from the initial one. 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>Then, <code>statesearch</code> returns a Path to the exit as output. A path is simply a tuple composed of the current state and a list of moves that led to that state from the initial one. </p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">type</span> <span class="kt">Path</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">State</span><span class="p">,</span> <span class="p">[</span><span class="kt">Move</span><span class="p">])</span>				
 </span></code></pre></td></tr></table></div></figure></p>
 
@@ -188,8 +190,9 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 </span><span class='line'><span class="kr">type</span> <span class="kt">UnexploredPaths</span> <span class="ow">=</span> <span class="p">[</span><span class="kt">Path</span><span class="p">]</span> 			
 </span></code></pre></td></tr></table></div></figure></p>
 
-<p>In our state-space search, we also need a function <code>solved</code> that checks  if for a given state we have reached our goal. We assume that the key for the Red Car is the character <code>'X'</code>. So here, we just check if it is already in front of the exit.
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>In our state-space search, we also need a function <code>solved</code> that checks  if for a given state we have reached our goal. We assume that the key for the Red Car is the character <code>'X'</code>. So here, we just check if it is already in front of the exit.</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -275,8 +278,9 @@ After evaluating the previous state, we add it to the list of explored states an
 So that’s how elegant a state-space search can be implemented in Haskell. <code>statesearch</code> is the core function to solve the puzzle. The rest is a representation of the problem and helper functions.</p>
 
 <h2 id="time-to-play">Time to play</h2>
-<p>Well, before we can show some descent user-interface to this puzzle. We’ll need helpers functions that converts a string representation of the grid to a State and vice versa. So, we define the following functions: 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>Well, before we can show some descent user-interface to this puzzle. We’ll need helpers functions that converts a string representation of the grid to a State and vice versa. So, we define the following functions: </p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="kr">type</span> <span class="kt">Line</span> <span class="ow">=</span> <span class="kt">String</span>
@@ -284,8 +288,9 @@ So that’s how elegant a state-space search can be implemented in Haskell. <cod
 </span><span class='line'><span class="nf">linesToState</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Line</span><span class="p">]</span> <span class="o">-&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="kt">State</span>
 </span></code></pre></td></tr></table></div></figure></p>
 
-<p>Let’s illustrate how these would work with an example without showing their implementations. Suppose our initial state prints like this: 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>Let’s illustrate how these would work with an example without showing their implementations. Suppose our initial state prints like this: </p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -298,8 +303,9 @@ So that’s how elegant a state-space search can be implemented in Haskell. <cod
 </span><span class='line'>-BBB–
 </span><span class='line'>——</span></code></pre></td></tr></table></div></figure></p>
 
-<p>Then, the function <code>linesToState</code> would return the following State when applied to the above <code>[Line]</code> representation: 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>Then, the function <code>linesToState</code> would return the following State when applied to the above <code>[Line]</code> representation:</p>
+
+<p><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>

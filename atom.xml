@@ -4,7 +4,7 @@
   <title><![CDATA[Giocode labs]]></title>
   <link href="http://giocode.github.io/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-03T19:27:12-07:00</updated>
+  <updated>2015-08-03T19:34:15-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -652,16 +652,17 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 </span><span class="line"><span class="nf">moveCar</span> <span class="n">car</span> <span class="kr">_</span> <span class="ow">=</span> <span class="n">car</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>The next function <code>move</code> takes a State and a Move then returns a new State. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>The next function <code>move</code> takes a State and a Move then returns a new State. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="nf">move</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="kt">Move</span> <span class="ow">-&gt;</span> <span class="kt">State</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">move</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="kt">Move</span> <span class="ow">-&gt;</span> <span class="kt">State</span>
 </span><span class="line"><span class="nf">move</span> <span class="n">state</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">dir</span><span class="p">)</span> <span class="ow">=</span> <span class="kt">Map</span><span class="o">.</span><span class="n">insert</span> <span class="n">key</span> <span class="n">newCar</span> <span class="n">state</span> <span class="kr">where</span>
 </span><span class="line">	<span class="n">newCar</span> <span class="ow">::</span> <span class="kt">Car</span>
 </span><span class="line">	<span class="n">newCar</span> <span class="ow">=</span> <span class="n">moveCar</span> <span class="p">(</span><span class="n">state</span> <span class="o">!</span> <span class="n">key</span><span class="p">)</span> <span class="n">dir</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>In <code>move</code>, we assume that the Move is a valid one. To make sure we respect the rules of the game, we need two functions that tell us whether two cars are overlapping in the grid and whether a Car is off the grid.</p>
 
@@ -744,10 +745,11 @@ In this blog post, I will demonstrate the functional way of solving problems usi
   <li>A list of Paths to be explored</li>
 </ol>
 
-<p>Then, <code>statesearch</code> returns a Path to the exit as output. A path is simply a tuple composed of the current state and a list of moves that led to that state from the initial one. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="kr">type</span> <span class="kt">Path</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">State</span><span class="p">,</span> <span class="p">[</span><span class="kt">Move</span><span class="p">])</span>				
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+<p>Then, <code>statesearch</code> returns a Path to the exit as output. A path is simply a tuple composed of the current state and a list of moves that led to that state from the initial one. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="kr">type</span> <span class="kt">Path</span> <span class="ow">=</span> <span class="p">(</span><span class="kt">State</span><span class="p">,</span> <span class="p">[</span><span class="kt">Move</span><span class="p">])</span>				
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>For clarity, let’s give some meaningul names to the types of the last two inputs of <code>statesearch</code> as follows:</p>
 
@@ -757,16 +759,17 @@ In this blog post, I will demonstrate the functional way of solving problems usi
 </span><span class="line"><span class="kr">type</span> <span class="kt">UnexploredPaths</span> <span class="ow">=</span> <span class="p">[</span><span class="kt">Path</span><span class="p">]</span> 			
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>In our state-space search, we also need a function <code>solved</code> that checks  if for a given state we have reached our goal. We assume that the key for the Red Car is the character <code>'X'</code>. So here, we just check if it is already in front of the exit.
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>In our state-space search, we also need a function <code>solved</code> that checks  if for a given state we have reached our goal. We assume that the key for the Red Car is the character <code>'X'</code>. So here, we just check if it is already in front of the exit.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="nf">gridSize</span> <span class="ow">=</span> <span class="mi">6</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">gridSize</span> <span class="ow">=</span> <span class="mi">6</span>
 </span><span class="line"><span class="nf">solved</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="kt">Bool</span>
 </span><span class="line"><span class="nf">solved</span> <span class="n">state</span> <span class="ow">=</span> <span class="p">(</span><span class="n">x</span> <span class="n">xcar</span> <span class="o">+</span> <span class="n">sz</span> <span class="n">xcar</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">gridSize</span><span class="p">)</span> <span class="kr">where</span>
 </span><span class="line">	<span class="n">xcar</span> <span class="ow">=</span> <span class="n">state</span> <span class="o">!</span> <span class="n">&#39;X&#39;</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Another helper function that will be useful in the state-space is <code>generateNewMoves</code>, which produces a list of possible move for each car in a given state and then concatenates all possible moves. </p>
 
@@ -844,41 +847,44 @@ After evaluating the previous state, we add it to the list of explored states an
 <p>So that’s how elegant a state-space search can be implemented in Haskell. <code>statesearch</code> is the core function to solve the puzzle. The rest is a representation of the problem and helper functions.</p>
 
 <h2 id="time-to-play">Time to play</h2>
-<p>Well, before we can show some descent user-interface to this puzzle. We’ll need helpers functions that converts a string representation of the grid to a State and vice versa. So, we define the following functions: 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>Well, before we can show some descent user-interface to this puzzle. We’ll need helpers functions that converts a string representation of the grid to a State and vice versa. So, we define the following functions: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="kr">type</span> <span class="kt">Line</span> <span class="ow">=</span> <span class="kt">String</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="kr">type</span> <span class="kt">Line</span> <span class="ow">=</span> <span class="kt">String</span>
 </span><span class="line"><span class="nf">stateToLines</span> <span class="ow">::</span> <span class="kt">State</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Line</span><span class="p">]</span>
 </span><span class="line"><span class="nf">linesToState</span> <span class="ow">::</span> <span class="p">[</span><span class="kt">Line</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">State</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Let’s illustrate how these would work with an example without showing their implementations. Suppose our initial state prints like this: 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>Let’s illustrate how these would work with an example without showing their implementations. Suppose our initial state prints like this: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
 <span class="line-number">5</span>
 <span class="line-number">6</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class=""><span class="line">-A----
+</pre></td><td class="code"><pre><code class=""><span class="line">-A----
 </span><span class="line">-A---D
 </span><span class="line">XXXC-D
 </span><span class="line">---C-D
 </span><span class="line">-BBB--
-</span><span class="line">------</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span><span class="line">------</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Then, the function <code>linesToState</code> would return the following State when applied to the above <code>[Line]</code> representation: 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>Then, the function <code>linesToState</code> would return the following State when applied to the above <code>[Line]</code> representation:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
 <span class="line-number">5</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="kt">Map</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[(</span><span class="n">&#39;A&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">}),</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="kt">Map</span><span class="o">.</span><span class="n">fromList</span> <span class="p">[(</span><span class="n">&#39;A&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">}),</span>
 </span><span class="line">				<span class="p">(</span><span class="n">&#39;B&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">H</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">}),</span>
 </span><span class="line">				<span class="p">(</span><span class="n">&#39;C&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">}),</span>
 </span><span class="line">				<span class="p">(</span><span class="n">&#39;D&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">V</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">}),</span>
 </span><span class="line">				<span class="p">(</span><span class="n">&#39;X&#39;</span><span class="p">,</span><span class="kt">Car</span> <span class="p">{</span><span class="n">x</span> <span class="ow">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">o</span> <span class="ow">=</span> <span class="kt">H</span><span class="p">,</span> <span class="n">sz</span> <span class="ow">=</span> <span class="mi">3</span><span class="p">})]</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Solving this <em>beginner level</em> puzzle with Haskell and your supercomputer would be a real overkill. But for the sake of fun, here is the output:</p>
 
