@@ -135,7 +135,7 @@ Working with Scala collections is simply a joy and apparently effortless! Their 
 
 
 <div class="entry-content"><h2 id="awesome-are-scala-collections">Awesome are Scala Collections.</h2>
-<p>Working with Scala collections is simply a joy and apparently effortless! Their interfaces are rich, consistent and nicely separated from implementation. Yet, we have many to choose from and each collection offers different characteristics in terms of performance, mutability and laziness. <img class="right" src="../images/slick.png" width="260" height="260" />Chances are you will find the right tool for the job. In addition, Scala collections work great with for-comprehensions. With Scala, not only do we have power but also we have a flexibility to express our computations: either in a Map-Reduce-Filter pattern or simply using a for expression. With Scala collections, we can always get rid of boilerplate and understand performance. </p>
+<p>Working with Scala collections is simply a joy and apparently effortless! Their interfaces are rich, consistent and nicely separated from implementation. Yet, we have many to choose from and each collection offers different characteristics in terms of performance, mutability and laziness. <img class="right" src="./images/slick.png" width="260" height="260" />Chances are you will find the right tool for the job. In addition, Scala collections work great with for-comprehensions. With Scala, not only do we have power but also we have a flexibility to express our computations: either in a Map-Reduce-Filter pattern or simply using a for expression. With Scala collections, we can always get rid of boilerplate and understand performance. </p>
 
 <h3 id="so-is-slick">So is Slick!</h3>
 <p>With the Slick library, database programming would also enjoy such simplicity. Slick is a cool library that enable to query and access relational databases in plain Scala. Slick enables us to treat database tables almost as if they were Scala collections. In addition, it also gives us full control over when a database access happens and which data is transferred. In addition to its functional relational mapping features, Slick queries are type safe expressions. In other words, the compiler can catch inconsistencies at compile-time. Furthermore, we can compose simple queries into more complex ones and we can do so before even running them against the database. Apart from that, Slick also simplifies database managementt asks from creating schema and data models to managing connections and query transactions.</p>
@@ -202,7 +202,7 @@ Working with Scala collections is simply a joy and apparently effortless! Their 
 
 <p>These help Slick to understand the functions provided by the database-specific driver (e.g. H2 driver here). It is convenient to import everything from <code>H2Driver.simple</code> to make sure all required implicit conversions and extension methods are in place when Slick needs them.</p>
 
-<h3 id="defining-the-schema">Defining the Schema</h3>
+<h3 id="describing-the-database-schema">Describing the Database Schema</h3>
 
 <p>After these simple configurations, we need define the database table and the type of each row in the table. In our example, we will only define one table of wines. Therefore, let’s create a case class <code>Wine</code> and define its properties: </p>
 
@@ -256,21 +256,445 @@ Working with Scala collections is simply a joy and apparently effortless! Their 
 
 <h3 id="creating-queries">Creating queries</h3>
 
-<h2 id="more-about-crud-operations">More about CRUD operations</h2>
+<p>In Slick, we can create queries even before connecting to the database. To start, let us create a <code>TableQuery</code> object <code>wines</code> that select all wines listed in our database. </p>
 
-<h3 id="creating-tables">Creating tables</h3>
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Create a query to select the whole table </span>
+</span><span class="line"><span class="k">lazy</span> <span class="k">val</span> <span class="n">wines</span> <span class="k">=</span> <span class="nc">TableQuery</span><span class="o">[</span><span class="kt">WineTable</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>This is the starting point of every other query and it is a convention to define <code>wines</code> as a <code>lazy val</code>. At this time, we do not want to run the query yet. Now, we can define other queries using operators such as <code>filter</code>. For example, let’s define queries for red wines or Canadian wines: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Another query for red wines</span>
+</span><span class="line"><span class="k">val</span> <span class="n">redWines</span> <span class="k">=</span> <span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">color</span> <span class="o">===</span> <span class="s">&quot;Red&quot;</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">// Canadian wines</span>
+</span><span class="line"><span class="k">val</span> <span class="n">canadianWines</span> <span class="k">=</span> <span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;Canada&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><strong>Warning:</strong> 
+Note the use of <code>===</code> instead of <code>==</code> for comparing two values for equality and <code>=!=</code> instead of <code>!=</code> for inequality. The other comparison operators are the same as in standard Scala code: <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&gt;</code>. If you accidentally use <code>==</code> instead of <code>===</code>, it will compile fine but your query results will be empty! </p>
+
+<p>For each <code>Query</code> or <code>TableQuery</code>, there exist handy methods called <code>selectStatement</code> that prints the SQL code that will be run. For instance, we can quickly check into SBT console for the above queries: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">wines</span><span class="o">.</span><span class="n">selectStatement</span>
+</span><span class="line"><span class="n">res</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">select</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;color&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;maker&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;year&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;country&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;price&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;id&quot;</span> <span class="n">from</span> <span class="s">&quot;wine&quot;</span> <span class="n">x2</span>
+</span><span class="line">
+</span><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">canadianWines</span><span class="o">.</span><span class="n">selectStatement</span>
+</span><span class="line"><span class="n">res</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">select</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;color&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;maker&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;year&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;country&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;price&quot;</span><span class="o">,</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;id&quot;</span> <span class="n">from</span> <span class="s">&quot;wine&quot;</span> <span class="n">x2</span> <span class="n">where</span> <span class="n">x2</span><span class="o">.</span><span class="s">&quot;country&quot;</span> <span class="k">=</span> <span class="-Symbol">&#39;Canada</span><span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h3 id="connecting-to-the-database-and-running-the-queries">Connecting to the database and running the queries</h3>
+
+<p>Since we do not have yet a database, let’s use the function <code>Database.forURL</code> and pass the database URL and the corresponding driver to create a <code>Database</code> object:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Create a H2 in-memory database</span>
+</span><span class="line"><span class="k">def</span> <span class="n">db</span> <span class="k">=</span> <span class="nc">Database</span><span class="o">.</span><span class="n">forURL</span><span class="o">(</span>
+</span><span class="line">	<span class="n">url</span> <span class="k">=</span> <span class="s">&quot;jdbc:h2:mem:chat-database;DB_CLOSE_DELAY=-1&quot;</span><span class="o">,</span>
+</span><span class="line">	<span class="n">driver</span> <span class="k">=</span> <span class="s">&quot;org.h2.Driver&quot;</span>
+</span><span class="line"><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Now, we can connect to the database by opening a new session with the method <code>withSession</code>. Within the sesssion, we are going to: </p>
+
+<ul>
+  <li>Create our wine table using <code>wines.ddl.create</code>. </li>
+  <li>Insert the list of wines we got before into the new table.</li>
+  <li>Run the queries we previously created. </li>
+</ul>
+
+<p>All these must be done within the session. Moreover, the session argument must be set as implicit, otherwise we would have to specify it explicitly everytime we access and query the database. If we do not, we will run into an error that reads like this: <strong>error: could not find implicit value for parameter session: scala.slick.jdbc.JdbcBackend#SessionDef</strong></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">db</span><span class="o">.</span><span class="n">withSession</span> <span class="o">{</span> <span class="k">implicit</span> <span class="n">session</span> <span class="k">=&gt;</span>
+</span><span class="line">
+</span><span class="line">    <span class="c1">// Create the wine table:</span>
+</span><span class="line">    <span class="n">println</span><span class="o">(</span><span class="s">&quot;Creating wine database&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="n">wines</span><span class="o">.</span><span class="n">ddl</span><span class="o">.</span><span class="n">create</span>
+</span><span class="line">
+</span><span class="line">    <span class="c1">// Create and insert our selection of data:</span>
+</span><span class="line">    <span class="n">println</span><span class="o">(</span><span class="s">&quot;\nInserting wine data&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="n">wines</span> <span class="o">++=</span> <span class="n">wineData</span>
+</span><span class="line">
+</span><span class="line">    <span class="c1">// Run the test query and print the results:</span>
+</span><span class="line">    <span class="n">println</span><span class="o">(</span><span class="s">&quot;\nPrinting all wines:&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="n">wines</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">println</span><span class="o">(</span><span class="s">&quot;\nThese are the wines from Canada:&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="n">canadianWines</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Here what the results look like on standard output: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+</pre></td><td class="code"><pre><code class="text"><span class="line">Printing all wines:
+</span><span class="line">
+</span><span class="line">Malbec Reserva 2009 (Argentina ~ Red)
+</span><span class="line">Cote de Sambre et Meusu Pinot Gris 2013 (France ~ White)
+</span><span class="line">Whispering Angel Rosé 2014 (France ~ Rosé)
+</span><span class="line">Cabernet Sauvignon 2005 (United States ~ Red)
+</span><span class="line">Mcgregor Shiraz 2009 (South Africa ~ Red)
+</span><span class="line">Marlborough Sauvignon Blanc 2014 (New Zealand ~ White)
+</span><span class="line">Rosé Sec VQA Cave Spring 2010 (Canada ~ Rosé)
+</span><span class="line">Paragon Edna Valley Riesling 2012 (United States ~ White)
+</span><span class="line">Conca del Riu Anoia Barcelona de Nit 2011 (Spain ~ White)
+</span><span class="line">Amarone della Valpolicella Riserva Classico Sergio 2009 (Italy ~ Red)
+</span><span class="line">The Prisoner 2013 (United States ~ Red)
+</span><span class="line">Ice wine Vidal Inniskillin 2012 (Canada ~ Red)
+</span><span class="line">Vin de glace Cabernet 2013 (Canada ~ Red)
+</span><span class="line">Pinot Grigio Rosé Folonari 2014 (Italy ~ Rosé)
+</span><span class="line">
+</span><span class="line">These are the wines from Canada:
+</span><span class="line">
+</span><span class="line">Rosé Sec VQA Cave Spring 2010 (Canada ~ Rosé)
+</span><span class="line">Ice wine Vidal Inniskillin 2012 (Canada ~ Red)
+</span><span class="line">Vin de glace Cabernet 2013 (Canada ~ Red)
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="more-crud-wines-with-slick">More CRUD wines with Slick</h2>
 
 <h3 id="select-statement">Select statement</h3>
 
+<p>In our previous queries, we got back a sequence of <code>Wine</code>. What if all we need is the list of French winemakers? For such kind of SELECT queries, we use the <code>map</code> operator and pass a function to select whatever we can access from the table. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// List of French winemakers </span>
+</span><span class="line"><span class="k">val</span> <span class="n">frenchWinemakers</span> <span class="k">=</span> <span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;France&quot;</span><span class="o">).</span>
+</span><span class="line">                             <span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">maker</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">// Corresponding SQL statement</span>
+</span><span class="line"><span class="c1">// select x2.&quot;maker&quot; from &quot;wine&quot; x2 where x2.&quot;country&quot; = &#39;France&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">// Run within session</span>
+</span><span class="line"><span class="n">frenchWinemakers</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class="line"><span class="nc">Château</span> <span class="nc">Bon</span><span class="o">-</span><span class="nc">Baron</span>
+</span><span class="line"><span class="nc">Chateau</span> <span class="n">d</span><span class="-Symbol">&#39;Esclans</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In the above session, we assumed that we run the queries within <code>db.withSession{}</code>. If you want to run queries in the console, you can either use &#8220;db.withSession{anotherQuery.run}` everytime or create an implicit session as follows: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">implicit</span> <span class="k">val</span> <span class="n">session</span> <span class="k">=</span> <span class="n">db</span><span class="o">.</span><span class="n">createSession</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>Note that this is only useful for experimentation purpose within Scala REPL. It is recommended not to create session manually. Instead, use <code>db.withSession</code> so that the resources are managed by Slick automatically.</p>
+
+<h3 id="for-comprehensions-when-you-need-it">For Comprehensions When You Need it</h3>
+<p>As I mentionned in the beginning, working with Slick tables are very similar to handling Scala collections. In addition to the combinators such as <code>map</code> and <code>filter</code>, we can also rely on _for comprehensions` to express queries. A valid alternative to getting the french makers is: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">val</span> <span class="n">frenchWinemakers</span> <span class="k">=</span>
+</span><span class="line">	<span class="k">for</span> <span class="o">{</span>
+</span><span class="line">		<span class="n">w</span> <span class="k">&lt;-</span> <span class="n">wines</span>
+</span><span class="line">		<span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;France&quot;</span>
+</span><span class="line">	<span class="o">}</span> <span class="k">yield</span> <span class="n">w</span><span class="o">.</span><span class="n">maker</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Which one should you use totally depends on your taste and needs. </p>
+
 <h3 id="inserting-rows">Inserting rows</h3>
+
+<p>Imagine our restaurant just received a nice selection of Australina wines. We can ask Slick to insert them into the database using <code>insert</code>: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">val</span> <span class="n">aussies</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span>
+</span><span class="line">    <span class="nc">Wine</span><span class="o">(</span><span class="s">&quot;Red&quot;</span><span class="o">,</span> <span class="s">&quot;Chandon&quot;</span><span class="o">,</span> <span class="s">&quot;Chandon Australia Heathcote Shiraz&quot;</span><span class="o">,</span> <span class="mi">2001</span><span class="o">,</span> <span class="s">&quot;Australia&quot;</span><span class="o">,</span> <span class="mf">45.0</span> <span class="o">),</span>
+</span><span class="line">    <span class="nc">Wine</span><span class="o">(</span><span class="s">&quot;Rosé&quot;</span><span class="o">,</span> <span class="s">&quot;Jacob&#39;s Creek&quot;</span><span class="o">,</span> <span class="s">&quot;Sparkling Moscato Rosé&quot;</span><span class="o">,</span> <span class="mi">2014</span><span class="o">,</span> <span class="s">&quot;Australia&quot;</span><span class="o">,</span> <span class="mf">24.0</span><span class="o">),</span>
+</span><span class="line">    <span class="nc">Wine</span><span class="o">(</span><span class="s">&quot;Red&quot;</span><span class="o">,</span> <span class="s">&quot;Chandon&quot;</span><span class="o">,</span> <span class="s">&quot;Vintage Collection Cuvée 500&quot;</span><span class="o">,</span> <span class="mi">2008</span><span class="o">,</span> <span class="s">&quot;Australia&quot;</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">),</span>
+</span><span class="line">    <span class="nc">Wine</span><span class="o">(</span><span class="s">&quot;Red&quot;</span><span class="o">,</span> <span class="s">&quot;Cranswick&quot;</span><span class="o">,</span> <span class="s">&quot;Riverina Cabernet Merlot&quot;</span><span class="o">,</span> <span class="mi">1999</span><span class="o">,</span> <span class="s">&quot;Australia&quot;</span><span class="o">,</span> <span class="mf">24.0</span><span class="o">)</span>
+</span><span class="line"><span class="o">)</span>
+</span><span class="line">
+</span><span class="line"><span class="n">db</span><span class="o">.</span><span class="n">withSession</span> <span class="o">{</span> <span class="k">implicit</span> <span class="n">session</span> <span class="k">=&gt;</span>
+</span><span class="line">    <span class="c1">// Insert Australian selection into wines table</span>
+</span><span class="line">    <span class="n">wines</span> <span class="o">++=</span> <span class="n">aussies</span>
+</span><span class="line">
+</span><span class="line">    <span class="c1">// Insert one wine </span>
+</span><span class="line">    <span class="n">wines</span> <span class="o">+=</span> <span class="nc">Wine</span><span class="o">(</span><span class="s">&quot;Red&quot;</span><span class="o">,</span> <span class="s">&quot;Castle Glen Australia&quot;</span><span class="o">,</span> <span class="s">&quot;Montepulicano&quot;</span><span class="o">,</span> <span class="mi">2002</span><span class="o">,</span> <span class="s">&quot;Australia&quot;</span><span class="o">,</span> <span class="mi">39</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="c1">// Showing all australian wines </span>
+</span><span class="line">    <span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;Australia&quot;</span><span class="o">).</span><span class="n">run</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Here is the output:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="text"><span class="line">Chandon Australia Heathcote Shiraz 2001 (Australia ~ Red)
+</span><span class="line">Sparkling Moscato Rosé 2014 (Australia ~ Rosé)
+</span><span class="line">Vintage Collection Cuvée 500 2008 (Australia ~ Red)
+</span><span class="line">Riverina Cabernet Merlot 1999 (Australia ~ Red)
+</span><span class="line">Montepulicano 2002 (Australia ~ Red)
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <h3 id="updating-rows">Updating rows</h3>
 
+<p>Our restaurant is making a summer holiday promotion to Italian wine bottles. We are asked to update the price with 10% discount. Updating is done with a succession of <code>map</code> and <code>update</code> calls. Here, we first need to select the price to be updated and call <code>update</code> to update them. Unfortunately, it is not yet possible to update with scalar expression or transformations of the price value. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Discount all french wine bottles between $20 and $40 to $20</span>
+</span><span class="line"><span class="k">val</span> <span class="n">frenchWines</span> <span class="k">=</span> <span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;France&quot;</span><span class="o">)</span>
+</span><span class="line"><span class="n">db</span><span class="o">.</span><span class="n">withSession</span> <span class="o">{</span> <span class="k">implicit</span> <span class="n">session</span> <span class="k">=&gt;</span>
+</span><span class="line">
+</span><span class="line">   	<span class="k">val</span> <span class="n">selectedPrices</span> <span class="k">=</span>
+</span><span class="line">        <span class="k">for</span> <span class="o">{</span>
+</span><span class="line">            <span class="n">w</span> <span class="k">&lt;-</span> <span class="n">wines</span>
+</span><span class="line">            <span class="k">if</span> <span class="o">(</span><span class="n">w</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;France&quot;</span><span class="o">)</span>
+</span><span class="line">            <span class="k">if</span> <span class="o">(</span><span class="n">w</span><span class="o">.</span><span class="n">price</span> <span class="o">&gt;=</span> <span class="mf">20.0</span> <span class="o">&amp;&amp;</span> <span class="n">w</span><span class="o">.</span><span class="n">price</span> <span class="o">&lt;=</span> <span class="mf">40.0</span><span class="o">)</span>
+</span><span class="line">        <span class="o">}</span> <span class="k">yield</span> <span class="n">w</span><span class="o">.</span><span class="n">price</span>
+</span><span class="line">    <span class="n">selectedPrices</span><span class="o">.</span><span class="n">update</span><span class="o">(</span><span class="mf">20.0</span><span class="o">)</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Here are the French wines before discount:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="text"><span class="line">Cote de Sambre et Meusu Pinot Gris 2013 (France ~ White ~ 27.0)
+</span><span class="line">Whispering Angel Rosé 2014 (France ~ Rosé ~ 35.0)
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>And after the discount: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="text"><span class="line">Cote de Sambre et Meusu Pinot Gris 2013 (France ~ White ~ 20.0)
+</span><span class="line">Whispering Angel Rosé 2014 (France ~ Rosé ~ 20.0)
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h3 id="sorting-and-limiting-results">Sorting and limiting results</h3>
+
+<p>Slick also provide mechanisms for ordering and limiting the results of queries. These are the standard collection methods <code>sortBy</code>, <code>take</code> and <code>drop</code>. For instance, let us query the 3 least expensive wines in our selection: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// 3 least expensive </span>
+</span><span class="line"><span class="k">val</span> <span class="n">cheapWines</span> <span class="k">=</span> <span class="n">wines</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">price</span><span class="o">).</span><span class="n">take</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">// Wines by country sorted by price</span>
+</span><span class="line"><span class="k">val</span> <span class="n">winesByCountry</span> <span class="k">=</span> <span class="n">wines</span><span class="o">.</span><span class="n">sortBy</span><span class="o">(</span><span class="n">w</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">w</span><span class="o">.</span><span class="n">country</span><span class="o">,</span> <span class="n">w</span><span class="o">.</span><span class="n">price</span><span class="o">))</span>
+</span><span class="line"><span class="n">db</span><span class="o">.</span><span class="n">withSession</span> <span class="o">{</span> <span class="k">implicit</span> <span class="n">session</span> <span class="k">=&gt;</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">println</span><span class="o">(</span><span class="s">&quot;\n&gt;&gt; Our cheapest wines:\n&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="n">cheapWines</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">println</span><span class="o">(</span><span class="s">&quot;\n&gt;&gt; Wines by Country:\n&quot;</span><span class="o">)</span>
+</span><span class="line">    <span class="n">winesByCountry</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Here are the results: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+</pre></td><td class="code"><pre><code class="text"><span class="line">&gt;&gt; Our cheapest wines:
+</span><span class="line">
+</span><span class="line">Pinot Grigio Rosé Folonari 2014 (Italy ~ Rosé ~ 11.9)
+</span><span class="line">Mcgregor Shiraz 2009 (South Africa ~ Red ~ 14.0)
+</span><span class="line">Rosé Sec VQA Cave Spring 2010 (Canada ~ Rosé ~ 14.95)
+</span><span class="line">
+</span><span class="line">&gt;&gt; Wines by Country sorted by country and region:
+</span><span class="line">
+</span><span class="line">Malbec Reserva 2009 (Argentina ~ Red ~ 38.0)
+</span><span class="line">Sparkling Moscato Rosé 2014 (Australia ~ Rosé ~ 24.0)
+</span><span class="line">Riverina Cabernet Merlot 1999 (Australia ~ Red ~ 24.0)
+</span><span class="line">Montepulicano 2002 (Australia ~ Red ~ 39.0)
+</span><span class="line">Chandon Australia Heathcote Shiraz 2001 (Australia ~ Red ~ 45.0)
+</span><span class="line">Vintage Collection Cuvée 500 2008 (Australia ~ Red ~ 59.95)
+</span><span class="line">Rosé Sec VQA Cave Spring 2010 (Canada ~ Rosé ~ 14.95)
+</span><span class="line">Vin de glace Cabernet 2013 (Canada ~ Red ~ 39.95)
+</span><span class="line">Ice wine Vidal Inniskillin 2012 (Canada ~ Red ~ 49.95)
+</span><span class="line">Cote de Sambre et Meusu Pinot Gris 2013 (France ~ White ~ 20.0)
+</span><span class="line">Whispering Angel Rosé 2014 (France ~ Rosé ~ 20.0)
+</span><span class="line">Pinot Grigio Rosé Folonari 2014 (Italy ~ Rosé ~ 11.9)
+</span><span class="line">Amarone della Valpolicella Riserva Classico Sergio 2009 (Italy ~ Red ~ 50.0)
+</span><span class="line">Marlborough Sauvignon Blanc 2014 (New Zealand ~ White ~ 23.0)
+</span><span class="line">Mcgregor Shiraz 2009 (South Africa ~ Red ~ 14.0)
+</span><span class="line">Conca del Riu Anoia Barcelona de Nit 2011 (Spain ~ White ~ 40.0)
+</span><span class="line">Paragon Edna Valley Riesling 2012 (United States ~ White ~ 26.0)
+</span><span class="line">Cabernet Sauvignon 2005 (United States ~ Red ~ 28.0)
+</span><span class="line">The Prisoner 2013 (United States ~ Red ~ 51.0)
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
 <h3 id="deleting-rows">Deleting rows</h3>
 
-<h2 id="joins-and-aggregates">Joins and Aggregates</h2>
+<p>Deleting rows are simply done through a sequence of <code>filter</code> and <code>delete</code>. For example, if we decide not to sell Italian wines anymore, we could use: </p>
 
-<h2 id="reactive-streams-in-slick-30">Reactive Streams in Slick 3.0</h2>
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">country</span> <span class="o">===</span> <span class="s">&quot;Italy&quot;</span><span class="o">).</span><span class="n">delete</span><span class="err">”</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>Delete returns the number of deleted rows.</p>
+
+<h3 id="transactions-and-rollback">Transactions and rollback</h3>
+
+<p>When we run queries with <code>db.withSession</code>, each query runs independently. Hence, it is possible for some queries to faile while for some others to succeed. In many applications, we often want to combine queries within a transaction so that either all queries succeed or all fail. This is done simply by wrapping the queries within a <code>session.withTransaction</code> block inside <code>db.withSession</code>. For instance, we can perform a batch of price updates together as follows: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// Select the prices between lo and hi</span>
+</span><span class="line"><span class="k">def</span> <span class="n">discount</span><span class="o">(</span><span class="n">lo</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">hi</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=</span>
+</span><span class="line">  <span class="n">wines</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">w</span> <span class="k">=&gt;</span> <span class="n">w</span><span class="o">.</span><span class="n">price</span> <span class="o">&gt;=</span> <span class="n">lo</span> <span class="o">&amp;&amp;</span> <span class="n">w</span><span class="o">.</span><span class="n">price</span> <span class="o">&gt;=</span> <span class="n">hi</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">price</span><span class="o">)</span>
+</span><span class="line">
+</span><span class="line"><span class="n">db</span><span class="o">.</span><span class="n">withSession</span> <span class="o">{</span> <span class="k">implicit</span> <span class="n">session</span> <span class="k">=&gt;</span>
+</span><span class="line">  <span class="n">session</span><span class="o">.</span><span class="n">withTransaction</span> <span class="o">{</span>
+</span><span class="line">    <span class="n">discount</span><span class="o">(</span><span class="mf">20.0</span><span class="o">,</span> <span class="mf">30.0</span><span class="o">).</span><span class="n">update</span><span class="o">(</span><span class="mf">20.0</span><span class="o">)</span>
+</span><span class="line">    <span class="n">discount</span><span class="o">(</span><span class="mf">30.0</span><span class="o">,</span> <span class="mi">35</span><span class="o">,</span><span class="mi">0</span><span class="o">).</span><span class="n">update</span><span class="o">(</span><span class="mf">30.0</span><span class="o">)</span>
+</span><span class="line">    <span class="n">discount</span><span class="o">(</span><span class="mf">40.0</span><span class="o">,</span> <span class="mf">50.0</span><span class="o">).</span><span class="n">update</span><span class="o">(</span><span class="mf">50.0</span><span class="o">)</span>
+</span><span class="line">  <span class="o">}</span>
+</span><span class="line">  <span class="n">wines</span><span class="o">.</span><span class="n">run</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The block passed to <code>withTransaction</code> is executed as a single transaction. If an exception is thrown, Slick rolls back the transaction at the end of the block. Note that Slick only rolls back the database operations. The remaining Scala code are executed and their effects are not rolled back.</p>
+
+<h3 id="summary">Summary</h3>
+
+<p>We are going to stop here for now. But, there are still a lot to cover about this cool library. To summarize, handling database access and queries is very smooth and effortless with Slick. Using a lifted embedding approach, we can define queries and run them later after we connect to the database. Slick database operations are very similar to Scala collection methods. We select rows and columns with <code>filter</code> and <code>map</code>. Then, we can order and limit our results with <code>sortBy</code>, <code>take</code> and <code>drop</code>. Updating, deleting and inserting rows are also a breeze. In addition, we can use for expression to write complex queries or compose simple ones. In my next post, I hope to explore more about Slick’s type system, other operations such as joins and aggregates as well as the new reactive streams support in Slick 3.0. I hope you could appreciate the functional aspects of database programming in Slick and use some of these in your applications. </p>
 </div>
 
 
