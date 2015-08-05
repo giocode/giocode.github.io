@@ -53,6 +53,7 @@ numberOfRabbits = "will not compile"
 We have not yet explained what these types are about. Since Scala is a statically typed language, any values and variables are initialized with their type and content. Looking at the REPL outputs above, we did not declare any type when defining `y`, `message` or `numberOfRabbits`. So how did Scala know? Well, Scala is smart enough to infer the type from the right hand side of the assignment. Scala understood that "Holla scala" is definitely a string whereas the decimal 5.0 looks like a Double.
 
 In principle, a formal way to define vals and vars is like this. 
+
 {% codeblock lang:scala %}
 // The right side must return a value of the declared type.
 val identifier: type = expression
@@ -162,6 +163,7 @@ Looking at `"apples".+(" oranges")`, we see that the concatenation is performed 
 When it comes to `"oranges".*(3)`, `*` is another method defined on String and it returns the _"oranges"_ string concatenated 3 times. If you look at the Scala documentation for StringOps, you will find the signature of this method to be `def *(n: Int): String`. 
 
 Of course, Scala will complain if you call a method on one object and the method signature is not present in the class definition. 
+
 {% codeblock lang:scala%}
 scala> "apples" * 3.0
 error: def *(x: Double): String cannot be resolved on String object
@@ -169,6 +171,7 @@ error: def *(x: Double): String cannot be resolved on String object
 scala> 3 * "oranges"
 error: def *(s: String): String cannot be resolved on Int object
 {% endcodeblock %}
+
 The only exception to this rule is if an _implicit conversion_ is defined for the corresponding type, then the method call can be forwarded to the converted type. But let's keep things simple for now and perhaps, we'll discuss about implicits later on.
 
 
@@ -176,7 +179,7 @@ The only exception to this rule is if an _implicit conversion_ is defined for th
 ### Create Abstract Data Types with Classes 
 It is time to create your own types. Classes are used to abstract and parameterize data types that serve as building blocks for your Scala program. 
 
-** Class definition: ** you define a class using the `class` keyword followed by the class name and class parameters. Optionally, you can add statements and expressions in the class body delimited by a `{}` block to do one of the following: 
+**Class definition:** you define a class using the `class` keyword followed by the class name and class parameters. Optionally, you can add statements and expressions in the class body delimited by a `{}` block to do one of the following: 
 
 - declare and initialize value and variable fields  
 - define public methods
@@ -197,7 +200,8 @@ class Recipe(n: String, s: Int = 1, instructions: List[String] = Nil) {
 }
 {% endcodeblock %}
 
-** Class constructor ** asks you to specify the parameters `s`, `n`, and `instructions` to create the `Recipe` objects. For example, you call the constructor method and pass the name, the number of serves and instruction list. As a result, you get a new _easyNoodleRecipe_ object. 
+**Class constructor** asks you to specify the parameters `s`, `n`, and `instructions` to create the `Recipe` objects. For example, you call the constructor method and pass the name, the number of serves and instruction list. As a result, you get a new _easyNoodleRecipe_ object. 
+
 {% codeblock lang:scala %}
 var easyNoodleRecipe = new Recipe("Hot Instant Noodle", 4, List("Boil water", "Cook noodle", "Serve"))
 {% endcodeblock %}
@@ -210,29 +214,33 @@ val healthySaladRecipe = new Recipe("Healthy green salad", instructions = List("
 {% endcodeblock %}
 
 Similarly, we can create a _lazyBurgerRecipe_ that serves one and has an empty instruction by passing only one parameter, its name.
+
 {% codeblock lang:scala %}
 var lazyBurgerRecipe = new Recipe("Big Mac Burger") 
 {% endcodeblock %}
 
-** Class parameters vs. Class fields: ** there is an important difference about the scope of class parameters and var/val fields. Class parameters are not publicly visible unless they are defined with the keyword `var` or `val`. In such cases, a getter and/or a setter is generated correspondingly. In contrast, a class field is always defined with one of these keywords. Thus, Scala makes them accessible publicly. Here are some simple rules about the accessibility and visibility of class parameters and fields:
+**Class parameters vs. Class fields:** there is an important difference about the scope of class parameters and var/val fields. Class parameters are not publicly visible unless they are defined with the keyword `var` or `val`. In such cases, a getter and/or a setter is generated correspondingly. In contrast, a class field is always defined with one of these keywords. Thus, Scala makes them accessible publicly. Here are some simple rules about the accessibility and visibility of class parameters and fields:
 
 1. ** Class parameters defined *without var/val* keyword: ** can only be read within the class body definition. 
 2. ** Class parameters defined *with val*: ** a getter is created and the parameter _can be read_ by a user of the class, by the object itself or by another instance of the same class. 
 3. ** Class parameters defined *with var*: ** a getter and a setter are generated so the parameter _can be read and also reassigned_ by a user of the class, by the object itself or by another instance of the same class.
 
-** Methods vs Functions ** 
+**Methods vs Functions** 
 In Scala, methods and functions are defined in the same way using the syntax: 
+
 {% codeblock lang:scala %}
 def methodName(parameter1: Type1, Parameter2: Type2, ...): OutputType = {
 	...
 	result_expression
 } 
 {% endcodeblock %}
+
 The difference between methods and functions in Scala is similar to that of instance methods and static methods in Java. In Scala, methods are invoked on an object instance with some parameters and are defined inside the class constructor. On the other hand, functions are not invoked on any object; they are simply called with some inputs and return an output. Furthermore, there are two ways to define functions in Scala. First, functions are usually defined inside a singleton object module. If that object is a companion of a class with the same name, then we can make the analogy with static methods in Java. Second, functions can alternatively be defined on the go using functions literals and assigned to a `val`. 
 
 As previously mentionned, when a method is invoked in Scala with a single parameter, it can be interpreted as a binary operation. In fact, we can ommit the dot notation in that case when calling the method and replacing it with spaces between the object, the method name and the parameters. On the other hand, a parameterless method is usually written with a dot notation as if we access a field of the object on which we invoke the method. This programming style is known as _universal access principle_. 
 
 Let's define some examples by defining two methods in the class Recipe's constructor. 
+
 {% codeblock lang:scala %}
 class Recipe(val n: String, val s: Int = 1, instructions: List[String] = Nil) {
   var description: String = ""
@@ -259,26 +267,31 @@ Remember that `healthySaladRecipe` was defined as a `val`. However, it had field
 In the above code, we created a map of ingredients from a list of ingredients and a list of quantity. To do that, we invoked the method `zip` which is defined in `scala.collection.immutable.List` on the first list and passed the second list as parameter. This is an example of method invocation as binary operator in Scala. Then, we used a parameterless method `toMap` which is invoked on a list of pairs to create a Map. 
 
 By default, any Recipe object will serve one person. Let's check this in the shell.
+
 {% codeblock lang:scala %}
 scala> healthySaladRecipe.serves
 res: Int = 1
 {% endcodeblock %}
 
 So now, what if you invite two of your friends for lunch and you make a healthy salad for the three of you. Well, you can now invoke the `serve` method that we previously defined for that. What you will obtain is a new list of ingredients with the right quantity for each ingredient. 
+
 {% codeblock lang:scala %}
 scala> healthySaladRecipe.serve(3)
 res: Map[String,(Double, String)] = Map(Tomatoes -> (3.0,unit), Cucumber -> (3.0,unit), Dressing -> (3.0,unit), Feta cheese -> (150.0,grams))
 {% endcodeblock %}
 
 Let's look closely at the implementation of the `serve` method. 
+
 {% codeblock lang:scala %}
 def serve(p: Int): Map[String, (Double, String)] = this.ingredients mapValues (v => (v._1 * p, v._2))
 {% endcodeblock %}
 
 We accessed the list of ingredients of `healthySaladRecipe` and invoked a method `mapValues` which is defined in `scala.collection.immutable.Map`. This method takes a function value as parameter and applies that function to each value of the element in the map ingredients. Above, we used a function literal, also called anonymous or lambda function, using scala's syntax: 
+
 {% codeblock lang:scala %}
 v => (v._1 * p, v._2)
 {% endcodeblock %}
+
 This function literal takes as input `v`, which has a type of a two-element tuple `(Double, String)`. Then, it returns of a value of the same type but with the ingredient quantity scaled by the number of serving `p`. We did not to specify the type signature of the function since Scala could infer to type of `v` from the type of `this.ingredients`.
 
 
