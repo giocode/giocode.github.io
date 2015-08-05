@@ -185,12 +185,13 @@
 
 <p>We have not yet explained what these types are about. Since Scala is a statically typed language, any values and variables are initialized with their type and content. Looking at the REPL outputs above, we did not declare any type when defining <code>y</code>, <code>message</code> or <code>numberOfRabbits</code>. So how did Scala know? Well, Scala is smart enough to infer the type from the right hand side of the assignment. Scala understood that “Holla scala” is definitely a string whereas the decimal 5.0 looks like a Double.</p>
 
-<p>In principle, a formal way to define vals and vars is like this. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>In principle, a formal way to define vals and vars is like this. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="c1">// The right side must return a value of the declared type.</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="c1">// The right side must return a value of the declared type.</span>
 </span><span class="line"><span class="k">val</span> <span class="n">identifier</span><span class="k">:</span> <span class="k">type</span> <span class="o">=</span> <span class="n">expression</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>In some situations, we want to declare vals and vars without giving them an initial value. In that case, the type declaration is mandatory. Otherwise, the rule of thumb is to omit the types when they can be readily inferred with a glimpse and to declare them to add clarity to your code. </p>
 
@@ -331,24 +332,26 @@
 <p>Looking at <code>"apples".+(" oranges")</code>, we see that the concatenation is performed by calling the method <code>+</code> defined on the String object <em>“apples”</em> with the string parameter <em>” oranges”</em>. What gets return is the new String object <em>“apples oranges”</em>. Furthermore, many other signatures exist for the same operator <code>+</code>. 
 When it comes to <code>"oranges".*(3)</code>, <code>*</code> is another method defined on String and it returns the <em>“oranges”</em> string concatenated 3 times. If you look at the Scala documentation for StringOps, you will find the signature of this method to be <code>def *(n: Int): String</code>. </p>
 
-<p>Of course, Scala will complain if you call a method on one object and the method signature is not present in the class definition. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>Of course, Scala will complain if you call a method on one object and the method signature is not present in the class definition. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
 <span class="line-number">5</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="s">&quot;apples&quot;</span> <span class="o">*</span> <span class="mf">3.0</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="s">&quot;apples&quot;</span> <span class="o">*</span> <span class="mf">3.0</span>
 </span><span class="line"><span class="n">error</span><span class="k">:</span> <span class="kt">def</span> <span class="kt">*</span><span class="o">(</span><span class="kt">x:</span> <span class="kt">Double</span><span class="o">)</span><span class="kt">:</span> <span class="kt">String</span> <span class="kt">cannot</span> <span class="kt">be</span> <span class="kt">resolved</span> <span class="kt">on</span> <span class="kt">String</span> <span class="kt">object</span>
 </span><span class="line">
 </span><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="mi">3</span> <span class="o">*</span> <span class="s">&quot;oranges&quot;</span>
 </span><span class="line"><span class="n">error</span><span class="k">:</span> <span class="kt">def</span> <span class="kt">*</span><span class="o">(</span><span class="kt">s:</span> <span class="kt">String</span><span class="o">)</span><span class="kt">:</span> <span class="kt">String</span> <span class="kt">cannot</span> <span class="kt">be</span> <span class="kt">resolved</span> <span class="kt">on</span> <span class="kt">Int</span> <span class="kt">object</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;
-The only exception to this rule is if an <em>implicit conversion</em> is defined for the corresponding type, then the method call can be forwarded to the converted type. But let’s keep things simple for now and perhaps, we’ll discuss about implicits later on.</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The only exception to this rule is if an <em>implicit conversion</em> is defined for the corresponding type, then the method call can be forwarded to the converted type. But let’s keep things simple for now and perhaps, we’ll discuss about implicits later on.</p>
 
 <h3 id="create-abstract-data-types-with-classes">Create Abstract Data Types with Classes</h3>
 <p>It is time to create your own types. Classes are used to abstract and parameterize data types that serve as building blocks for your Scala program. </p>
 
-<p>** Class definition: ** you define a class using the <code>class</code> keyword followed by the class name and class parameters. Optionally, you can add statements and expressions in the class body delimited by a <code>{}</code> block to do one of the following: </p>
+<p><strong>Class definition:</strong> you define a class using the <code>class</code> keyword followed by the class name and class parameters. Optionally, you can add statements and expressions in the class body delimited by a <code>{}</code> block to do one of the following: </p>
 
 <ul>
   <li>declare and initialize value and variable fields  </li>
@@ -377,10 +380,11 @@ The only exception to this rule is if an <em>implicit conversion</em> is defined
 </span><span class="line"><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>** Class constructor ** asks you to specify the parameters <code>s</code>, <code>n</code>, and <code>instructions</code> to create the <code>Recipe</code> objects. For example, you call the constructor method and pass the name, the number of serves and instruction list. As a result, you get a new <em>easyNoodleRecipe</em> object. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="k">var</span> <span class="n">easyNoodleRecipe</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Recipe</span><span class="o">(</span><span class="s">&quot;Hot Instant Noodle&quot;</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="nc">List</span><span class="o">(</span><span class="s">&quot;Boil water&quot;</span><span class="o">,</span> <span class="s">&quot;Cook noodle&quot;</span><span class="o">,</span> <span class="s">&quot;Serve&quot;</span><span class="o">))</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+<p><strong>Class constructor</strong> asks you to specify the parameters <code>s</code>, <code>n</code>, and <code>instructions</code> to create the <code>Recipe</code> objects. For example, you call the constructor method and pass the name, the number of serves and instruction list. As a result, you get a new <em>easyNoodleRecipe</em> object. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">var</span> <span class="n">easyNoodleRecipe</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Recipe</span><span class="o">(</span><span class="s">&quot;Hot Instant Noodle&quot;</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="nc">List</span><span class="o">(</span><span class="s">&quot;Boil water&quot;</span><span class="o">,</span> <span class="s">&quot;Cook noodle&quot;</span><span class="o">,</span> <span class="s">&quot;Serve&quot;</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Scala also allows us to define default values for some of these parameters so that when we create <em>Recipe</em> objects that have these default values, we no longer need to specify the corresponding parameters when calling the constructor. Behind the scene, Scala simply generates additional constructors during compilation to support this.
 For example, we specified a default value of 1 for <code>s</code> and a default empty list for <code>instructions</code> in the class definition. Therefore, we can create an <em>healthySaladRecipe</em> that serves 1 by passing only the other two parameters. </p>
@@ -389,12 +393,13 @@ For example, we specified a default value of 1 for <code>s</code> and a default 
 </pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">val</span> <span class="n">healthySaladRecipe</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Recipe</span><span class="o">(</span><span class="s">&quot;Healthy green salad&quot;</span><span class="o">,</span> <span class="n">instructions</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="s">&quot;Put greens in a bowl&quot;</span><span class="o">,</span> <span class="s">&quot;Add dressing&quot;</span><span class="o">,</span> <span class="s">&quot;Mix&quot;</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Similarly, we can create a <em>lazyBurgerRecipe</em> that serves one and has an empty instruction by passing only one parameter, its name.
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="k">var</span> <span class="n">lazyBurgerRecipe</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Recipe</span><span class="o">(</span><span class="s">&quot;Big Mac Burger&quot;</span><span class="o">)</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+<p>Similarly, we can create a <em>lazyBurgerRecipe</em> that serves one and has an empty instruction by passing only one parameter, its name.</p>
 
-<p>** Class parameters vs. Class fields: ** there is an important difference about the scope of class parameters and var/val fields. Class parameters are not publicly visible unless they are defined with the keyword <code>var</code> or <code>val</code>. In such cases, a getter and/or a setter is generated correspondingly. In contrast, a class field is always defined with one of these keywords. Thus, Scala makes them accessible publicly. Here are some simple rules about the accessibility and visibility of class parameters and fields:</p>
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">var</span> <span class="n">lazyBurgerRecipe</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Recipe</span><span class="o">(</span><span class="s">&quot;Big Mac Burger&quot;</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><strong>Class parameters vs. Class fields:</strong> there is an important difference about the scope of class parameters and var/val fields. Class parameters are not publicly visible unless they are defined with the keyword <code>var</code> or <code>val</code>. In such cases, a getter and/or a setter is generated correspondingly. In contrast, a class field is always defined with one of these keywords. Thus, Scala makes them accessible publicly. Here are some simple rules about the accessibility and visibility of class parameters and fields:</p>
 
 <ol>
   <li>** Class parameters defined <em>without var/val</em> keyword: ** can only be read within the class body definition. </li>
@@ -402,23 +407,26 @@ For example, we specified a default value of 1 for <code>s</code> and a default 
   <li>** Class parameters defined <em>with var</em>: ** a getter and a setter are generated so the parameter <em>can be read and also reassigned</em> by a user of the class, by the object itself or by another instance of the same class.</li>
 </ol>
 
-<p>** Methods vs Functions ** 
-In Scala, methods and functions are defined in the same way using the syntax: 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p><strong>Methods vs Functions</strong> 
+In Scala, methods and functions are defined in the same way using the syntax: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="k">def</span> <span class="n">methodName</span><span class="o">(</span><span class="n">parameter1</span><span class="k">:</span> <span class="kt">Type1</span><span class="o">,</span> <span class="nc">Parameter2</span><span class="k">:</span> <span class="kt">Type2</span><span class="o">,</span> <span class="o">...)</span><span class="k">:</span> <span class="kt">OutputType</span> <span class="o">=</span> <span class="o">{</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">def</span> <span class="n">methodName</span><span class="o">(</span><span class="n">parameter1</span><span class="k">:</span> <span class="kt">Type1</span><span class="o">,</span> <span class="nc">Parameter2</span><span class="k">:</span> <span class="kt">Type2</span><span class="o">,</span> <span class="o">...)</span><span class="k">:</span> <span class="kt">OutputType</span> <span class="o">=</span> <span class="o">{</span>
 </span><span class="line">	<span class="o">...</span>
 </span><span class="line">	<span class="n">result_expression</span>
 </span><span class="line"><span class="o">}</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;
-The difference between methods and functions in Scala is similar to that of instance methods and static methods in Java. In Scala, methods are invoked on an object instance with some parameters and are defined inside the class constructor. On the other hand, functions are not invoked on any object; they are simply called with some inputs and return an output. Furthermore, there are two ways to define functions in Scala. First, functions are usually defined inside a singleton object module. If that object is a companion of a class with the same name, then we can make the analogy with static methods in Java. Second, functions can alternatively be defined on the go using functions literals and assigned to a <code>val</code>. </p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The difference between methods and functions in Scala is similar to that of instance methods and static methods in Java. In Scala, methods are invoked on an object instance with some parameters and are defined inside the class constructor. On the other hand, functions are not invoked on any object; they are simply called with some inputs and return an output. Furthermore, there are two ways to define functions in Scala. First, functions are usually defined inside a singleton object module. If that object is a companion of a class with the same name, then we can make the analogy with static methods in Java. Second, functions can alternatively be defined on the go using functions literals and assigned to a <code>val</code>. </p>
 
 <p>As previously mentionned, when a method is invoked in Scala with a single parameter, it can be interpreted as a binary operation. In fact, we can ommit the dot notation in that case when calling the method and replacing it with spaces between the object, the method name and the parameters. On the other hand, a parameterless method is usually written with a dot notation as if we access a field of the object on which we invoke the method. This programming style is known as <em>universal access principle</em>. </p>
 
-<p>Let’s define some examples by defining two methods in the class Recipe’s constructor. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>Let’s define some examples by defining two methods in the class Recipe’s constructor. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
@@ -427,7 +435,7 @@ The difference between methods and functions in Scala is similar to that of inst
 <span class="line-number">7</span>
 <span class="line-number">8</span>
 <span class="line-number">9</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="k">class</span> <span class="nc">Recipe</span><span class="o">(</span><span class="k">val</span> <span class="n">n</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="k">val</span> <span class="n">s</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">1</span><span class="o">,</span> <span class="n">instructions</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Nil</span><span class="o">)</span> <span class="o">{</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">class</span> <span class="nc">Recipe</span><span class="o">(</span><span class="k">val</span> <span class="n">n</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="k">val</span> <span class="n">s</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">1</span><span class="o">,</span> <span class="n">instructions</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Nil</span><span class="o">)</span> <span class="o">{</span>
 </span><span class="line">  <span class="k">var</span> <span class="n">description</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
 </span><span class="line">  <span class="k">var</span> <span class="n">ingredients</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="o">(</span><span class="kt">Double</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="k">_</span>
 </span><span class="line">
@@ -436,7 +444,7 @@ The difference between methods and functions in Scala is similar to that of inst
 </span><span class="line">
 </span><span class="line">  <span class="k">def</span> <span class="n">serve</span><span class="o">(</span><span class="n">p</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="o">(</span><span class="kt">Double</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="k">this</span><span class="o">.</span><span class="n">ingredients</span> <span class="n">mapValues</span> <span class="o">(</span><span class="n">v</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="n">_1</span> <span class="o">*</span> <span class="n">p</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
 </span><span class="line"><span class="o">}</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Now, we can test this in the Scala shell. Let’s go back to our <code>healthySaladRecipe</code> and add its ingredients.</p>
 
@@ -454,30 +462,35 @@ The difference between methods and functions in Scala is similar to that of inst
 
 <p>In the above code, we created a map of ingredients from a list of ingredients and a list of quantity. To do that, we invoked the method <code>zip</code> which is defined in <code>scala.collection.immutable.List</code> on the first list and passed the second list as parameter. This is an example of method invocation as binary operator in Scala. Then, we used a parameterless method <code>toMap</code> which is invoked on a list of pairs to create a Map. </p>
 
-<p>By default, any Recipe object will serve one person. Let’s check this in the shell.
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>By default, any Recipe object will serve one person. Let’s check this in the shell.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">healthySaladRecipe</span><span class="o">.</span><span class="n">serves</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">healthySaladRecipe</span><span class="o">.</span><span class="n">serves</span>
 </span><span class="line"><span class="n">res</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">1</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>So now, what if you invite two of your friends for lunch and you make a healthy salad for the three of you. Well, you can now invoke the <code>serve</code> method that we previously defined for that. What you will obtain is a new list of ingredients with the right quantity for each ingredient. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>So now, what if you invite two of your friends for lunch and you make a healthy salad for the three of you. Well, you can now invoke the <code>serve</code> method that we previously defined for that. What you will obtain is a new list of ingredients with the right quantity for each ingredient. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">healthySaladRecipe</span><span class="o">.</span><span class="n">serve</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">healthySaladRecipe</span><span class="o">.</span><span class="n">serve</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
 </span><span class="line"><span class="n">res</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>,<span class="o">(</span><span class="kt">Double</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="nc">Map</span><span class="o">(</span><span class="nc">Tomatoes</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="mf">3.0</span><span class="o">,</span><span class="n">unit</span><span class="o">),</span> <span class="nc">Cucumber</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="mf">3.0</span><span class="o">,</span><span class="n">unit</span><span class="o">),</span> <span class="nc">Dressing</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="mf">3.0</span><span class="o">,</span><span class="n">unit</span><span class="o">),</span> <span class="nc">Feta</span> <span class="n">cheese</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="mf">150.0</span><span class="o">,</span><span class="n">grams</span><span class="o">))</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Let’s look closely at the implementation of the <code>serve</code> method. 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="k">def</span> <span class="n">serve</span><span class="o">(</span><span class="n">p</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="o">(</span><span class="kt">Double</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="k">this</span><span class="o">.</span><span class="n">ingredients</span> <span class="n">mapValues</span> <span class="o">(</span><span class="n">v</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="n">_1</span> <span class="o">*</span> <span class="n">p</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+<p>Let’s look closely at the implementation of the <code>serve</code> method. </p>
 
-<p>We accessed the list of ingredients of <code>healthySaladRecipe</code> and invoked a method <code>mapValues</code> which is defined in <code>scala.collection.immutable.Map</code>. This method takes a function value as parameter and applies that function to each value of the element in the map ingredients. Above, we used a function literal, also called anonymous or lambda function, using scala’s syntax: 
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="scala"><span class="line"><span class="n">v</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="n">_1</span> <span class="o">*</span> <span class="n">p</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;
-This function literal takes as input <code>v</code>, which has a type of a two-element tuple <code>(Double, String)</code>. Then, it returns of a value of the same type but with the ingredient quantity scaled by the number of serving <code>p</code>. We did not to specify the type signature of the function since Scala could infer to type of <code>v</code> from the type of <code>this.ingredients</code>.</p>
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">def</span> <span class="n">serve</span><span class="o">(</span><span class="n">p</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="o">(</span><span class="kt">Double</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="k">this</span><span class="o">.</span><span class="n">ingredients</span> <span class="n">mapValues</span> <span class="o">(</span><span class="n">v</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="n">_1</span> <span class="o">*</span> <span class="n">p</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="n">_2</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>We accessed the list of ingredients of <code>healthySaladRecipe</code> and invoked a method <code>mapValues</code> which is defined in <code>scala.collection.immutable.Map</code>. This method takes a function value as parameter and applies that function to each value of the element in the map ingredients. Above, we used a function literal, also called anonymous or lambda function, using scala’s syntax: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="n">v</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">v</span><span class="o">.</span><span class="n">_1</span> <span class="o">*</span> <span class="n">p</span><span class="o">,</span> <span class="n">v</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>This function literal takes as input <code>v</code>, which has a type of a two-element tuple <code>(Double, String)</code>. Then, it returns of a value of the same type but with the ingredient quantity scaled by the number of serving <code>p</code>. We did not to specify the type signature of the function since Scala could infer to type of <code>v</code> from the type of <code>this.ingredients</code>.</p>
 
 <p>We have reached the end of the Part 1 of this tour on “Scala flavors”. In Part 2, we will revisit some Scala object-oriented features including <em>case classes</em> and <em>companion objects</em>. We’ll also get a taste of <em>first-class functions</em> in Scala. Finally, we’ll touch on immutability vs. mutability in Scala.</p>
 
