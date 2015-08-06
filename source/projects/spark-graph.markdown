@@ -48,6 +48,7 @@ case class GameStats(
 ### Loading game stats into RDDs
 
 We also add the following methods to `GameStats` in order to know how efficient a team's offense was:  
+
 ```scala
 // Field Goal percentage
 def fgPercent: Double = 100.0 * fieldGoalMade / fieldGoalAttempt
@@ -61,6 +62,7 @@ override def toString: String = "Score: " + score
 ```
 
 Next, we create a couple of classes for the games' result. 
+
 ```scala
 abstract class GameResult(
     val season:     Int, 
@@ -93,6 +95,7 @@ val teams: RDD[(VertexId, String)] =
 ```
 
 We can check the first few teams in this new RDD:
+
 ```scala
 scala> teams.take(3).foreach{println}
 (1101,Abilene Chr)
@@ -159,11 +162,13 @@ Edge(1107,1324,FullResult(2006,9,N,Score: 90-73))
 ```
 
 We then create our score graph using the collection of teams (of type `RDD[(VertexId, String)]`) as vertices and the collection `detailedStats` (of type `RDD[(VertexId, String)]`) as edges:
+
 ```scala
 scala> val scoreGraph = Graph(teams, detailedStats)
 ``` 
 
 For curiosity, let's see which team has won against the 2015 NCAA national champ Duke during regular season. It seems Duke has lost only four games during the regular season:
+
 ```scala
 scala> scoreGraph.triplets.filter(_.dstAttr == "Duke").foreach(println)
 ((1274,Miami FL),(1181,Duke),FullResult(2015,71,A,Score: 90-74))
@@ -207,6 +212,7 @@ In addition to `sendMsg`, the second function that we need to pass to `aggregate
 In our example, we need to aggregate the number of games played and the number of field goals made. Therefore, `Msg` is simply a pair of `Int`. Furthermore, each edge context needs to send a message to only its source node, i.e. the winning team. This is because we want to compute the total field goals made by each team for only the games that it won. The actual message sent to each "winner" node is the pair of integers `(1, ec.attr.winnerStats.fieldGoalMade)`. Here, `1` serves as a counter for the number of games won by the source node. The second integer, which is the number of field goals in one game, is extracted from the edge attribute.
 
 As we set out to compute the average field goals per winning game for all teams, we need to apply the `mapValues` operator to the output of `aggregateMessages` as follows:
+
 ```scala
 // Average field goals made per Game by the winning teams
 val avgWinningFieldGoalMade: VertexRDD[Double] = 
@@ -258,6 +264,7 @@ What if the coach wants to know the top 5 teams with the highest average three p
 We can copy and modify the previous code but that would be quite repetitive. Instead, let's abstract out the average aggregation operator so that it can work on any statistics that the coach needs. Luckily, Scala's higher-order functions are there to help in this task. 
 
 Let's define functions that take a team's `GameStats` as input and returns specific statistic that we are interested in. For now, we will need the number of three pointer made and the average three pointer percentage: 
+
 ```scala
 // Getting individual stats
 def threePointMade(stats: GameStats) = stats.threePointerMade
@@ -284,12 +291,14 @@ def averageWinnerStat(graph: Graph[String, FullResult])(getStat: GameStats => Do
 ```        
 
 Now, we can get the average stats by passing the functions `threePointMade` and `threePointPercent` to `averageWinnerStat`:
+
 ```scala
 val winnersThreePointMade = averageWinnerStat(scoreGraph)(threePointMade) 
 val winnersThreePointPercent = averageWinnerStat(scoreGraph)(threePointPercent) 
 ```
 
 With little efforts, we can tell coach which five winning teams score the highest number of threes per game:
+
 ```scala
 scala> winnersThreePointMade.sortBy(_._2,false).take(5).foreach(println)
 (1440,11.274336283185841)
@@ -299,6 +308,7 @@ scala> winnersThreePointMade.sortBy(_._2,false).take(5).foreach(println)
 (1248,8.915384615384616)
 ```
 While we are at it, let's find out the five most efficient teams in three pointers:
+
 ```scala
 scala> winnersThreePointPercent.sortBy(_._2,false).take(5).foreach(println)
 (1101,46.90555728464225)
@@ -314,6 +324,7 @@ Interestingly, the teams that made the most three pointers per winning game are 
 Coach seems to argue against that argument. He asks us to get the same statistics but he wants the average over all games that each team has played. 
 
 We then have to aggregate the information at all nodes, and not only at the destination nodes. To make our previous abstraction more flexible, let's create the following types:
+
 ```scala
 trait Teams
 case class Winners extends Teams 
@@ -351,6 +362,7 @@ def averageStat(graph: Graph[String, FullResult])(getStat: GameStats => Double, 
 Now, `aggregateStat` allows us to choose whether we want to aggregate the stats for winners only, for losers only or for all teams. Since coach wants the overall stats averaged over all games played, we aggregate the stats by passing the `AllTeams()` flag in `aggregateStat`. In this case, we define the `sendMsg` argument in `aggregateMessages` to send the required stats to both the source (the winner) and to the destination (the loser) using `EdgeContext`'s `sendToSrc` and `sendToDst` functions respectively. This mechanism is pretty straightforward. We just need make sure we send the right information to the right node. In this case, we send the `winnerStats` to the winner and the `loserStats`to the loser. 
 
 Ok, you got the idea now. So, let's apply it to please our coach. Here are the teams with the overall highest three pointers per page: 
+
 ```scala
 // Average Three Point Made Per Game for All Teams 
 val allThreePointMade = averageStat(scoreGraph)(threePointMade, AllTeams())   
@@ -363,6 +375,7 @@ scala> allThreePointMade.sortBy(_._2, false).take(5).foreach(println)
 ```
 
 And here are the five most efficient teams overall in three pointers per Game:
+
 ```scala
 // Average Three Point Percent for All Teams
 val allThreePointPercent = averageStat(scoreGraph)(threePointPercent, AllTeams())
@@ -394,6 +407,7 @@ res39: (org.apache.spark.graphx.VertexId, Double) = (1197,60.5)
 Apparently, the most defensive team can win game by scoring only 60 points whereas the most offensive team can score an average of 90 points. 
 
 Next, let us average the points per game for all games played and look at the two teams with the best and worst offense during the 2015 season:
+
 ```scala
 // Average Points Per Game of All Teams
 val allAvgPPG = averageStat(scoreGraph)(score, AllTeams())
@@ -437,7 +451,9 @@ def averageConcededStat(graph: Graph[String, FullResult])(getStat: GameStats => 
 }
 
 ```
+
 With that, we can calculate the average points conceded by winning and losing teams as follows:
+
 ```scala
 val winnersAvgConcededPoints = averageConcededStat(scoreGraph)(score, Winners())
 val losersAvgConcededPoints = averageConcededStat(scoreGraph)(score, Losers())
@@ -454,6 +470,7 @@ res: (VertexId, (String, Double)) = (1464,(Youngstown St,78.85714285714286))
 scala> winnersAvgConcededPoints.max()(Ordering.by(_._2))
 res: (VertexId, (String, Double)) = (1464,(Youngstown St,71.125))
 ```
+
 The above tells us that Abilene Christian University is the most defensive team. They concede the least points whether they win a game or not. On the other hand, Youngstown has the worst defense. 
 
 
@@ -479,6 +496,7 @@ case class TeamStat(
 ```
 
 Then, we collect the average stats for all teams using `aggregateMessages` below. For that, we define the type of the message to be an 8-element tuple that holds the counter for games played, wins, losses and other statistics that will be stored in `TeamStat` as listed above.
+
 ```scala
 type Msg = (Int, Int, Int, Int, Int, Double, Double, Double)
 
@@ -513,6 +531,7 @@ val aggrStats: VertexRDD[Msg] = scoreGraph.aggregateMessages(
 ```
 
 Given the aggregate message `aggrStats`, we map them into a collection of `TeamStat`
+
 ```scala
 val teamStats: VertexRDD[TeamStat] = aggrStats mapValues {
         (id: VertexId, m: Msg) => m match {
@@ -535,6 +554,7 @@ val teamStats: VertexRDD[TeamStat] = aggrStats mapValues {
 ```
 
 Next, let us join the `teamStats` into the graph. For that, we first create a class `Team` as a new type for the vertex attribute. `Team` will have the name and the `TeamStat`: 
+
 ```scala
 case class Team(name: String, stats: Option[TeamStat]) {
     override def toString = name + ": " + stats
@@ -542,6 +562,7 @@ case class Team(name: String, stats: Option[TeamStat]) {
 ```
 
 Next, we use the `joinVertices` operator that we have seen in the previous chapter:
+
 ```scala
 // Joining the average stats to vertex attributes
 def addTeamStat(id: VertexId, t: Team, stats: TeamStat) = Team(t.name, Some(stats))
@@ -552,6 +573,7 @@ val statsGraph: Graph[Team, FullResult] =
 ```
 
 We can see that the join has worked well by printing the first three vertices in the new graph `statsGraph`:
+
 ```scala
 scala> statsGraph.vertices.take(3).foreach(println)
 (1260,Loyola-Chicago: Some(17-13))
@@ -560,6 +582,7 @@ scala> statsGraph.vertices.take(3).foreach(println)
 ```
 
 To conclude this task, let us find out the top 10 teams in the regular seasons. To do so, we define an `Ordering` for `Option[TeamStat]` as follows:
+
 ```scala
 import scala.math.Ordering 
 object winsOrdering extends Ordering[Option[TeamStat]] {
@@ -574,6 +597,7 @@ object winsOrdering extends Ordering[Option[TeamStat]] {
 ```
 
 Finally!
+
 ```scala
 import scala.reflect.classTag
 import scala.reflect.ClassTag

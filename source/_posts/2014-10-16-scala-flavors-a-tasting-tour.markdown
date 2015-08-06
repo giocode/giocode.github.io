@@ -221,9 +221,9 @@ var lazyBurgerRecipe = new Recipe("Big Mac Burger")
 
 **Class parameters vs. Class fields:** there is an important difference about the scope of class parameters and var/val fields. Class parameters are not publicly visible unless they are defined with the keyword `var` or `val`. In such cases, a getter and/or a setter is generated correspondingly. In contrast, a class field is always defined with one of these keywords. Thus, Scala makes them accessible publicly. Here are some simple rules about the accessibility and visibility of class parameters and fields:
 
-1. ** Class parameters defined *without var/val* keyword: ** can only be read within the class body definition. 
-2. ** Class parameters defined *with val*: ** a getter is created and the parameter _can be read_ by a user of the class, by the object itself or by another instance of the same class. 
-3. ** Class parameters defined *with var*: ** a getter and a setter are generated so the parameter _can be read and also reassigned_ by a user of the class, by the object itself or by another instance of the same class.
+1. **Class parameters defined *without var/val* keyword:** can only be read within the class body definition. 
+2. **Class parameters defined *with val*:** a getter is created and the parameter _can be read_ by a user of the class, by the object itself or by another instance of the same class. 
+3. **Class parameters defined *with var*:** a getter and a setter are generated so the parameter _can be read and also reassigned_ by a user of the class, by the object itself or by another instance of the same class.
 
 **Methods vs Functions** 
 In Scala, methods and functions are defined in the same way using the syntax: 
