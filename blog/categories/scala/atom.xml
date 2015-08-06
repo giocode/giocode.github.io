@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Scala | Giocode labs]]></title>
   <link href="http://giocode.github.io/blog/categories/scala/atom.xml" rel="self"/>
   <link href="http://giocode.github.io/"/>
-  <updated>2015-08-04T19:00:29-07:00</updated>
+  <updated>2015-08-05T18:06:37-07:00</updated>
   <id>http://giocode.github.io/</id>
   <author>
     <name><![CDATA[Rindra Ramamonjison]]></name>
@@ -294,9 +294,9 @@ For example, we specified a default value of 1 for <code>s</code> and a default 
 <p><strong>Class parameters vs. Class fields:</strong> there is an important difference about the scope of class parameters and var/val fields. Class parameters are not publicly visible unless they are defined with the keyword <code>var</code> or <code>val</code>. In such cases, a getter and/or a setter is generated correspondingly. In contrast, a class field is always defined with one of these keywords. Thus, Scala makes them accessible publicly. Here are some simple rules about the accessibility and visibility of class parameters and fields:</p>
 
 <ol>
-  <li>** Class parameters defined <em>without var/val</em> keyword: ** can only be read within the class body definition. </li>
-  <li>** Class parameters defined <em>with val</em>: ** a getter is created and the parameter <em>can be read</em> by a user of the class, by the object itself or by another instance of the same class. </li>
-  <li>** Class parameters defined <em>with var</em>: ** a getter and a setter are generated so the parameter <em>can be read and also reassigned</em> by a user of the class, by the object itself or by another instance of the same class.</li>
+  <li><strong>Class parameters defined <em>without var/val</em> keyword:</strong> can only be read within the class body definition. </li>
+  <li><strong>Class parameters defined <em>with val</em>:</strong> a getter is created and the parameter <em>can be read</em> by a user of the class, by the object itself or by another instance of the same class. </li>
+  <li><strong>Class parameters defined <em>with var</em>:</strong> a getter and a setter are generated so the parameter <em>can be read and also reassigned</em> by a user of the class, by the object itself or by another instance of the same class.</li>
 </ol>
 
 <p><strong>Methods vs Functions</strong> 
