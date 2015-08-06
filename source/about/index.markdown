@@ -17,8 +17,8 @@ My passion is to build software that uses analytics to solve real-world problems
 - investigating new techniques to better train deep learning models,
 - and using Apache Spark for scalable graph processing.
 
-I am proficient in Java/Scala, Python and R and have basic working knowledge of Javascript. I like learning different programming paradigms such as functional, logic and declarative to be able to write better programs. 
+I am proficient in Scala, Java, and R and have basic working knowledge of Python and Javascript. I like learning different programming paradigms such as functional, logic and declarative to be able to write better programs. 
 
-Besides learning the latest technologies, I also love sharing my knowledge to like-minded people. 
+Besides learning the latest technologies, I also love sharing my knowledge to like-minded people. So, happy reading and drop me some comments! 
 
-Happy reading and drop me some comments! You can connect with me on [LinkedIn](https://www.linkedin.com/in/rindranirina) or email me at rindra "AT" ece "DOT" ubc "DOT" ca.
+You can connect with me on [LinkedIn](https://www.linkedin.com/in/rindranirina) or email me at rindra "AT" ece "DOT" ubc "DOT" ca.
