@@ -19,6 +19,6 @@ My passion is to build analytics softwares that solve real-world problems or ans
 
 I am proficient in Scala, Java, and R and have basic working knowledge of Python and Javascript. I like learning different programming paradigms such as functional, logic and declarative to be able to write better programs. 
 
-Besides learning the latest technologies, I also love sharing my knowledge to like-minded people. So, happy reading and drop me some comments! 
+Besides learning the latest technologies, I also love sharing my knowledge and interests to like-minded people on [this blog](http://giocode.github.io/). So, happy reading and drop me some comments! 
 
 You can connect with me on [LinkedIn](https://www.linkedin.com/in/rindranirina) or email me at rindra "AT" ece "DOT" ubc "DOT" ca.
