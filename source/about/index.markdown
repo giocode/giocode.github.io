@@ -11,7 +11,7 @@ My name is Rindra. And I'm delighted to share my interests on software programmi
 
 I am currently wrapping up my PhD program at the [University of British Columbia](https://www.ubc.ca/). My thesis project focused on designing new algorithms to improve the energy efficiency of the next-generation 5G wireless networks. My main tools are optimization, statistics and algorithm design. 
 
-My passion is to build software that uses analytics to solve real-world problems or to answer important business questions. In particular, I believe the future of software will be at the intersection Big Data and [Internet of Everything (IoE)](https://en.wikipedia.org/wiki/Internet_of_Things) applications. Some of [**my projects**](http://giocode.github.io/projects/index.html) involved: 
+My passion is to build analytics softwares that solve real-world problems or answer important business questions. I believe the future of software will belong within the intersection Big Data and [Internet of Everything (IoE)](https://en.wikipedia.org/wiki/Internet_of_Things) applications. In some of [**my projects**](http://giocode.github.io/projects/index.html), I have been involved in: 
 
 - building novel anomaly detection techniques for real-time data,
 - investigating new techniques to better train deep learning models,
