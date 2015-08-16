@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Time Series: Trend Analysis, Smoothing and Anomaly Detection - Giocode labs</title>
+  <meta name="author" content="Rindra Ramamonjison">
+
+  
+  <meta name="description" content="Time Series: Trend Analysis, Smoothing and Anomaly Detection Aug 10th, 2015 7:54 pm Forecasting Forecasting is an important tool for making &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://giocode.github.io/projects/time-series-decomposition.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Giocode labs" type="application/atom+xml">
+  <script src="//use.typekit.net/qja5dag.js"></script>
+  <script>try{Typekit.load();}catch(e){}</script>
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=Lato:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Serif" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=Fjalla+One" rel="stylesheet" type="text/css">
+<!--- MathJax Configuration -->
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Giocode labs</a></h1>
+  
+    <h2>A playground for code, data and models</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+  
+  
+  
+  
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:giocode.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/about">About</a></li>
+  <li><a href="/projects/index.html">Projects</a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">Time Series: Trend Analysis, Smoothing and Anomaly Detection</h1>
+    <p class="meta">
+
+
+
+
+<time class='entry-date' datetime='2015-08-10T19:54:00-07:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:54 pm</span></time></p>
+  </header>
+  
+  <h2 id="forecasting">Forecasting</h2>
+
+<p>Forecasting is an important tool for making effective decisions, planning efficiently and reducing risks. </p>
+
+<p>Forecasting is useful in many situations when uncertain quantity or event must and can be predicted. In other words, we must have data that allows to forecast the quantity or event accurately. Then, we need to build a model that can tell the difference between a random fluctuation and a existing pattern in the data. A good forecasting model should capture such patterns with a minimum out-of-sample error. </p>
+
+<h2 id="time-series-forecasting">Time series forecasting</h2>
+
+<p>Time series forecasting is concerned with only one question. Can we predict future values by looking at past ones? We are not attempting to identify factors that help explain the future. Instead, we want to accurately estimate how the historical data series will continue into the future. Thus, we want to find a functional relationship of the following form: </p>
+
+<script type="math/tex; mode=display">
+Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
+</script>
+
+<p>Such relationship is described by a time series model.</p>
+
+<h3 id="basic-forecasting-steps">Basic forecasting steps</h3>
+
+<p>There are in general four tasks that must be undertaken in forecasting.</p>
+
+<ol>
+  <li><strong>Define the problem.</strong> This is the most difficult task as we need to determine what exactly to forecast, within what time horizon and how frequently. </li>
+  <li><strong>Gather data.</strong> It is primordial to find and collect historical data to construct a model with which we can forecast the future. For time series, this can be anything that are observed sequentially over time. </li>
+  <li><strong>Building and choosing models.</strong> This step involves choosing and fitting several forecasting models. Each model has parameters that must be fitted based on the known historical data. </li>
+  <li><strong>Selecting and using the best model.</strong> We select the model that provides the most accurate predictions on the test data samples, i.e. data that were held out and not used for building the models. With the selected model, we can then predict future values and determine some prediction intervals.</li>
+</ol>
+
+<h3 id="time-series-patterns">Time series patterns</h3>
+
+<p>Before building any forecasting model, it often helps to explore time series data by simply plotting them. This help to understand the behavior of the series data and the patterns that exist in the data. There exist four types of time series data patterns: </p>
+
+<ol>
+  <li>A <strong>stationary <em>horizontal</em> pattern (H)</strong> exists when the data values clearly fluctuate around a constant mean. </li>
+  <li>A <strong><em>seasonal</em> pattern (S)</strong> exists because of the effects of seasonal factors (e.g. beginning of fiscal year, financial reporting quarters, weekends, days of the week, holidays, etc.) Note that such patterns need not to be exactly periodic. </li>
+  <li>A <strong><em>cyclical</em> pattern (C)</strong> is present when the data values show a sequence of rises and falls that are not of a fixed period. Typical examples of a cyclical pattern are business cycles that impact the quantity of sales over a longer period of time. </li>
+  <li>A <strong><em>trend</em> (T)</strong> is a long-term increase or decrease in the data. For instance, stock prices of high-growth companies usually exhibit a strong upward trend over a long period of time. </li>
+</ol>
+
+<p>A time series can have many of these four components at the same time. Sometimes, it is more convenient to combine H, C and T as a cycle-trend pattern that represents long-term changes in the time series. As a result, we will think of time series as a function of three components: the trend, the seasonality and the random error:</p>
+
+<script type="math/tex; mode=display">
+\text{Time Series} = f(\text{Trend-Cycle}, \text{Seasonality}, \text{error})
+</script>
+
+<p>Most forecasting models explicitly assume that the random error is always present and try to minimize this error during model fitting. Depending on the actual time series, the functional relationship above can be additive or multiplicative. For example, we have the following with an additive decomposition model: </p>
+
+<script type="math/tex; mode=display"> 
+\text{Time Series} = \text{Trend-Cycle} + \text{Seasonality} + \text{error}
+</script>
+
+<p>For a multiplicative model, the time series decomposes as follows: </p>
+
+<script type="math/tex; mode=display">
+\text{Time Series} = \text{Trend-Cycle} x \text{Seasonality} x \text{error}
+</script>
+
+<h2 id="time-series-decomposition">Time series decomposition</h2>
+
+<p>In principle, if we want to further analyze the time series, we can use decomposition methods that extract these individual patterns. Decomposition methods are useful for forecasting as the trend-cycle can be used to extrapolate future values. This is the idea of <strong>smoothing techniques</strong>, which <em>smooth</em> the series by eliminating the random fluctuations. Decomposition method is also needed when we want to detect anomalies such as outliers in the time series. We will cover about this topic later. </p>
+
+<h3 id="basic-decomposition-method">Basic decomposition method:</h3>
+
+<p>A simple decomposition method consists of the following steps: </p>
+
+<ol>
+  <li>The trend-cycle is computed using a Moving Average or LOESS method. </li>
+  <li>The de-trended series is computed by removing the trend component from the time series. </li>
+  <li>The seasonality component is extracted averaging the values of the seasonal points over multiple periods (e.g. the values corresponding to same month for a monthly time series data)</li>
+  <li>We obtain the residual errors by subtracting the previously estimated components from the time series.</li>
+</ol>
+
+<p>Next, let’s see these specific techniques in more details. </p>
+
+<h3 id="seasonal-adjustment">Seasonal adjustment</h3>
+
+<p>Often, it is required to adjust time series by eliminating its seasonality component. This is because the seasonal variation may be irrelevant and even lead to false conclusions. For an additive model, the <em>seasonally adjusted series</em> is obtained after removing the seasonal pattern: </p>
+
+<script type="math/tex; mode=display">
+Seasonally Adjusted Series = Time Series - Seasonality = Trend-Cycle + error
+</script>
+
+<h3 id="moving-averages">Moving averages</h3>
+
+<p>The Trend-Cycle component can be estimated by <em>smoothing</em> the seasonally adjusted series. In other words, we reduce the random error fluctuations after removing the seasonality. The easiest way to do this is with a simple <em>moving average</em>. In the following, let’s consider several moving average methods: </p>
+
+<h4 id="simple-moving-averages">Simple moving averages</h4>
+
+<p>Moving average is based on the idea that values that are nearby in time are likely to be close. Hence, taking an average of neighboring points of each data point will give an good estimate of the trend at that point. The average smooths out the randomness in the data. The questions are how many data points to include in each average and which weights to put to different nearby points. </p>
+
+<p>The simplest MA smoother averages an odd number of observations around each data point and put equal weights to them. For instance, a MA smoother of order 3 centered at a time <code>t</code> is: </p>
+
+<script type="math/tex; mode=display">
+T_t = \frac{1}{3} (Y_{t-1} + Y_{t} + Y_{t+1})
+</script>
+
+<p>Then, the estimate at time $t+1$ is obtained by dropping the oldest observation $Y<em>{t-1}$ and by including the next observation $Y</em>{t-2}$. Hence, the term <em>moving average</em> describes this procedure. </p>
+
+<blockquote>
+  <p>The number of points involved in the average, or the order of the MA, affects the smoothness of the estimate. More points lead to a smoother trend. The drawback of MA is that it is impossible to estimate the trend-cycle close to the beginning and end of the series. The higher the order, the more points we miss at the front and back of the series.</p>
+</blockquote>
+
+<h3 id="double-moving-averages">Double moving averages:</h3>
+
+<p>Moving averages can be combined by smoothing an already smoothed series. For example, a 3 x 3 MA is a 3 MA of a 3 MA. When each 3 MA uses equal weights, the result is equivalent to a 5-period weighted moving average with the weigths 0.111, 0.222, 0.333, 0.222 and 0.111.</p>
+
+<h3 id="weighted-moving-averages">Weighted moving averages:</h3>
+
+<p>In general, a weighted MA with order <code>k</code> can be written as: </p>
+
+<script type="math/tex; mode=display">
+T_t = \sum_{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j Y_{t+j}
+</script>
+
+<h3 id="loess-smoothing">LOESS smoothing</h3>
+
+<p>Instead of using MA, we can use a local linear regression technique to determine the trend. Precisely, we can fit a straight line through the observations near each data point. Then, the estimate of the trend at each point is given by each fitted line. For the data point at time $t$, the estimated trend-cycle is given by: </p>
+
+<script type="math/tex; mode=display">
+T_t = a + bt 
+</script>
+
+<p>where the parameters $a$ and $b$ are determined for each point at time $t$ by minimizing the sum of squared error: </p>
+
+<script type="math/tex; mode=display">
+\sum{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j(Y_{t+j} - a - b(t+j))^2
+</script>
+
+<blockquote>
+  <p>Note that the LOESS is more computationally intensive than MA methods since a different value of $a$ and $b$ needs to be computed for every value of $t$. For that, a different line is fitted at each data point using least squares. The number of points used in the local regression should not be too large to avoid underfitting and not too small to produce the desired smoothing. </p>
+</blockquote>
+
+<h3 id="stl-decomposition">STL decomposition</h3>
+
+<p>The STL decomposition method literally stands for “Seasonal-Trend decomposition procedure based on Loess”. It iteratively apply a LOESS smoother to give a decomposition that is robust against outliers. Another benefit of STL is that it has a flexibility to handle seasonality with abritrary length. The seasonality length just needs to be greater than one, which is usually satisfied in most applications. </p>
+
+<p>STL consists of the following two recursive procedures: </p>
+
+<ol>
+  <li><strong>Inner loop.</strong> In each iteration of the inner loop, the seasonal and trend-cycle components are updated once. </li>
+  <li><strong>Outer loop.</strong> An iteration of outer loop consists of one or two iterations of the inner loop. At the end of each outer loop iteration, outliers are detected. Future iterations of the inner loop puts smaller weights to these outliers in the LOESS regression.</li>
+</ol>
+
+<p>More details about the operations performed in these two loops are described below. </p>
+
+<h2 id="further-reading">Further reading:</h2>
+
+<ul>
+  <li>Makridakis, S., S. Wheelwright, R. Hyndman, and Y. Chang. Forecasting Methods and Applications. 3rd ed. New York: John Wiley &amp; Sons, 1998.</li>
+  <li>Cleveland, R.B, Cleveland, W.S, Mcrae, J.E, and Terpenning, I. STL: A Seasonal-Trend decomposition procedure based on loess. Journal of Official Statistics, 6(1):3–73, 1990.</li>
+</ul>
+
+  
+    <footer>
+      <p class="meta">
+        
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-10T19:54:00-07:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:54 pm</span></time>
+        
+      </p>
+      
+        <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://giocode.github.io/projects/time-series-decomposition.html" data-via="" data-counturl="http://giocode.github.io/projects/time-series-decomposition.html" >Tweet</a>
+  
+  
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Rindra Ramamonjison 
+<!--   -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> | Themed with <a href="https://github.com/lucaslew/whitespace">Whitespace</a></span> &#8211;>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = '';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://giocode.github.io/projects/time-series-decomposition.html';
+        var disqus_url = 'http://giocode.github.io/projects/time-series-decomposition.html';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
