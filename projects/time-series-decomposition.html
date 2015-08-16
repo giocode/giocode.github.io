@@ -194,12 +194,13 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
 </span><span class="line"><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Additionally, we need convenience functions for creating lagged version of a time series or for extracting data points that are within a given window of the series:
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;figcaption&gt;<span></span>&lt;/figcaption&gt;&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>Additionally, we need convenience functions for creating lagged version of a time series or for extracting data points that are within a given window of the series:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="nf">lag</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">lag</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
 </span><span class="line"><span class="nf">window</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <h2 id="time-series-decomposition">Time series decomposition</h2>
 
@@ -216,12 +217,13 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
   <li>We obtain the residual errors by subtracting the previously estimated components from the time series.</li>
 </ol>
 
-<p>In Haskell, a decomposition method takes an input time series and return its three components:
-&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;figcaption&gt;<span></span>&lt;/figcaption&gt;&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<p>In Haskell, a decomposition method takes an input time series and return its three components:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
-&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="nf">decompose</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">)</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">decompose</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">)</span>
 </span><span class="line"><span class="nf">decompose</span> <span class="n">timeseries</span> <span class="ow">=</span> <span class="p">(</span><span class="n">trendcycle</span><span class="p">,</span> <span class="n">seasonality</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
-</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Next, let’s see these specific techniques in more details. </p>
 
@@ -242,7 +244,7 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
 </pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">seasonAdjust</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">)</span>
 </span><span class="line"><span class="nf">seasonAdjust</span> <span class="n">ts</span> <span class="ow">=</span> <span class="p">(</span><span class="n">seas</span><span class="p">,</span> <span class="n">adjusted</span><span class="p">)</span>
 </span><span class="line">	<span class="kr">where</span> <span class="n">adjusted</span> <span class="ow">=</span> <span class="n">ts</span> <span class="o">-</span> <span class="n">seas</span>
-</span><span class="line">		  <span class="p">(</span><span class="kr">_</span><span class="p">,</span> <span class="n">seas</span><span class="p">,</span> <span class="kr">_</span><span class="p">)</span> <span class="ow">=</span> <span class="n">decompose</span> <span class="n">ts</span>
+</span><span class="line">      <span class="p">(</span><span class="kr">_</span><span class="p">,</span> <span class="n">seas</span><span class="p">,</span> <span class="kr">_</span><span class="p">)</span> <span class="ow">=</span> <span class="n">decompose</span> <span class="n">ts</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <h3 id="moving-averages">Moving averages</h3>
@@ -264,7 +266,7 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
 T_t = \frac{1}{3} (Y_{t-1} + Y_{t} + Y_{t+1})
 </script>
 
-<p>Then, the estimate at time $t+1$ is obtained by dropping the oldest observation $Y<em>{t-1}$ and by including the next observation $Y</em>{t-2}$. Hence, the term <em>moving average</em> describes this procedure. </p>
+<p>Then, the estimate at time $t+1$ is obtained by dropping the oldest observation <script type="math/tex">Y_{t-1}</script> and by including the next observation <script type="math/tex">Y_{t-2}</script>. Hence, the term <em>moving average</em> describes this procedure. </p>
 
 <blockquote>
   <p>The number of points involved in the average, or the order of the MA, affects the smoothness of the estimate. More points lead to a smoother trend. The drawback of MA is that it is impossible to estimate the trend-cycle close to the beginning and end of the series. The higher the order, the more points we miss at the front and back of the series.</p>
