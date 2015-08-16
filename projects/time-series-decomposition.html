@@ -126,7 +126,7 @@
 
 <p>Forecasting is useful in many situations when uncertain quantity or event must and can be predicted. In other words, we must have data that allows to forecast the quantity or event accurately. Then, we need to build a model that can tell the difference between a random fluctuation and a existing pattern in the data. A good forecasting model should capture such patterns with a minimum out-of-sample error. </p>
 
-<h2 id="time-series-forecasting">Time series forecasting</h2>
+<h3 id="time-series-forecasting">Time series forecasting</h3>
 
 <p>Time series forecasting is concerned with only one question. Can we predict future values by looking at past ones? We are not attempting to identify factors that help explain the future. Instead, we want to accurately estimate how the historical data series will continue into the future. Thus, we want to find a functional relationship of the following form: </p>
 
@@ -176,6 +176,31 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
 \text{Time Series} = \text{Trend-Cycle} \times \text{Seasonality} \times \text{error}
 </script>
 
+<p>In Haskell, we can for instance define a <code>TimeSeries</code> type as follows: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="kr">data</span> <span class="kt">TimeSeries</span> <span class="ow">=</span> <span class="kt">TimeSeries</span> <span class="p">[</span><span class="kt">TimeStamp</span><span class="p">]</span> <span class="p">[</span><span class="kt">Float</span><span class="p">]</span>
+</span><span class="line"><span class="kr">type</span> <span class="kt">TS</span> <span class="ow">=</span> <span class="kt">TimeSeries</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Let’s suppose that we can appropriately define addition, substraction and multiplication over <code>TimeSeries</code>: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Additionally, we need convenience functions for creating lagged version of a time series or for extracting data points that are within a given window of the series:
+&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;figcaption&gt;<span></span>&lt;/figcaption&gt;&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<span class="line-number">2</span>
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="nf">lag</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="nf">window</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">Time</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+
 <h2 id="time-series-decomposition">Time series decomposition</h2>
 
 <p>In principle, if we want to further analyze the time series, we can use decomposition methods that extract these individual patterns. Decomposition methods are useful for forecasting as the trend-cycle can be used to extrapolate future values. This is the idea of <strong>smoothing techniques</strong>, which <em>smooth</em> the series by eliminating the random fluctuations. Decomposition method is also needed when we want to detect anomalies such as outliers in the time series. We will cover about this topic later. </p>
@@ -187,27 +212,51 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
 <ol>
   <li>The trend-cycle is computed using a Moving Average or LOESS method. </li>
   <li>The de-trended series is computed by removing the trend component from the time series. </li>
-  <li>The seasonality component is extracted averaging the values of the seasonal points over multiple periods (e.g. the values corresponding to same month for a monthly time series data)</li>
+  <li>The seasonality component is extracted by averaging the values of the seasonal points over multiple periods (e.g. the values corresponding to same month for a monthly time series data)</li>
   <li>We obtain the residual errors by subtracting the previously estimated components from the time series.</li>
 </ol>
 
+<p>In Haskell, a decomposition method takes an input time series and return its three components:
+&lt;div class=&#8217;bogus-wrapper&#8217;&gt;<notextile><figure class="code">&lt;figcaption&gt;<span></span>&lt;/figcaption&gt;&lt;div class=&#8221;highlight&#8221;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#8221;gutter&#8221;&gt;&lt;pre class=&#8221;line-numbers&#8221;&gt;<span class="line-number">1</span>
+<span class="line-number">2</span>
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#8217;code&#8217;&gt;&lt;pre&gt;<code class="haskell"><span class="line"><span class="nf">decompose</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">)</span>
+</span><span class="line"><span class="nf">decompose</span> <span class="n">timeseries</span> <span class="ow">=</span> <span class="p">(</span><span class="n">trendcycle</span><span class="p">,</span> <span class="n">seasonality</span><span class="p">,</span> <span class="n">residual</span><span class="p">)</span>
+</span></code>&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;</figure></notextile>&lt;/div&gt;</p>
+
 <p>Next, let’s see these specific techniques in more details. </p>
 
-<h3 id="seasonal-adjustment">Seasonal adjustment</h3>
+<h3 id="seasonal-effects-adjustment">Seasonal effects adjustment</h3>
 
-<p>Often, it is required to adjust time series by eliminating its seasonality component. This is because the seasonal variation may be irrelevant and even lead to false conclusions. For an additive model, the <em>seasonally adjusted series</em> is obtained after removing the seasonal pattern: </p>
+<p>We have seen that a decomposition method fully decomposes the series. Sometimes, we may just need to adjust time series to seasonal effects. In that case, we only need to remove its seasonality component. For example, the seasonal variation may be irrelevant and even lead to false conclusions to our analysis objectives. For an additive model, the <em>seasonally adjusted series</em> is obtained after removing the seasonal pattern: </p>
 
 <script type="math/tex; mode=display">
-Seasonally Adjusted Series = Time Series - Seasonality = Trend-Cycle + error
+\text{Seasonally Adjusted Series} = \text{Time Series} - \text{Seasonality} = \text{Trend-Cycle} + \text{error}
 </script>
+
+<p>For that, we can define function that decomposes a time series into its seasonality component and a seasonally adjusted series: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">seasonAdjust</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">TS</span><span class="p">,</span> <span class="kt">TS</span><span class="p">)</span>
+</span><span class="line"><span class="nf">seasonAdjust</span> <span class="n">ts</span> <span class="ow">=</span> <span class="p">(</span><span class="n">seas</span><span class="p">,</span> <span class="n">adjusted</span><span class="p">)</span>
+</span><span class="line">	<span class="kr">where</span> <span class="n">adjusted</span> <span class="ow">=</span> <span class="n">ts</span> <span class="o">-</span> <span class="n">seas</span>
+</span><span class="line">		  <span class="p">(</span><span class="kr">_</span><span class="p">,</span> <span class="n">seas</span><span class="p">,</span> <span class="kr">_</span><span class="p">)</span> <span class="ow">=</span> <span class="n">decompose</span> <span class="n">ts</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <h3 id="moving-averages">Moving averages</h3>
 
-<p>The Trend-Cycle component can be estimated by <em>smoothing</em> the seasonally adjusted series. In other words, we reduce the random error fluctuations after removing the seasonality. The easiest way to do this is with a simple <em>moving average</em>. In the following, let’s consider several moving average methods: </p>
+<p>The Trend-Cycle component can be estimated by <em>smoothing</em> the seasonally adjusted series. In other words, we reduce the random error fluctuations after removing the seasonality. The easiest way to do this is with a simple <em>moving average</em>. In the following, let’s consider several moving average methods. </p>
 
 <h4 id="simple-moving-averages">Simple moving averages</h4>
 
-<p>Moving average is based on the idea that values that are nearby in time are likely to be close. Hence, taking an average of neighboring points of each data point will give an good estimate of the trend at that point. The average smooths out the randomness in the data. The questions are how many data points to include in each average and which weights to put to different nearby points. </p>
+<p>Moving average is based on the idea that values that are nearby in time are likely to be close. Hence, taking an average of neighboring points of each data point will yield a good estimate of the trend at that point. Local averaging smooths out the randomness in the data. There are two design parameters to consider: </p>
+
+<ol>
+  <li>How many data points do we include in each average? </li>
+  <li>How much weight do we put for each neighboring point involved in the average? </li>
+</ol>
 
 <p>The simplest MA smoother averages an odd number of observations around each data point and put equal weights to them. For instance, a MA smoother of order 3 centered at a time <code>t</code> is: </p>
 
