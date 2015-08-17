@@ -78,6 +78,7 @@ Let's suppose that we can appropriately define addition, substraction and multip
 ```
 
 Additionally, we need convenience functions for creating lagged version of a time series or for extracting data points that are within a given window of the series:
+
 ```haskell
 lag :: TS -> Time -> TS 
 window :: TS -> Time -> Time -> TS
@@ -99,6 +100,7 @@ A simple decomposition method consists of the following steps:
 4. We obtain the residual errors by subtracting the previously estimated components from the time series.
 
 In Haskell, a decomposition method takes an input time series and return its three components:
+
 ```haskell
 decompose :: TS -> (TS, TS, TS)
 decompose timeseries = (trendcycle, seasonality, residual)
@@ -121,7 +123,7 @@ For that, we can define function that decomposes a time series into its seasonal
 seasonAdjust :: TS -> (TS, TS)
 seasonAdjust ts = (seas, adjusted)
 	where adjusted = ts - seas
-		  (_, seas, _) = decompose ts
+      (_, seas, _) = decompose ts
 ```
 
 ### Moving averages 
@@ -141,18 +143,41 @@ $$
 T_t = \frac{1}{3} (Y_{t-1} + Y_{t} + Y_{t+1})
 $$
 
-Then, the estimate at time $t+1$ is obtained by dropping the oldest observation $Y_{t-1}$ and by including the next observation $Y_{t-2}$. Hence, the term _moving average_ describes this procedure. 
+Then, the estimate at time $$t+1$$ is obtained by dropping the oldest observation $$Y_{t-1}$$ and by including the next observation $$Y_{t-2}$$. Hence, the term _moving average_ describes this procedure. 
 
 > The number of points involved in the average, or the order of the MA, affects the smoothness of the estimate. More points lead to a smoother trend. The drawback of MA is that it is impossible to estimate the trend-cycle close to the beginning and end of the series. The higher the order, the more points we miss at the front and back of the series.
 
+In summary, the movies averages takes two parameters: the number of points involved in each average and the weights of each point: 
+
+```haskell
+movingAverage :: Int -> [Float] -> TS -> TS 
+movingAverage numPoints weights timeSeries = trend
+	where trend = ... 
+```
+
+
 ### Double moving averages: 
 
-Moving averages can be combined by smoothing an already smoothed series. For example, a 3 x 3 MA is a 3 MA of a 3 MA. When each 3 MA uses equal weights, the result is equivalent to a 5-period weighted moving average with the weigths 0.111, 0.222, 0.333, 0.222 and 0.111.
+Moving averages can be combined by smoothing an already smoothed series. For example, a $$3 \times 3$$ MA is a 3 MA of a 3 MA. When each 3 MA uses equal weights, the result is equivalent to a 5-period weighted moving average with the weigths 0.111, 0.222, 0.333, 0.222 and 0.111.
 
+Thus, the following double moving average
+
+```haskell
+simpleAverage :: TS -> TS
+simpleAverage = movingAverage 3 [0.333, 0.333, 0.333]
+doubleMovingAverage = simpleAverage . simpleAverage 
+```
+
+is equivalent to: 
+
+```haskell
+doubleMovingAverage :: TS -> TS
+doubleMovingAverage = movingAverage 5 [0.111, 0.222, 0.333, 0.222, 0.111]
+```
 
 ### Weighted moving averages: 
 
-In general, a weighted MA with order `k` can be written as: 
+In general, a weighted MA with order $$k$$ can be written as: 
 
 $$
 T_t = \sum_{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j Y_{t+j}
@@ -160,7 +185,7 @@ $$
 
 ### LOESS smoothing 
 
-Instead of using MA, we can use a local linear regression technique to determine the trend. Precisely, we can fit a straight line through the observations near each data point. Then, the estimate of the trend at each point is given by each fitted line. For the data point at time $t$, the estimated trend-cycle is given by: 
+Alternatively, we can use a local linear regression technique to determine the trend of a time series. Precisely, we can fit a straight line through the observations near each data point. Then, the estimate of the trend at each point is given by each fitted line. For the data point at time $$t$$, the estimated trend-cycle $$T$$ is given by: 
 
 $$
 T_t = a + bt 
@@ -172,7 +197,22 @@ $$
 \sum{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j(Y_{t+j} - a - b(t+j))^2
 $$
 
-> Note that the LOESS is more computationally intensive than MA methods since a different value of $a$ and $b$ needs to be computed for every value of $t$. For that, a different line is fitted at each data point using least squares. The number of points used in the local regression should not be too large to avoid underfitting and not too small to produce the desired smoothing. 
+
+Another question is how much weight $$w_j$$ we give to each point. Actually, Cleveland and his colleagues at Bell Labs propose a version of LOESS that is robust against outliers or unusual observations in the data. Their algorithm performs three things in each iteration: 
+
+1. Run a local weighted regression smoothing (_see above_) for given weights 
+2. Compute the error residuals using the fitted curve 
+3. Adjust the weights so that large errors receive smaller weights
+
+A loess function is thus defined as follows: 
+
+```haskell
+loess :: TS -> [Float] -> TS 
+loess series weights = trend 
+	where trend = ... -- run recursive of smoothing and weight adjustment
+```
+
+> Note that the LOESS is more computationally intensive than MA methods since a different value of $a$ and $b$ needs to be computed for every observation at a time $t$. For that, a different line is fitted at each data point using least squares. The number of points used in the local regression should not be too large to avoid underfitting and not too small to produce the desired smoothing. 
 
 ### STL decomposition 
 
@@ -183,7 +223,37 @@ STL consists of the following two recursive procedures:
 1. **Inner loop.** In each iteration of the inner loop, the seasonal and trend-cycle components are updated once. 
 2. **Outer loop.** An iteration of outer loop consists of one or two iterations of the inner loop. At the end of each outer loop iteration, outliers are detected. Future iterations of the inner loop puts smaller weights to these outliers in the LOESS regression.
 
-More details about the operations performed in these two loops are described below. 
+More details about the operations performed in these two loops are described below. Although STL works with arbitrary cycle length, let us simply assume that we have a monthly time series data. This will simplify the explanations.
+
+#### Inner Loop procedure: 
+
+We start the procedure by assuming the trend-cycle component is zero. Then, each iteration of the inner loop does the following two things: 
+
+1. *Seasonal smoothing*: updates the seasonality component 
+2. *Trend-cycle smoothing*: updates the trend-cycle smoothing 
+
+**Seasonal smoothing** 
+
+To obtain the seasonality component, we perform the following tasks in sequence: 
+
+1. De-trend the series by removing the current trend-cycle estimate
+2. Collect the de-trended values for each month. As a result, we will get 12 separate sub-series. 
+3. Smooth each of these sub-series with a LOESS smoother. 
+4. Glue back the sub-series together to obtain a preliminary seasonality component. 
+5. Extrapolate the Loess smoother to estimate the seasonal component for a few months before and after the observed data.
+6. Run a $$3 × 12 × 12$$ moving average on the resulting seasonality component. 
+7. Follow with a LOESS smoothing of length 13 (one more than the seasonal period length). The loss of values at the beginning and end due to the moving average was anticipated and overcome by the extrapolation in **Task 5** above. This step also checks any possible trend component in the seasonality. 
+8. Compute the seasonality component as difference between the results of step 6 and step 7. 
+
+**Trend-cycle smoothing**
+
+Given the seasonality component, get the trend-cycle with two simple steps: 
+
+1. Calculate the seasonally adjusted time series by substracting the seasonality from the original series. 
+2. Smooth the adjusted time series with LOESS. 
+
+#### Outer Loop: 
+
 
 ## Further reading: 
 
