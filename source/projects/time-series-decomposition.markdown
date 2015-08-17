@@ -216,7 +216,8 @@ loess series weights = trend
 
 ### STL decomposition 
 
-The STL decomposition method literally stands for "Seasonal-Trend decomposition procedure based on Loess". It iteratively apply a LOESS smoother to give a decomposition that is robust against outliers. Another benefit of STL is that it has a flexibility to handle seasonality with abritrary length. The seasonality length just needs to be greater than one, which is usually satisfied in most applications. 
+The STL decomposition method literally stands for "Seasonal-Trend decomposition procedure based on Loess". It iteratively apply a LOESS smoother to give a decomposition that is robust against outliers. Another benefit of STL is that it has a flexibility to handle seasonality with abritrary length. The seasonality length just needs to be greater than one, which is usually satisfied in most applications. STL is flexible as it can handle trends of varying smoothness, missing values and seasonality of period other than quartlerly and monthly. 
+
 
 STL consists of the following two recursive procedures: 
 
@@ -254,8 +255,33 @@ Given the seasonality component, get the trend-cycle with two simple steps:
 
 #### Outer Loop: 
 
+The outer loop consists of the following steps: 
+
+1. Run one or two inner loop iterations to get the trend-cycle and seasonality.
+2. Calculate the error residuals by subtracting the trend-cycle and seasonality from the time series. 
+3. Identify the observations with unusually large residual values. These could be outliers! 
+4. Adjust the weights used for LOESS by downweighting the outliers. 
+
+Note that in the STL procedure, all future inner iterations of inner loop begin with the trend component from the previous iteration rather than starter from zero as in the very first iteration of the inner loop. 
+
+
+### STL-based Anomaly detection in time series 
+
+Proposed by Vallis and his colleagues at Twitter, STL decomposition can be used to detect outliers in long-term time series data with seasonality and trend-cycle. Their proposed method is piece-wise in the sense that a long-term time series is broken down into multiple windows of time series. 
+
+For each window, the following **median-based outlier detection** method is performed: 
+
+1. Extract the seasonality component $$S$$ using STL decomposition. 
+2. Compute the median $$\tilde{Y}$$
+3. Compute the residual $$R = Y - S - \tilde{Y}$$
+4. Run a standard outlier detection on the residuals (e.g. using median absolute deviation)
+
+## Summary 
+
+We have presented an overview of time series analysis and forecasting. Time series can be decomposed into three components: a trend-cycle, a seasonality and the error residual. To extract the trend-cycle, we can employe moving average and LOESS techniques. The seasonality component can be obtained from the de-trended series using the STL decomposition procedure, which is flexible and robust against outliers. The STL decomposition method is also a key ingredient for detecting anomalies and outliers in time series data. 
 
 ## Further reading: 
 
 - Makridakis, S., S. Wheelwright, R. Hyndman, and Y. Chang. Forecasting Methods and Applications. 3rd ed. New York: John Wiley & Sons, 1998.
 - Cleveland, R.B, Cleveland, W.S, Mcrae, J.E, and Terpenning, I. STL: A Seasonal-Trend decomposition procedure based on loess. Journal of Official Statistics, 6(1):3–73, 1990.
+- Vallis, O., Hochenbaum, J. and Kejariwal, A., (2014) “A Novel Technique for Long-Term Anomaly Detection in the Cloud”, 6th USENIX Workshop on Hot Topics in Cloud Computing, Philadelphia, PA.
