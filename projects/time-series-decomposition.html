@@ -266,19 +266,47 @@ Y_{t+1} = f(Y_t, Y_{t-1}, Y_{t-2}, ... , Y_{t-n}, \text{error})
 T_t = \frac{1}{3} (Y_{t-1} + Y_{t} + Y_{t+1})
 </script>
 
-<p>Then, the estimate at time $t+1$ is obtained by dropping the oldest observation <script type="math/tex">Y_{t-1}</script> and by including the next observation <script type="math/tex">Y_{t-2}</script>. Hence, the term <em>moving average</em> describes this procedure. </p>
+<p>Then, the estimate at time <script type="math/tex">t+1</script> is obtained by dropping the oldest observation <script type="math/tex">Y_{t-1}</script> and by including the next observation <script type="math/tex">Y_{t-2}</script>. Hence, the term <em>moving average</em> describes this procedure. </p>
 
 <blockquote>
   <p>The number of points involved in the average, or the order of the MA, affects the smoothness of the estimate. More points lead to a smoother trend. The drawback of MA is that it is impossible to estimate the trend-cycle close to the beginning and end of the series. The higher the order, the more points we miss at the front and back of the series.</p>
 </blockquote>
 
+<p>In summary, the movies averages takes two parameters: the number of points involved in each average and the weights of each point: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">movingAverage</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Float</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="nf">movingAverage</span> <span class="n">numPoints</span> <span class="n">weights</span> <span class="n">timeSeries</span> <span class="ow">=</span> <span class="n">trend</span>
+</span><span class="line">	<span class="kr">where</span> <span class="n">trend</span> <span class="ow">=</span> <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
 <h3 id="double-moving-averages">Double moving averages:</h3>
 
-<p>Moving averages can be combined by smoothing an already smoothed series. For example, a 3 x 3 MA is a 3 MA of a 3 MA. When each 3 MA uses equal weights, the result is equivalent to a 5-period weighted moving average with the weigths 0.111, 0.222, 0.333, 0.222 and 0.111.</p>
+<p>Moving averages can be combined by smoothing an already smoothed series. For example, a <script type="math/tex">3 \times 3</script> MA is a 3 MA of a 3 MA. When each 3 MA uses equal weights, the result is equivalent to a 5-period weighted moving average with the weigths 0.111, 0.222, 0.333, 0.222 and 0.111.</p>
+
+<p>Thus, the following double moving average</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">simpleAverage</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="nf">simpleAverage</span> <span class="ow">=</span> <span class="n">movingAverage</span> <span class="mi">3</span> <span class="p">[</span><span class="mf">0.333</span><span class="p">,</span> <span class="mf">0.333</span><span class="p">,</span> <span class="mf">0.333</span><span class="p">]</span>
+</span><span class="line"><span class="nf">doubleMovingAverage</span> <span class="ow">=</span> <span class="n">simpleAverage</span> <span class="o">.</span> <span class="n">simpleAverage</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>is equivalent to: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">doubleMovingAverage</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="nf">doubleMovingAverage</span> <span class="ow">=</span> <span class="n">movingAverage</span> <span class="mi">5</span> <span class="p">[</span><span class="mf">0.111</span><span class="p">,</span> <span class="mf">0.222</span><span class="p">,</span> <span class="mf">0.333</span><span class="p">,</span> <span class="mf">0.222</span><span class="p">,</span> <span class="mf">0.111</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <h3 id="weighted-moving-averages">Weighted moving averages:</h3>
 
-<p>In general, a weighted MA with order <code>k</code> can be written as: </p>
+<p>In general, a weighted MA with order <script type="math/tex">k</script> can be written as: </p>
 
 <script type="math/tex; mode=display">
 T_t = \sum_{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j Y_{t+j}
@@ -286,7 +314,7 @@ T_t = \sum_{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j Y_{t+j}
 
 <h3 id="loess-smoothing">LOESS smoothing</h3>
 
-<p>Instead of using MA, we can use a local linear regression technique to determine the trend. Precisely, we can fit a straight line through the observations near each data point. Then, the estimate of the trend at each point is given by each fitted line. For the data point at time $t$, the estimated trend-cycle is given by: </p>
+<p>Alternatively, we can use a local linear regression technique to determine the trend of a time series. Precisely, we can fit a straight line through the observations near each data point. Then, the estimate of the trend at each point is given by each fitted line. For the data point at time <script type="math/tex">t</script>, the estimated trend-cycle <script type="math/tex">T</script> is given by: </p>
 
 <script type="math/tex; mode=display">
 T_t = a + bt 
@@ -298,8 +326,26 @@ T_t = a + bt
 \sum{j=-\frac{k-1}{2}}^{\frac{k-1}{2}} w_j(Y_{t+j} - a - b(t+j))^2
 </script>
 
+<p>Another question is how much weight <script type="math/tex">w_j</script> we give to each point. Actually, Cleveland and his colleagues at Bell Labs propose a version of LOESS that is robust against outliers or unusual observations in the data. Their algorithm performs three things in each iteration: </p>
+
+<ol>
+  <li>Run a local weighted regression smoothing (<em>see above</em>) for given weights </li>
+  <li>Compute the error residuals using the fitted curve </li>
+  <li>Adjust the weights so that large errors receive smaller weights</li>
+</ol>
+
+<p>A loess function is thus defined as follows: </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="haskell"><span class="line"><span class="nf">loess</span> <span class="ow">::</span> <span class="kt">TS</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="kt">Float</span><span class="p">]</span> <span class="ow">-&gt;</span> <span class="kt">TS</span>
+</span><span class="line"><span class="nf">loess</span> <span class="n">series</span> <span class="n">weights</span> <span class="ow">=</span> <span class="n">trend</span>
+</span><span class="line">	<span class="kr">where</span> <span class="n">trend</span> <span class="ow">=</span> <span class="o">...</span> <span class="c1">-- run recursive of smoothing and weight adjustment</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
 <blockquote>
-  <p>Note that the LOESS is more computationally intensive than MA methods since a different value of $a$ and $b$ needs to be computed for every value of $t$. For that, a different line is fitted at each data point using least squares. The number of points used in the local regression should not be too large to avoid underfitting and not too small to produce the desired smoothing. </p>
+  <p>Note that the LOESS is more computationally intensive than MA methods since a different value of $a$ and $b$ needs to be computed for every observation at a time $t$. For that, a different line is fitted at each data point using least squares. The number of points used in the local regression should not be too large to avoid underfitting and not too small to produce the desired smoothing. </p>
 </blockquote>
 
 <h3 id="stl-decomposition">STL decomposition</h3>
@@ -313,7 +359,42 @@ T_t = a + bt
   <li><strong>Outer loop.</strong> An iteration of outer loop consists of one or two iterations of the inner loop. At the end of each outer loop iteration, outliers are detected. Future iterations of the inner loop puts smaller weights to these outliers in the LOESS regression.</li>
 </ol>
 
-<p>More details about the operations performed in these two loops are described below. </p>
+<p>More details about the operations performed in these two loops are described below. Although STL works with arbitrary cycle length, let us simply assume that we have a monthly time series data. This will simplify the explanations.</p>
+
+<h4 id="inner-loop-procedure">Inner Loop procedure:</h4>
+
+<p>We start the procedure by assuming the trend-cycle component is zero. Then, each iteration of the inner loop does the following two things: </p>
+
+<ol>
+  <li><em>Seasonal smoothing</em>: updates the seasonality component </li>
+  <li><em>Trend-cycle smoothing</em>: updates the trend-cycle smoothing </li>
+</ol>
+
+<p><strong>Seasonal smoothing</strong> </p>
+
+<p>To obtain the seasonality component, we perform the following tasks in sequence: </p>
+
+<ol>
+  <li>De-trend the series by removing the current trend-cycle estimate</li>
+  <li>Collect the de-trended values for each month. As a result, we will get 12 separate sub-series. </li>
+  <li>Smooth each of these sub-series with a LOESS smoother. </li>
+  <li>Glue back the sub-series together to obtain a preliminary seasonality component. </li>
+  <li>Extrapolate the Loess smoother to estimate the seasonal component for a few months before and after the observed data.</li>
+  <li>Run a <script type="math/tex">3 × 12 × 12</script> moving average on the resulting seasonality component. </li>
+  <li>Follow with a LOESS smoothing of length 13 (one more than the seasonal period length). The loss of values at the beginning and end due to the moving average was anticipated and overcome by the extrapolation in <strong>Task 5</strong> above. This step also checks any possible trend component in the seasonality. </li>
+  <li>Compute the seasonality component as difference between the results of step 6 and step 7. </li>
+</ol>
+
+<p><strong>Trend-cycle smoothing</strong></p>
+
+<p>Given the seasonality component, get the trend-cycle with two simple steps: </p>
+
+<ol>
+  <li>Calculate the seasonally adjusted time series by substracting the seasonality from the original series. </li>
+  <li>Smooth the adjusted time series with LOESS. </li>
+</ol>
+
+<h4 id="outer-loop">Outer Loop:</h4>
 
 <h2 id="further-reading">Further reading:</h2>
 
