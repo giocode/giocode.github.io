@@ -1,0 +1,2 @@
+Slick is a modern database query and access library for Scala. It allows us to work with a database almost as if we were handling Scala collections. In addition, we can have full control over when a database access happens and which data is transferred. In addition to this functional relational mapping, we can use plain SQL in Slick as well. This tutorial will get you started with a simple standalone Scala application that uses Slick.
+
